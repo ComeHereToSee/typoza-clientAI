@@ -277,3 +277,28 @@ test('⌥⌘J 仍然跳转到所选内容;⌘J 打开 AI 侧栏', async ({ page 
   await expect(page.locator('.tz-ai-panel')).toBeVisible()
   expect(await scroll.evaluate((el) => el.scrollTop)).toBeGreaterThan(before - 50)
 })
+
+test('大文档分段载入中收到改文档:载完才预览,应用后全文还在', async ({ page }) => {
+  test.setTimeout(120_000)
+  const total = 20000
+  const big = `${Array.from({ length: total }, (_, i) => `段落 ${i + 1}`).join('\n\n')}\n`
+  await page.evaluate((md) => {
+    const t = window.typozaTest!
+    t.host.files.set('/demo/大文档-AI.md', { kind: 'file', data: md, mtime: Date.now() })
+    void t.app.openFile('/demo/大文档-AI.md', { replace: true })
+  }, big)
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.loading)).toBe(true)
+  await openAiPanel(page)
+  await queueReply(page, [{ edit: { kind: 'insert', text: '\n\n文末新增。' } }, { text: '好了。' }])
+  await ask(page, '在文末加一句')
+  // 载完之前不出预览(正文不全时算出的差异会把后半篇当成删除)
+  const bar = page.locator('.tz-ai-diff-bar')
+  if (await page.evaluate(() => window.typozaTest!.app.loading)) await expect(bar).toHaveCount(0)
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.loading), { timeout: 90_000 }).toBe(false)
+  await expect(bar).toBeVisible({ timeout: 10_000 })
+  await bar.locator('button[name=applyEdit]').click()
+  await expect(lastAnswer(page)).toHaveAttribute('data-status', 'done')
+  const md = await markdown(page)
+  expect(md).toContain(`段落 ${total}`)
+  expect(md.trimEnd().endsWith('文末新增。')).toBe(true)
+})

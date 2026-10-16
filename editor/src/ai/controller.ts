@@ -29,8 +29,10 @@ export interface AiAppDeps {
   documentPath(): string | null
   /** 侧栏打开的文件夹(「当前文件夹」连接器、@ 引用文档) */
   rootFolder(): string | null
-  /** 文档只读时「插入」类按钮置灰 */
+  /** 文档只读时「插入」类按钮置灰(大文档分段载入期间也算只读) */
   readOnly(): boolean
+  /** 大文档还在分段载入(正文不全):改文档的预览等载完再算 */
+  loading(): boolean
   /** 源码模式下先切回所见即所得(AI 的插入、替换、预览都作用在编辑器视图上) */
   ensureRichMode(): void
   /** 当前文件夹里可引用的文档(@ 引用) */

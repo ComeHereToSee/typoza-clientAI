@@ -95,6 +95,19 @@ export class DocEditPreview {
       this.changed(item)
       return
     }
+    if (deps.loading()) {
+      // 大文档还在分段载入,正文不全:等载完再算差异,否则会按半篇文档改写
+      item.note = '文档还在载入,载完后显示修改预览'
+      this.changed(item)
+      setTimeout(() => {
+        if (item.state === 'queued') this.preview(item)
+      }, 200)
+      return
+    }
+    if (deps.readOnly()) {
+      void this.resolve(item, 'failed', 'deny', '修改失败:当前文档只读,不能修改', '当前文档只读,不能修改')
+      return
+    }
     deps.ensureRichMode()
     const view = deps.view()
     let text: string

@@ -146,7 +146,9 @@ export class App {
       documentTitle: () => this.session.title,
       documentPath: () => this.session.path,
       rootFolder: () => this.sidebar?.rootFolder ?? null,
-      readOnly: () => this.session.readOnly !== null,
+      // 分段载入期间正文不全,AI 的插入 / 替换一律不做(与编辑器载入期只读一致)
+      readOnly: () => this.session.readOnly !== null || this.loading,
+      loading: () => this.loading,
       ensureRichMode: () => {
         if (this.source) this.toggleSourceMode(false)
       },
