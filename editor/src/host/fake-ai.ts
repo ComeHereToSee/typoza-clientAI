@@ -262,8 +262,10 @@ export function createFakeAi(): FakeAi {
         if (policy === 'ask') {
           msg.status = 'waiting'
           emitPart(part)
+          // 先登记等待再推事件(与辅助进程一致):网页可能在收到事件的同一刻就回决定
+          const wait = waitDecision(part.callId, run)
           emit({ type: 'tool.request', ...base, callId: part.callId, tool: info, input: part.input })
-          const d = await waitDecision(part.callId, run)
+          const d = await wait
           if (!d) return finish('stopped')
           msg.status = 'streaming'
           if (d.decision === 'always') settings.toolPolicies[step.tool] = 'allow'
@@ -289,8 +291,10 @@ export function createFakeAi(): FakeAi {
         msg.parts.push(part)
         msg.status = 'waiting'
         emitPart(part)
+        // 原文找不到时网页在收到事件的同一刻就回「拒绝」,所以先登记等待
+        const wait = waitDecision(part.callId, run)
         emit({ type: 'doc.edit', ...base, callId: part.callId, edit: step.edit })
-        const d = await waitDecision(part.callId, run)
+        const d = await wait
         if (!d) return finish('stopped')
         msg.status = 'streaming'
         part.status = d.decision === 'deny' ? 'denied' : 'done'

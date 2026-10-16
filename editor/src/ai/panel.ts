@@ -295,7 +295,7 @@ export class AiPanel {
           renderMarkdown(part.text, md, this.ai.deps.parseOptions(), !busy)
           body.append(md)
         } else if (part.type === 'tool_call') {
-          body.append(this.toolCard(conv, msg, part))
+          body.append(this.toolCard(msg, part))
         } else {
           body.append(h('div', { class: 'tz-ai-skill' }, `用到技能:${part.name}`))
         }
@@ -348,7 +348,7 @@ export class AiPanel {
     return bar
   }
 
-  private toolCard(conv: Conversation, msg: Message, part: ToolCallPart): HTMLElement {
+  private toolCard(msg: Message, part: ToolCallPart): HTMLElement {
     const info = this.ai.store.tools.get(part.tool)
     const label = info ? { title: info.title || info.name, source: info.source } : toolLabel(part.tool)
     const card = h('div', { class: 'tz-ai-tool', 'data-call-id': part.callId, 'data-status': part.status, 'data-tool': part.tool })
