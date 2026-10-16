@@ -22,7 +22,8 @@ const fileText = (page: Page, path: string) =>
     return typeof e.data === 'string' ? e.data : new TextDecoder().decode(e.data)
   }, path)
 
-test('E-16 ⌘J 跳转到所选内容:滚回光标所在处', async ({ page }) => {
+// AI 版里 ⌘J 打开 AI 对话,跳转到所选内容改为 ⌥⌘J(docs/prd/ai-prd.md)
+test('E-16 ⌥⌘J 跳转到所选内容:滚回光标所在处', async ({ page }) => {
   const mod = await modKey(page)
   const md = `${Array.from({ length: 120 }, (_, i) => `第 ${i + 1} 段`).join('\n\n')}\n`
   // loadDoc 把光标放在文末
@@ -38,7 +39,7 @@ test('E-16 ⌘J 跳转到所选内容:滚回光标所在处', async ({ page }) =
     document.querySelector('.tz-scroll')!.scrollTop = 0
   })
   await expect.poll(caretInView).toBe(false)
-  await page.keyboard.press(`${mod}+j`)
+  await page.keyboard.press(`Alt+${mod}+j`)
   await expect.poll(caretInView).toBe(true)
   expect(await markdown(page)).toBe(md)
 })
