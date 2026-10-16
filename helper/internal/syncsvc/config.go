@@ -41,7 +41,7 @@ type config struct {
 
 func loadConfig(path string) (config, error) {
 	var c config
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- 辅助进程数据目录下固定的配置文件
 	if errors.Is(err, fs.ErrNotExist) {
 		return c, nil
 	}

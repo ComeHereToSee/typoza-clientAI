@@ -788,7 +788,7 @@ func (s *Service) userContent(m Message) string {
 
 // readTextFile 读文本文件,超过 limit 字节时截断。
 func readTextFile(path string, limit int64) (string, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 -- 用户在对话里引用、或连接器文件夹里的本机文档
 	if err != nil {
 		return "", fmt.Errorf("打不开 %s:%v", filepath.Base(path), err)
 	}

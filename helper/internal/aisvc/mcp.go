@@ -620,7 +620,7 @@ func stdioTransport(c *mcpConn, secrets map[string]string) (mcp.Transport, error
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.Command(cmdPath, c.cfg.Args...)
+	cmd := exec.Command(cmdPath, c.cfg.Args...) // #nosec G204 -- 用户在设置里配置的 MCP 本机命令,按设计以用户权限运行(设置页已明示)
 	env := make([]string, 0, len(os.Environ())+len(c.cfg.Env)+1)
 	for _, kv := range os.Environ() {
 		if !strings.HasPrefix(kv, "PATH=") {

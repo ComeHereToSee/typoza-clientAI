@@ -46,7 +46,7 @@ func (cs *convStore) get(id string) (*convEntry, error) {
 	if e := cs.entries[id]; e != nil {
 		return e, nil
 	}
-	b, err := os.ReadFile(cs.path(id))
+	b, err := os.ReadFile(cs.path(id)) // #nosec G304 -- AI 数据目录里的对话文件,id 已用 validID 校验
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, errf(codeNotFound, "没有这个对话")
 	}

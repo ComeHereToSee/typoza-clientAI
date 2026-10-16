@@ -331,7 +331,7 @@ func searchDocuments(root, query string) (string, error) {
 		if err != nil || info.Size() > maxSearchBytes {
 			return true
 		}
-		b, err := os.ReadFile(path)
+		b, err := os.ReadFile(path) // #nosec G304 -- 「当前文件夹」连接器只在该文件夹内遍历文档
 		if err != nil {
 			return true
 		}

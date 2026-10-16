@@ -70,7 +70,7 @@ func scanSkillDir(dir, source string) []Skill {
 // wantName 是技能应有的名字(规范要求与目录名一致)。
 func parseSkill(dir, wantName, source string) (Skill, string) {
 	sk := Skill{Name: wantName, Path: dir, Source: source, HasScripts: hasScripts(dir)}
-	b, err := os.ReadFile(filepath.Join(dir, skillFile))
+	b, err := os.ReadFile(filepath.Join(dir, skillFile)) // #nosec G304 -- 技能目录里固定文件名的 SKILL.md
 	if err != nil {
 		sk.Error = "缺少 SKILL.md"
 		if !errors.Is(err, fs.ErrNotExist) {
@@ -472,7 +472,7 @@ func (s *Service) skillsInstall(_ context.Context, p skillPathParams) (any, erro
 	if err != nil {
 		return nil, errf(codeNotFound, "找不到 %s", p.Path)
 	}
-	if err := os.MkdirAll(s.opts.SkillsDir, 0o755); err != nil {
+	if err := os.MkdirAll(s.opts.SkillsDir, 0o755); err != nil { // #nosec G301 -- 用户的技能文件夹,与 Finder 新建的权限一致
 		return nil, errf(codeInternal, "创建技能目录失败:%v", err)
 	}
 	// 先在技能目录里的临时目录备好,确认合规后再改名换上,中途失败不留半个技能
@@ -527,7 +527,7 @@ func (s *Service) skillsInstall(_ context.Context, p skillPathParams) (any, erro
 }
 
 func readFileString(path string) string {
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- 技能文件夹里的说明文件
 	if err != nil {
 		return ""
 	}
@@ -573,7 +573,7 @@ func copyTree(src, dst string) error {
 			if path != src && d.Name() == ".git" {
 				return filepath.SkipDir
 			}
-			return os.MkdirAll(target, 0o755)
+			return os.MkdirAll(target, 0o755) // #nosec G301 -- 安装技能时复制出的普通文件夹
 		}
 		if !d.Type().IsRegular() {
 			return nil
@@ -592,7 +592,7 @@ func copyTree(src, dst string) error {
 }
 
 func copyFile(src, dst string, perm fs.FileMode) error {
-	in, err := os.Open(src)
+	in, err := os.Open(src) // #nosec G304 -- 安装技能:读用户选中的技能文件夹里的文件
 	if err != nil {
 		return errf(codeInternal, "读取 %s 失败:%v", src, err)
 	}
@@ -602,10 +602,10 @@ func copyFile(src, dst string, perm fs.FileMode) error {
 
 // writeStream 把 r 写到 dst;limit ≥ 0 时最多写这么多字节,超了算错。
 func writeStream(r io.Reader, dst string, perm fs.FileMode, limit int64) error {
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil { // #nosec G301 -- 技能文件夹里的普通子文件夹
 		return errf(codeInternal, "创建目录失败:%v", err)
 	}
-	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm|0o600)
+	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm|0o600) // #nosec G304 G302 -- 写进技能文件夹,沿用源文件权限(至少本人可读写)
 	if err != nil {
 		return errf(codeInternal, "写 %s 失败:%v", dst, err)
 	}
@@ -641,11 +641,11 @@ func unzip(zipPath, dst string) error {
 		if filepath.IsAbs(name) || name == ".." || strings.HasPrefix(filepath.Clean(name), ".."+string(filepath.Separator)) {
 			return errf(codeInvalid, "ZIP 里有不安全的路径:%s", f.Name)
 		}
-		target := filepath.Join(dst, name)
+		target := filepath.Join(dst, name) // #nosec G305 -- 上面已拒绝绝对路径与 .. 开头的路径
 		mode := f.Mode()
 		switch {
 		case mode.IsDir():
-			if err := os.MkdirAll(target, 0o755); err != nil {
+			if err := os.MkdirAll(target, 0o755); err != nil { // #nosec G301 -- 解压出的技能子文件夹
 				return errf(codeInternal, "解压失败:%v", err)
 			}
 			continue

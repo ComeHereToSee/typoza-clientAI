@@ -45,7 +45,7 @@ func defaultSettings() Settings {
 // 文件损坏时改名留底、改用缺省值并记日志:AI 设置坏了不该拖垮同一进程里的云同步。
 func loadSettings(path string, log *slog.Logger) Settings {
 	st := defaultSettings()
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- AI 数据目录下固定的设置文件
 	if errors.Is(err, fs.ErrNotExist) {
 		return st
 	}
