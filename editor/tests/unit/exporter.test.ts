@@ -17,7 +17,8 @@ function editorDom(): HTMLElement {
 <div class="tz-math-block"><div class="tz-math-preview"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\\begin{equation}x^2\\end{equation}</annotation></semantics></math></span><span class="katex-html">x2</span></span></div><pre class="tz-math-source">x^2</pre></div>
 <p>公式 <span class="tz-math-inline"><span class="katex"><span class="katex-mathml"><math><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html">y</span></span></span></p>
 <h2>小节</h2>
-<h2>小节</h2>`
+<h2>小节</h2>
+<div class="tz-html-block"><div class="tz-html-preview"><div data-tz-class="note box" data-tz-id="anchor-1">HTML 块</div></div><pre class="tz-html-source">&lt;div class="note box" id="anchor-1"&gt;HTML 块&lt;/div&gt;</pre></div>`
   return el
 }
 
@@ -92,5 +93,14 @@ describe('buildExportHtml', () => {
     expect(headingSlug('Hello, World!', used)).toBe('hello-world')
     expect(headingSlug('Hello, World!', used)).toBe('hello-world-1')
     expect(headingSlug('配置 · 说明', used)).toBe('配置-说明')
+  })
+})
+
+describe('HTML 块的 class、id(对照表 X-44)', () => {
+  it('预览里去掉,导出时还原', () => {
+    const html = buildExportHtml(editorDom(), { ...base, withStyles: false })
+    expect(html).toContain('<div class="note box" id="anchor-1">HTML 块</div>')
+    expect(html).not.toContain('data-tz-class')
+    expect(html).not.toContain('data-tz-id')
   })
 })

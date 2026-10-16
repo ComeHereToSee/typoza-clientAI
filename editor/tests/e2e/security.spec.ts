@@ -54,3 +54,12 @@ test('HTML 预览去掉 class、id(防借应用样式仿冒界面),源码保留'
   expect(await div.evaluate((el) => [el.getAttribute('class'), el.getAttribute('id')])).toEqual([null, null])
   expect(await page.evaluate(() => window.typozaTest!.markdown())).toContain('class="tz-modal" id="fake"')
 })
+
+test('HTML 块里的相对链接按文档链接打开,不把编辑器页面换掉', async ({ page }) => {
+  await page.evaluate(() => window.typozaTest!.host.files.set('/notes/other.md', { kind: 'file', data: '# 另一篇\n', mtime: Date.now() }))
+  await loadDoc(page, '<p><a href="other.md">去另一篇</a></p>\n', '/notes/a.md')
+  const before = page.url()
+  await page.locator('.tz-html-preview a', { hasText: '去另一篇' }).click()
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.session.path)).toBe('/notes/other.md')
+  expect(page.url()).toBe(before)
+})

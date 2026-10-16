@@ -6,6 +6,7 @@ import type { EditorView, NodeView } from 'prosemirror-view'
 import { collectHeadings } from '../core/blocks'
 import { insertBlock, setToggleOpen } from '../core/commands'
 import { type EditorEnv, frameSandbox, openImageLightbox, resourceUrl } from '../core/env'
+import { openHref } from '../core/links'
 import { schema } from '../core/schema'
 import { ICONS, h, svgIcon } from '../ui/dom'
 
@@ -162,23 +163,41 @@ export function showStyleAndMetaAsSource(html: string): string {
   for (const el of Array.from(template.content.querySelectorAll('style, meta'))) {
     const code = document.createElement('code')
     code.className = 'tz-html-raw'
+    // 净化会去掉 class(见 sanitizeHtml),靠这个标记补回
+    code.setAttribute('data-tz-raw', '')
     code.textContent = el.outerHTML
     el.replaceWith(code)
   }
   return template.innerHTML
 }
 
+/** class、id 在预览里不生效(对照表 X-44);原值暂存到 data-tz-class / data-tz-id,导出时还原(app/exporter.ts)。 */
+function stashClassAndId(html: string): string {
+  if (!/\s(?:class|id)\s*=/i.test(html)) return html
+  const template = document.createElement('template')
+  template.innerHTML = html
+  for (const el of Array.from(template.content.querySelectorAll('[class], [id]'))) {
+    if (el.hasAttribute('data-tz-raw')) continue
+    const cls = el.getAttribute('class')
+    const id = el.getAttribute('id')
+    if (cls !== null) el.setAttribute('data-tz-class', cls)
+    if (id !== null) el.setAttribute('data-tz-id', id)
+  }
+  return template.innerHTML
+}
+
 /** 净化并改写资源地址:本机图片、视频走 typoza://local/。 */
 export function sanitizeHtml(html: string, env: EditorEnv): DocumentFragment {
-  const fragment = DOMPurify.sanitize(showStyleAndMetaAsSource(html), {
+  const fragment = DOMPurify.sanitize(stashClassAndId(showStyleAndMetaAsSource(html)), {
     RETURN_DOM_FRAGMENT: true,
     ADD_TAGS: ['iframe', 'video', 'audio', 'source', 'details', 'summary', 'kbd'],
     ADD_ATTR: ['allowfullscreen', 'frameborder', 'controls', 'loop', 'muted', 'playsinline', 'target', 'align'],
     FORBID_TAGS: ['script', 'style', 'object', 'embed', 'form'],
-    // class、id 只在预览里去掉(源码与导出保留,对照表 X-44):文档里的 class 会套上应用自己的样式,
-    // 比如全屏遮罩类,能盖住界面仿冒对话框
+    // class、id 只在预览里去掉(源码保留,导出时由 data-tz-class / data-tz-id 还原,对照表 X-44):
+    // 文档里的 class 会套上应用自己的样式,比如全屏遮罩类,能盖住界面仿冒对话框
     FORBID_ATTR: ['class', 'id'],
   })
+  for (const el of Array.from(fragment.querySelectorAll('[data-tz-raw]'))) el.classList.add('tz-html-raw')
   for (const el of Array.from(fragment.querySelectorAll<HTMLElement>('img[src], video[src], audio[src], source[src], iframe[src]'))) {
     const src = el.getAttribute('src') ?? ''
     el.setAttribute('data-tz-src', src)
@@ -219,9 +238,14 @@ export class HtmlBlockView implements NodeView {
       this.view.focus()
       this.view.dispatch(this.view.state.tr.setSelection(TextSelection.create(this.view.state.doc, pos + 1)))
     })
-    // ⌘+点击链接是展开源码,不跳转
+    // ⌘+点击链接是展开源码,不跳转;普通点击按文档链接打开(对照表 X-45「点在链接上照常交互」)。
+    // 不能交给页面自己跳:相对地址会把编辑器页面换成 typoza://app/<地址>
     this.preview.addEventListener('click', (e) => {
-      if (e.metaKey && (e.target as HTMLElement).closest('a')) e.preventDefault()
+      const a = (e.target as HTMLElement).closest('a')
+      if (!a) return
+      e.preventDefault()
+      const href = a.getAttribute('href')
+      if (!e.metaKey && href) openHref(this.view, this.env, href)
     })
     this.render()
   }

@@ -632,8 +632,21 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             return
         }
         let isMainFrame = action.targetFrame?.isMainFrame ?? true
-        if url.scheme == TypozaSchemeHandler.scheme || !isMainFrame || url.scheme == "about" || url.scheme == "blob" {
+        if !isMainFrame || url.scheme == "about" || url.scheme == "blob" {
             decisionHandler(.allow)
+            return
+        }
+        if url.scheme == TypozaSchemeHandler.scheme {
+            // 主框架只加载编辑器本身:文档里的相对链接(落到 typoza://app/…)、本机网页都不许把编辑器页面换掉,
+            // 否则未保存的内容会丢,本机网页也不该占用编辑器窗口
+            if url.host == "app", ["", "/", "/index.html"].contains(url.path) {
+                decisionHandler(.allow)
+                return
+            }
+            decisionHandler(.cancel)
+            if url.host == "local", FileService.isTextDocument(url.path) || FileService.isTextBundle(url.path) {
+                app.open(path: url.path, isDir: false, newWindow: true, tabOf: window)
+            }
             return
         }
         decisionHandler(.cancel)

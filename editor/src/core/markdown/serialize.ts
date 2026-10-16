@@ -231,10 +231,16 @@ const handlers: Record<string, Handle> = {
   link(node: Link, parent, state, info) {
     // GFM 裸链接(原文就是一个网址)编辑后仍写成裸网址,而不是 <网址>;链接文字被改过就按普通链接写
     const only = node.children.length === 1 ? node.children[0] : null
-    if (node.data?.tzAutolink && only?.type === 'text') {
+    const siblings = (parent?.children ?? []) as PhrasingContent[]
+    const next = siblings[siblings.indexOf(node) + 1]
+    // 紧跟着会被转义的字符(\& \< 等)时,转义用的反斜杠会被并进裸网址、改变链接范围,只能写成 [文字](网址)
+    const safeAfter = !(next?.type === 'text' && /^[&<\\*_~[\]]/.test(next.value))
+    if (node.data?.tzAutolink && only?.type === 'text' && safeAfter) {
       if (only.value === node.url) return node.url
       // GFM 裸邮箱:链接地址是 mailto:xxx,文字是 xxx
       if (node.url === `mailto:${only.value}`) return only.value
+      // GFM 的 www. 裸网址:地址是 http:// 加原文
+      if (/^www\./i.test(only.value) && node.url === `http://${only.value}`) return only.value
     }
     return defaultHandlers.link(node, parent, state, info)
   },
