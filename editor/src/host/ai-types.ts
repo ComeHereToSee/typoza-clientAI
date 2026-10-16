@@ -176,7 +176,7 @@ export interface McpStatus {
   state: 'connected' | 'connecting' | 'failed' | 'disabled'
   error?: string
   tools: ToolInfo[]
-  prompts: { name: string; description?: string }[]
+  prompts: { name: string; description?: string; arguments?: { name: string; description?: string; required?: boolean }[] }[]
   resources: { uri: string; name: string }[]
   log: string[]
 }

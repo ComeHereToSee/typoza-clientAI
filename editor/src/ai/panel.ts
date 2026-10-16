@@ -640,10 +640,21 @@ export class AiPanel {
           icon: '⌁',
           group: 'MCP 提示词',
           run: () =>
-            void ai
-              .call<{ text: string }>('ai.mcp.prompt', { serverId: s.serverId, name: p.name })
-              .then((r) => fill(r.text))
-              .catch((err: unknown) => ai.deps.toast(`读取提示词失败:${errorText(err)}`, true)),
+            void (async () => {
+              // 提示词带参数时逐个询问;取消任何一个就不取
+              const args: Record<string, string> = {}
+              for (const a of p.arguments ?? []) {
+                const v = await promptInput({
+                  title: `${p.name}:${a.description || a.name}`,
+                  placeholder: a.name,
+                  validate: (x) => (a.required && !x ? `${a.name} 必填` : null),
+                })
+                if (v === null) return
+                if (v) args[a.name] = v
+              }
+              const r = await ai.call<{ text: string }>('ai.mcp.prompt', { serverId: s.serverId, name: p.name, args })
+              fill(r.text)
+            })().catch((err: unknown) => ai.deps.toast(`读取提示词失败:${errorText(err)}`, true)),
         })
       }
     }

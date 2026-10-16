@@ -133,9 +133,14 @@ test('MCP 服务器与连接器:状态、工具权限、JSON 导入', async ({ p
   await page.locator('input[name=connectorWeb]').check()
   await expect.poll(() => page.evaluate(() => window.typozaTest!.host.ai.settings.connectors.web)).toBe(true)
 
-  await page.locator('textarea[name=mcpJson]').fill('{"mcpServers": {"files": {"command": "npx", "args": ["-y", "server-files"]}, "remote": {"url": "https://example.com/mcp"}}}')
+  await page.locator('textarea[name=mcpJson]').fill(
+    '{"mcpServers": {"files": {"command": "npx", "args": ["-y", "server-files"], "env": {"API_KEY": "sk-x", "LOG_LEVEL": "debug"}}, "remote": {"url": "https://example.com/mcp"}}}',
+  )
   await page.locator('button[name=importMcp]').click()
-  await expect(page.locator('.tz-toast')).toHaveText('已导入:files、remote')
+  // 像密钥的变量只导入名字、值置空,提示用户重填
+  await expect(page.locator('.tz-toast')).toHaveText('已导入:files、remote。files 的 API_KEY 像是密钥,没有导入值,请在下方重新填写')
+  const files = await page.evaluate(() => window.typozaTest!.host.ai.settings.mcpServers.find((m) => m.name === 'files'))
+  expect(files?.env).toEqual({ API_KEY: '', LOG_LEVEL: 'debug' })
   await expect(page.locator('.tz-ai-mcp')).toHaveCount(3)
   // 按导入顺序排在最后的是远程服务器
   await expect(page.locator('.tz-ai-mcp').last().locator('input[name=serverName]')).toHaveValue('remote')

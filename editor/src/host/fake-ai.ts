@@ -179,7 +179,10 @@ export function createFakeAi(): FakeAi {
         serverId: server.id,
         state: 'connected',
         tools: [{ name: 'mcp__demo__search', title: '搜索资料', description: '在演示资料里搜索', source: server.name, inputSchema: { type: 'object', properties: { query: { type: 'string' } } } }],
-        prompts: [{ name: 'summarize', description: '总结要点' }],
+        prompts: [
+          { name: 'summarize', description: '总结要点' },
+          { name: 'translate', description: '翻译', arguments: [{ name: 'language', description: '目标语言', required: true }] },
+        ],
         resources: [{ uri: 'demo://readme', name: '演示说明' }],
         log: ['[demo-mcp] listening on stdio'],
       }
@@ -474,22 +477,34 @@ export function createFakeAi(): FakeAi {
       const servers = (data as { mcpServers?: Record<string, Record<string, unknown>> } | null)?.mcpServers
       if (!servers || typeof servers !== 'object') return fail('invalid', '找不到 mcpServers')
       const added: string[] = []
+      // 与辅助进程一致:像密钥的环境变量 / 请求头只留名字、值置空
+      const blank = (m: unknown) =>
+        m && typeof m === 'object'
+          ? Object.fromEntries(Object.entries(m as Record<string, unknown>).map(([k, v]) => [k, /key|token|secret|passw|auth|credential|cookie|session/i.test(k) ? '' : String(v)]))
+          : undefined
       for (const [name, cfg] of Object.entries(servers)) {
         const http = typeof cfg.url === 'string'
+        const id = fakeId()
         settings.mcpServers.push({
-          id: fakeId(),
+          id,
           name,
           enabled: true,
           transport: http ? 'http' : 'stdio',
           command: http ? undefined : String(cfg.command ?? ''),
           args: Array.isArray(cfg.args) ? cfg.args.map(String) : [],
+          env: http ? undefined : blank(cfg.env),
           url: http ? String(cfg.url) : undefined,
+          headers: http ? blank(cfg.headers) : undefined,
         })
-        added.push(name)
+        added.push(id)
       }
       return { added }
     },
-    'ai.mcp.prompt': (p) => ({ text: `请用三句话总结要点。(来自 ${str(p, 'serverId')} 的提示词 ${str(p, 'name')})` }),
+    'ai.mcp.prompt': (p) => {
+      const args = (p.args ?? {}) as Record<string, string>
+      if (str(p, 'name') === 'translate') return { text: `请翻译为${args.language ?? '?'}。(来自 ${str(p, 'serverId')} 的提示词 translate)` }
+      return { text: `请用三句话总结要点。(来自 ${str(p, 'serverId')} 的提示词 ${str(p, 'name')})` }
+    },
     'ai.mcp.resource': (p) => ({ text: `演示资源 ${str(p, 'uri')} 的内容` }),
     'ai.tools.list': () => ({
       tools: [

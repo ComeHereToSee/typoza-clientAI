@@ -624,9 +624,20 @@ function mcpPage(ai: AiController): HTMLElement {
     const importJson = button('importMcp', '导入', async () => {
       try {
         const r = await ai.call<{ added: string[] }>('ai.mcp.import', { json: json.value })
-        ai.deps.toast(r.added.length ? `已导入:${r.added.join('、')}` : '没有可导入的服务器')
         const next = await ai.refreshSettings()
         if (next) ctx.settings = next
+        // added 是新服务器的 ID;像密钥的环境变量 / 请求头导入时值被置空,要用户重填(ai-architecture 3.6 第 9 条)
+        const added = ctx.settings.mcpServers.filter((m) => r.added.includes(m.id))
+        const blanks = added.flatMap((m) =>
+          Object.entries({ ...m.env, ...m.headers })
+            .filter(([, v]) => v === '')
+            .map(([k]) => `${m.name} 的 ${k}`),
+        )
+        ai.deps.toast(
+          added.length
+            ? `已导入:${added.map((m) => m.name).join('、')}${blanks.length ? `。${blanks.join('、')} 像是密钥,没有导入值,请在下方重新填写` : ''}`
+            : '没有可导入的服务器',
+        )
         statuses = new Map((await ai.call<{ servers: McpStatus[] }>('ai.mcp.status')).servers.map((x): [string, McpStatus] => [x.serverId, x]))
         ctx.rerender()
       } catch (err) {
