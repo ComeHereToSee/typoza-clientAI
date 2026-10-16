@@ -1,5 +1,7 @@
 # Typoza 客户端 · 需求与实现差距审计
 
+> **已过时**:这是 2026-10-16 差距补齐之前的快照,其中的差距已按四路补丁(1b9d24d、7cabf30、bb71623、1249e20)落实,现状以 `docs/prd/typora-parity.md` 为准。
+
 > 审计日期 2026-10-16 · 只读审计(未改任何代码、未构建、未运行测试)
 >
 > 需求口径:`docs/prd/typoza-prd.md`、`docs/prd/notion-input.md`、`docs/prd/typora-parity.md`。

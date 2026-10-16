@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 只执行应用自带的脚本:文档内容即使绕过净化,内联脚本、事件属性与外部脚本也不会在编辑器页面执行(编辑器页面能经原生桥读写本机文件)。
+         图片、音视频、嵌入框照常可来自网络与本机(typoza:);样式允许内联(编辑器内核与主题要用)。 -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; style-src 'self' 'unsafe-inline' https: typoza:; img-src 'self' https: http: data: blob: typoza:; media-src 'self' https: http: data: blob: typoza:; font-src 'self' data: https: typoza:; frame-src https: http: data: blob: typoza:; connect-src 'self' https: http: ws: wss: data: blob: typoza:; worker-src 'self' blob:"
+    />
     <title>Typoza</title>
   </head>
   <body>

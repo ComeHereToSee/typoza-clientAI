@@ -87,8 +87,8 @@
   transform: rotate(45deg);
 }
 .tz-task-content { flex: 1; min-width: 0; }
-/* 段落包在 .tz-task-content 里,「li > p 无外边距」够不着;不补上的话文字比复选框低 2px 外边距 */
-.tz-editor .tz-task-content > p { margin: 0; }
+/* 段落包在 .tz-task-content 里,「li > p 无外边距」够不着:首段去掉上外边距,与复选框对齐;多段待办的段间距照旧 */
+.tz-editor .tz-task-content > p:first-child { margin-top: 0; }
 .tz-task[data-checked='true'] > .tz-task-content > p:first-child { color: var(--tz-text-faint); text-decoration: line-through; }
 
 /* 折叠块 */

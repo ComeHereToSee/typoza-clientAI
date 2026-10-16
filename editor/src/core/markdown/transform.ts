@@ -1,7 +1,7 @@
 // mdast 后处理:从标准节点里识别 Typoza 扩展结构。
 // 原则:识别不了的一律保持原样(落成 html_block / html_inline),保证打开再保存不丢内容。
 import type { Blockquote, Html, Nodes, Paragraph, Parent, PhrasingContent, Root, RootContent, Text } from 'mdast'
-import type { MediaKind } from '../schema'
+import { type MediaKind, isPdfSource } from '../schema'
 import { closeTagName, openTagName, parseInlineStyle, parseSingleElement } from './html'
 import type { TzCallout, TzHtmlImage, TzInlineMark, TzMedia, TzToc, TzToggle } from './mdast-types'
 
@@ -106,7 +106,7 @@ function mediaFromElement(el: Element, html: string): TzMedia | null {
   if (tag === 'IFRAME') {
     const src = el.getAttribute('src')
     if (!src) return null
-    return make(/\.pdf(?:$|[?#])/i.test(src) ? 'pdf' : 'embed', src, el.getAttribute('title') ?? '')
+    return make(isPdfSource(src) ? 'pdf' : 'embed', src, el.getAttribute('title') ?? '')
   }
   if (tag === 'A') {
     const type = el.getAttribute('data-tz-type')

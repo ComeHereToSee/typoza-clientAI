@@ -5,7 +5,7 @@
 ## 检索方法
 
 - 检索三跳:本路由页 → 分区子索引 → 具体文件。
-- 关键词检索:`python3 localClaude/kb-tool.py find <关键词>...`;`subindex <目录>` 增量刷新子索引;`audit` 体检(每轮收尾跑一次)。
+- 关键词检索(本机维护脚本,不入库):`python3 localClaude/kb-tool.py find <关键词>...`;`subindex <目录>` 增量刷新子索引;`audit` 体检(每轮收尾跑一次)。
 
 ## 分区路由
 

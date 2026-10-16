@@ -48,9 +48,10 @@ public final class TypozaSchemeHandler: NSObject, WKURLSchemeHandler {
         }
         let rangeHeader = urlSchemeTask.request.value(forHTTPHeaderField: "Range")
         let taskID = ObjectIdentifier(urlSchemeTask)
+        let isLocal = url.host == "local"
         queue.async { [weak self] in
             guard let self else { return }
-            let result = Self.read(fileURL: fileURL, rangeHeader: rangeHeader)
+            let result = Self.read(fileURL: fileURL, rangeHeader: rangeHeader, isLocal: isLocal)
             DispatchQueue.main.async {
                 guard !self.stopped.contains(taskID) else {
                     self.stopped.remove(taskID)
@@ -80,15 +81,29 @@ public final class TypozaSchemeHandler: NSObject, WKURLSchemeHandler {
         task.didFinish()
     }
 
-    static func read(fileURL: URL, rangeHeader: String?) -> Result<(Int, [String: String], Data), Error> {
+    /// 本机文件的安全响应头。typoza://local 下所有文件同源:文档里嵌入的本地网页(或伪装成别的类型的网页)
+    /// 若带着这个源运行脚本,就能读走本机任意文件(PRD 3.5「嵌入内容隔离运行、读不到本地文件」)。
+    /// 所以网页类文件一律放进沙箱(无 allow-same-origin,脚本跑在不透明源里),并禁止按内容猜类型。
+    public static func localHeaders(mime: String) -> [String: String] {
+        var headers = ["X-Content-Type-Options": "nosniff"]
+        let type = mime.split(separator: ";").first.map { $0.trimmingCharacters(in: .whitespaces).lowercased() } ?? ""
+        if type.contains("html") || type.contains("xml") {
+            headers["Content-Security-Policy"] = "sandbox allow-scripts allow-popups allow-forms allow-presentation"
+        }
+        return headers
+    }
+
+    static func read(fileURL: URL, rangeHeader: String?, isLocal: Bool = false) -> Result<(Int, [String: String], Data), Error> {
         do {
             let attrs = try FileManager.default.attributesOfItem(atPath: fileURL.path)
             let size = (attrs[.size] as? NSNumber)?.int64Value ?? 0
+            let mime = MimeType.forExtension(fileURL.pathExtension)
             var headers = [
-                "Content-Type": MimeType.forExtension(fileURL.pathExtension),
+                "Content-Type": mime,
                 "Accept-Ranges": "bytes",
                 "Cache-Control": "no-cache",
             ]
+            if isLocal { headers.merge(localHeaders(mime: mime)) { _, new in new } }
             switch ByteRange.parse(rangeHeader, size: size, maxChunk: maxChunk) {
             case .full:
                 let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)

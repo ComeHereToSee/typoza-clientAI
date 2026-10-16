@@ -1,11 +1,10 @@
 // 启动:有原生桥接(macOS 外壳)用原生宿主;否则(浏览器开发、E2E)用内存宿主加载示例文件夹。
 import './styles/index.css'
 import { App } from './app/app'
-import { DEMO_DOC, DEMO_ROOT, seedDemo } from './demo'
-import { type MemoryHost, createMemoryHost } from './host/memory'
+import type { MemoryHost } from './host/memory'
 import { createNativeHost, hasNativeBridge } from './host/native'
 import { parseMarkdown } from './core/markdown/parse'
-import { type SmokeResult, runSmoke } from './smoke'
+import type { SmokeResult } from './smoke'
 
 declare global {
   interface Window {
@@ -30,6 +29,8 @@ async function boot(): Promise<void> {
     await app.init()
     bootTimings.appInitMs = Math.round(performance.now())
   } else {
+    // 内存宿主、模拟同步与示例文档只在浏览器里用(开发、E2E),按需加载,不进应用启动时的主包
+    const [{ createMemoryHost }, { DEMO_DOC, DEMO_ROOT, seedDemo }] = await Promise.all([import('./host/memory'), import('./demo')])
     const host = createMemoryHost()
     seedDemo(host)
     const params = new URLSearchParams(location.search)
@@ -50,7 +51,8 @@ async function boot(): Promise<void> {
       parse: parseMarkdown,
     }
   }
-  window.typoza = { smoke: () => runSmoke(app, bootTimings), markdown: () => app.markdown(), prepareClose: (reason) => app.confirmLeave(reason === 'quit' ? 'quit' : 'close') }
+  // 冒烟自检只在 CI 与本机验证时调用,按需加载
+  window.typoza = { smoke: async () => (await import('./smoke')).runSmoke(app, bootTimings), markdown: () => app.markdown(), prepareClose: (reason) => app.confirmLeave(reason === 'quit' ? 'quit' : 'close') }
   document.documentElement.dataset.ready = 'true'
   void window.webkit?.messageHandlers?.typoza?.postMessage({ method: 'app.ready', params: {} })
 }

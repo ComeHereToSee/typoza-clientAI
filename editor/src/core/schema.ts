@@ -3,6 +3,14 @@
 import { type DOMOutputSpec, type MarkSpec, type NodeSpec, Schema } from 'prosemirror-model'
 import { tableNodes } from 'prosemirror-tables'
 
+/**
+ * 地址是否指向 PDF:只看路径,不看 ? 与 # 之后。`x.html#.pdf` 不算——PDF 框不加沙箱(要用系统的 PDF 显示),
+ * 若按整串判断,本地网页就能借它绕开嵌入沙箱。
+ */
+export function isPdfSource(src: string): boolean {
+  return /\.pdf$/i.test(src.replace(/[?#][\s\S]*$/, ''))
+}
+
 export type CalloutKind = 'note' | 'tip' | 'important' | 'warning' | 'caution'
 export const CALLOUT_KINDS: CalloutKind[] = ['note', 'tip', 'important', 'warning', 'caution']
 
@@ -236,7 +244,7 @@ const nodes: Record<string, NodeSpec> = {
         tag: 'iframe[src]',
         getAttrs: (dom) => {
           const src = dom.getAttribute('src') ?? ''
-          return { kind: /\.pdf(?:$|[?#])/i.test(src) ? 'pdf' : 'embed', src, width: dom.getAttribute('width'), height: dom.getAttribute('height') }
+          return { kind: isPdfSource(src) ? 'pdf' : 'embed', src, width: dom.getAttribute('width'), height: dom.getAttribute('height') }
         },
       },
       {

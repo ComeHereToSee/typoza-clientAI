@@ -4,7 +4,8 @@
 
 ## 从哪里取数
 - 真应用:macOS CI 的冒烟(`ci/smoke-macos.sh` → `ci/macos` 分支 `smoke/smoke.json`),在 WKWebView 里打开 5MB 文档、连续输入、保存。
-- 规模曲线:`perf` 工作流(推到 `perf` 分支触发,`editor/scripts/perf-profile.mjs`),Chromium 与 Playwright WebKit 各跑 64KB~5MB 档位,报告在 `ci/perf` 分支 `perf/perf.md`。
+- 规模曲线:`perf` 工作流(推到 `perf` 分支触发,`editor/scripts/perf-profile.mjs`),Chromium 跑 256KB~5MB、Playwright WebKit 跑 64KB~5MB(07f508b 那次 WebKit 只测到 512KB:预览服务的子进程占着日志管道,剖析步骤挂到超时,6d39720 已修),报告在 `ci/perf` 分支 `perf/perf.md`。另有启动剖析(到编辑器就绪的 CPU 剖析与按模块的脚本覆盖率,201f81e 起)。
+- 本机实机冒烟只作参考:窗口被遮挡或用户在操作时,WebKit 会节流定时器与 requestAnimationFrame(2026-10-16 本机 4 次 5MB 首屏从 286 毫秒到 93 秒不等),数字以 CI 为准。
 
 ## 基线(2026-10-16,dev 07f508b)
 

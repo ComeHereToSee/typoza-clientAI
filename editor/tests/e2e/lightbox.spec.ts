@@ -100,3 +100,73 @@ test.describe('图片灯箱', () => {
     await expect(page.locator('.tz-lb-status')).toHaveText('图片无法加载')
   })
 })
+
+// 验收补测(A4):放大后拖动平移;⌘ / ⌃ + 滚轮缩放。实现在 ui/lightbox.ts bindPointer:
+// 舞台上 pointerdown / pointermove / pointerup 平移(移动不足 3px 不算拖动,拖过不关灯箱);
+// wheel 带 metaKey 或 ctrlKey 时以光标为中心缩放(触控板捏合在 WebKit 里是带 ctrlKey 的滚轮),不带时平移。
+test.describe('图片灯箱:拖动平移与滚轮缩放', () => {
+  test.beforeEach(async ({ page }) => {
+    await openApp(page)
+    await page.locator('.tz-editor > p .tz-image').first().dblclick()
+    await expect(page.locator('.tz-lightbox')).toBeVisible()
+    // 图片载入后才按窗口适配并写出缩放比例;载入前按键缩放会被载入时的适配覆盖
+    await expect(page.locator('.tz-lb-zoom')).toHaveText(/^\d+%$/)
+  })
+
+  test('放大后按住拖动平移图片,松手后灯箱仍开着', async ({ page }) => {
+    const box = page.locator('.tz-lightbox')
+    const zoom = page.locator('.tz-lb-zoom')
+    // 图片 transform 里第二个 translate 是平移量(第一个 translate(-50%, -50%) 用于居中)
+    const offset = () =>
+      page.locator('.tz-lb-img').evaluate((el: HTMLImageElement) => {
+        const m = /translate\((-?[\d.]+)px(?:,\s*(-?[\d.]+)px)?\)/.exec(el.style.transform)
+        return m ? [Number(m[1]), Number(m[2] ?? 0)] : null
+      })
+    await page.keyboard.press('+')
+    await expect(box).toHaveClass(/is-zoomed/)
+    expect(await offset()).toEqual([0, 0])
+    const zoomed = (await zoom.textContent()) ?? ''
+
+    const size = page.viewportSize()
+    if (!size) throw new Error('取不到视口大小')
+    // 舞台铺满窗口,放大后的图片盖住窗口中心
+    const x = size.width / 2
+    const y = size.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + 80, y + 40, { steps: 8 })
+    await page.mouse.up()
+    await expect.poll(offset).toEqual([80, 40])
+    await expect(box).toBeVisible()
+    await expect(box).not.toHaveClass(/is-dragging/)
+    // 平移不改缩放比例
+    await expect(zoom).toHaveText(zoomed)
+  })
+
+  test('⌘ / ⌃ + 滚轮缩放图片,页面本身的缩放不变', async ({ page }) => {
+    const percent = async () => Number.parseInt((await page.locator('.tz-lb-zoom').textContent()) ?? '', 10)
+    const pageZoom = () => page.evaluate(() => document.documentElement.style.getPropertyValue('--tz-zoom'))
+    const pageZoomBefore = await pageZoom()
+    const fitted = await percent()
+    const size = page.viewportSize()
+    if (!size) throw new Error('取不到视口大小')
+    await page.mouse.move(size.width / 2, size.height / 2)
+
+    // ⌘ + 滚轮向上:放大
+    await page.keyboard.down('Meta')
+    await page.mouse.wheel(0, -400)
+    await page.keyboard.up('Meta')
+    await expect.poll(percent).toBeGreaterThan(fitted)
+    const zoomed = await percent()
+
+    // ⌃ + 滚轮向下(触控板捏合):缩小
+    await page.keyboard.down('Control')
+    await page.mouse.wheel(0, 100)
+    await page.keyboard.up('Control')
+    await expect.poll(percent).toBeLessThan(zoomed)
+
+    await expect(page.locator('.tz-lightbox')).toBeVisible()
+    // 灯箱开着时整页缩放不处理滚轮(app/appearance.ts bindZoomGestures)
+    expect(await pageZoom()).toBe(pageZoomBefore)
+  })
+})

@@ -45,7 +45,7 @@ flowchart LR
      ─ serialize.ts:没改过的顶层块原样写回原文(连同块间空行);改过的块 → mdast → mdast-util-to-markdown(自定义处理器)
 ```
 
-- **不改语义、尽量不改字节**:原文切片挂在 `WeakMap<PMNode, BlockSource>` 上,节点对象不变就写回原文。所以打开 → 保存逐字节不变(CI 用 CommonMark 652 例 + Typora 语料做语义往返,冒烟测试做字节往返)。
+- **不改语义、尽量不改字节**:原文切片挂在 `WeakMap<PMNode, BlockSource>` 上,节点对象不变就写回原文。所以打开 → 保存逐字节不变(CI 单测做语义往返:CommonMark 规范 652 例(#173 跳过,原因见 `tests/unit/markdown.test.ts`)、GFM 扩展章节与脚注示例 26 例、Typora 语料;冒烟测试做字节往返)。
 - **新内容优先标准 Markdown**:提示块存 GitHub `> [!TIP]`,折叠块存 `<details>`,颜色存 `<span style>`,书签存 `<a data-tz-type="bookmark">`,表情存 Unicode 字符。
 - **Typora 兼容**:`typora-root-url`、`typora-copy-images-to`、`<img style="zoom:50%">`、`[TOC]`、`:smile:` 短码(装饰显示、原文保留)、编辑器根节点 `id="write"`(Typora 主题选择器)。
 - **序列化细节**:段落 / 标题末尾空格直接去掉(Markdown 本就忽略,避免写出 `&#x20;`);相邻同类列表换用不同标记符避免被合并。
@@ -77,7 +77,8 @@ flowchart LR
 
 - 契约:`editor/src/host/types.ts` 的 `Host` 接口;方法名即桥接消息的 `method`(`fs.readText`、`dialog.open`…),外壳 `DocumentWindowController.handle` 按名分发。浏览器开发与 E2E 用内存宿主 `host/memory.ts`(含模拟云同步 `host/fake-sync.ts`,方法与错误码对齐辅助进程)。
 - 资源:编辑器从 `typoza://app/` 加载(ES module 在 `file://` 下不可靠);本机文件走 `typoza://local/<绝对路径>`,支持 HTTP Range(视频拖动进度)。
-- **来源校验**:WKWebView 的消息处理器对所有框架可见,文档里嵌入的网页也能调用;外壳只接受主框架且来源为 `typoza://app` 的调用(`BridgeOrigin`)。HTML 块经 DOMPurify 净化(去掉 script / style / object / embed / form),iframe 一律加沙箱。
+- **来源校验**:WKWebView 的消息处理器对所有框架可见,文档里嵌入的网页也能调用;外壳只接受主框架且来源为 `typoza://app` 的调用(`BridgeOrigin`)。HTML 块经 DOMPurify 净化(去掉 script / style / object / embed / form,预览去掉 class / id),iframe 加沙箱:只有远程网页给同源,本地网页与相对地址不给。PDF 框不加沙箱(要用系统的 PDF 显示),只按路径判断 `.pdf`(`x.html#.pdf` 不算)。
+- **本机文件隔离**:`typoza://local` 下所有文件同源,带着它跑脚本就能读走本机任意文件。外壳对其中的网页类文件(html / xhtml / svg / xml)加 `Content-Security-Policy: sandbox` 响应头(不透明源),所有本机文件 `nosniff`;资源地址只认 http(s) / data / blob / file / typoza。编辑器页面自身有 CSP,只执行应用自带脚本;文档里的 HTML 片段一律在 `<template>` 或 DOMParser 里解析(游离 div 里的 `<img onerror>` 会执行)。
 - 导航:主框架只允许 `typoza://`;点到本机 Markdown 在 Typoza 打开,其余网址交给系统浏览器。
 
 ## 5. 云同步客户端
@@ -125,7 +126,7 @@ flowchart LR
 | macos(macOS 15) | `swift test`、组装通用二进制 Typoza.app(内嵌辅助进程、图标、ad-hoc 签名)、冒烟自检、打 DMG | `Typoza.dmg` |
 | perf(Ubuntu,独立工作流) | 推 `perf` 分支触发:大文档分阶段剖析(Chromium 采样 + WebKit 计时) | `perf/perf.md` |
 
-- 每个任务把步骤日志与产物强推到 `ci/<任务名>` 孤儿分支,本机 `localClaude/ci.sh` 拉取查看(仓库私有、无 API 令牌)。
+- 每个任务把步骤日志与产物强推到 `ci/<任务名>` 孤儿分支,本机 `git fetch origin '+refs/heads/ci/*:refs/remotes/origin/ci/*'` 后用 `git show origin/ci/<任务名>:<文件>` 查看(仓库私有、无 API 令牌)。
 - 冒烟自检:以 `--smoke-out` 启动打包好的应用,写入截图场景文档 → 打开 → 双击表格里的图片 → 确认灯箱与图片加载 → 字节往返 → 经外壳调辅助进程取同步状态 → 截图并写 `smoke.json`。
 
 ## 7. 已知限制

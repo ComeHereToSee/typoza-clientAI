@@ -94,6 +94,14 @@ jobs:
       - name: test
         if: ${{ !cancelled() }}
         run: ../ci/step.sh test go test -race -count=1 ./...
+      - name: govulncheck
+        if: ${{ !cancelled() }}
+        run: ../ci/step.sh govulncheck go run golang.org/x/vuln/cmd/govulncheck@latest -show verbose ./...
+      - name: gosec
+        if: ${{ !cancelled() }}
+        env:
+          GOTOOLCHAIN: go1.26.9 # gosec v2.29.0 依赖的 x/tools v0.49.0 读不了 Go 1.27 导出数据(与后端一致)
+        run: ../ci/step.sh gosec go run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 -exclude-generated -severity medium ./...
       - name: cross build
         id: cross
         if: ${{ !cancelled() }}

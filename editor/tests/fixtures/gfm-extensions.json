@@ -1,0 +1,132 @@
+[
+ {
+  "section": "表格",
+  "n": 1,
+  "markdown": "| foo | bar |\n| --- | --- |\n| baz | bim |\n"
+ },
+ {
+  "section": "表格",
+  "n": 2,
+  "markdown": "| abc | defghi |\n:-: | -----------:\nbar | baz\n"
+ },
+ {
+  "section": "表格",
+  "n": 3,
+  "markdown": "| f\\|oo  |\n| ------ |\n| b `\\|` az |\n| b **\\|** im |\n"
+ },
+ {
+  "section": "表格",
+  "n": 4,
+  "markdown": "| abc | def |\n| --- | --- |\n| bar | baz |\n> bar\n"
+ },
+ {
+  "section": "表格",
+  "n": 5,
+  "markdown": "| abc | def |\n| --- | --- |\n| bar | baz |\nbar\n\nbar\n"
+ },
+ {
+  "section": "表格",
+  "n": 6,
+  "markdown": "| abc | def |\n| --- |\n| bar |\n"
+ },
+ {
+  "section": "表格",
+  "n": 7,
+  "markdown": "| abc | def |\n| --- | --- |\n| bar |\n| bar | baz | boo |\n"
+ },
+ {
+  "section": "表格",
+  "n": 8,
+  "markdown": "| abc | def |\n| --- | --- |\n"
+ },
+ {
+  "section": "任务列表",
+  "n": 1,
+  "markdown": "- [ ] foo\n- [x] bar\n"
+ },
+ {
+  "section": "任务列表",
+  "n": 2,
+  "markdown": "- [x] foo\n  - [ ] bar\n  - [x] baz\n- [ ] bim\n"
+ },
+ {
+  "section": "删除线",
+  "n": 1,
+  "markdown": "~~Hi~~ Hello, world!\n"
+ },
+ {
+  "section": "删除线",
+  "n": 2,
+  "markdown": "This ~~has a\n\nnew paragraph~~.\n"
+ },
+ {
+  "section": "删除线",
+  "n": 3,
+  "markdown": "This will ~~~not~~~ strike.\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 1,
+  "markdown": "www.commonmark.org\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 2,
+  "markdown": "Visit www.commonmark.org/help for more information.\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 3,
+  "markdown": "Visit www.commonmark.org.\n\nVisit www.commonmark.org/a.b.\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 4,
+  "markdown": "www.google.com/search?q=Markup+(business)\n\nwww.google.com/search?q=Markup+(business)))\n\n(www.google.com/search?q=Markup+(business))\n\n(www.google.com/search?q=Markup+(business)\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 5,
+  "markdown": "www.google.com/search?q=(business))+ok\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 6,
+  "markdown": "www.google.com/search?q=commonmark&hl=en\n\nwww.google.com/search?q=commonmark&hl;\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 7,
+  "markdown": "www.commonmark.org/he<lp\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 8,
+  "markdown": "http://commonmark.org\n\n(Visit https://encrypted.google.com/search?q=Markup+(business))\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 9,
+  "markdown": "foo@bar.baz\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 10,
+  "markdown": "hello@mail+xyz.example isn't valid, but hello+xyz@mail.example is.\n"
+ },
+ {
+  "section": "扩展自动链接",
+  "n": 11,
+  "markdown": "a.b-c_d@a.b\n\na.b-c_d@a.b.\n\na.b-c_d@a.b-\n\na.b-c_d@a.b_\n"
+ },
+ {
+  "section": "禁用的原始 HTML",
+  "n": 1,
+  "markdown": "<strong> <title> <style> <em>\n\n<blockquote>\n  <xmp> is disallowed.  <XMP> is also disallowed.\n</blockquote>\n"
+ },
+ {
+  "section": "脚注",
+  "n": 1,
+  "markdown": "Here is a footnote reference,[^1] and another.[^longnote]\n\n[^1]: Here is the footnote.\n\n[^longnote]: Here's one with multiple blocks.\n\n    Subsequent paragraphs are indented to show that they\nbelong to the previous footnote.\n"
+ }
+]

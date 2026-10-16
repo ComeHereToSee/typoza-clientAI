@@ -4,7 +4,7 @@ import type { Node as PMNode } from 'prosemirror-model'
 import { NodeSelection } from 'prosemirror-state'
 import type { EditorView, NodeView } from 'prosemirror-view'
 import { isVideoEmbed, providerName } from '../core/embed'
-import { type EditorEnv, localPathOf, resourceUrl } from '../core/env'
+import { type EditorEnv, frameSandbox, localPathOf, resourceUrl } from '../core/env'
 import { basename } from '../core/paths'
 import { ICONS, h, svgIcon } from '../ui/dom'
 import type { EmbedCheck, LinkPreview } from '../host/types'
@@ -119,8 +119,9 @@ export class MediaView implements NodeView {
           allowfullscreen: true,
           allow: 'fullscreen; picture-in-picture; encrypted-media; clipboard-write; autoplay',
           referrerpolicy: 'strict-origin-when-cross-origin',
-          // 第三方页面:允许脚本与同源(播放器需要),禁止顶层跳转
-          sandbox: 'allow-scripts allow-same-origin allow-popups allow-presentation allow-forms',
+          // 第三方页面:允许脚本与同源(播放器需要),禁止顶层跳转。本地网页不给同源:
+          // typoza://local 下所有文件同源,带着它跑脚本就能读走本机任意文件(PRD 3.5)
+          sandbox: frameSandbox(url),
           title: providerName(a.src),
         })
         const wrap = h('div', { class: isVideoEmbed(a.src) ? 'tz-embed tz-embed-video' : 'tz-embed' }, frame)

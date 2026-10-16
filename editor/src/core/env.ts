@@ -119,13 +119,27 @@ export interface EditorEnv {
 /** 打开文档的位置:当前标签 / 同一窗口组的新标签 / 新窗口(PRD 3.1、notion 5.1 第 10、11 行) */
 export type OpenWhere = 'current' | 'tab' | 'window'
 
-/** 文档里写的地址 → 网页可加载地址。本机文件走宿主的 typoza://local/。 */
+/** 资源地址只认这些协议:javascript: 之类放进嵌入框会以编辑器自己的源执行 */
+const RESOURCE_SCHEMES = /^(https?|data|blob|file|typoza):/i
+
+/** 文档里写的地址 → 网页可加载地址。本机文件走宿主的 typoza://local/;不认的协议给空串。 */
 export function resourceUrl(env: EditorEnv, src: string): string {
   if (!src) return ''
+  if (/^[a-z][a-z0-9+.-]*:/i.test(src) && !RESOURCE_SCHEMES.test(src)) return ''
   if (isExternalUrl(src)) return src.startsWith('//') ? `https:${src}` : src
   if (src.startsWith('~/')) return env.host.resourceURL(env.host.homeDir() + src.slice(1))
   const local = resolveLocalPath(src, env.ctx)
   return local ? env.host.resourceURL(local) : src
+}
+
+/**
+ * 嵌入框的沙箱(url 为 resourceUrl 改写后的地址)。只有远程网页给同源(播放器要用自己的存储);其余一律不给:
+ * typoza://local 下所有文件同源,带着这个源跑脚本就能读走本机任意文件(PRD 3.5「嵌入内容隔离运行、读不到本地文件」);
+ * 相对地址会落到编辑器自己的源。外壳另对本地网页类文件加沙箱响应头。
+ */
+export function frameSandbox(url: string): string {
+  const base = 'allow-scripts allow-popups allow-presentation allow-forms'
+  return /^https?:\/\//i.test(url) ? `${base} allow-same-origin` : base
 }
 
 export function localPathOf(env: EditorEnv, src: string): string | null {

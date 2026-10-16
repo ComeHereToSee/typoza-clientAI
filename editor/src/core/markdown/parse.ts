@@ -405,10 +405,12 @@ class ToProseMirror {
     const n = schema.nodes
     // <summary><h2>标题</h2></summary> 是折叠标题
     const heading = /^<h([1-6])>([\s\S]*)<\/h\1>$/i.exec(node.summaryHtml.trim())
-    const container = document.createElement('div')
+    // 用 template 解析:它的内容不属于当前页面,<img onerror> 之类不会加载、不会执行。
+    // 不能用 createElement('div').innerHTML——游离的 div 里的图片照样加载,onerror 会在编辑器页面里执行
+    const container = document.createElement('template')
     container.innerHTML = heading ? heading[2] : node.summaryHtml
     const level = heading ? Number(heading[1]) : 0
-    const summary = PMDOMParser.fromSchema(schema).parse(container, { topNode: n.toggle_summary.create({ level }) })
+    const summary = PMDOMParser.fromSchema(schema).parse(container.content, { topNode: n.toggle_summary.create({ level }) })
     return n.toggle.create({ open: true, openInSource: node.openInSource }, [summary, ...this.blocks(node.children)])
   }
 

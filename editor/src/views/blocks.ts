@@ -5,7 +5,7 @@ import { TextSelection } from 'prosemirror-state'
 import type { EditorView, NodeView } from 'prosemirror-view'
 import { collectHeadings } from '../core/blocks'
 import { insertBlock, setToggleOpen } from '../core/commands'
-import { type EditorEnv, openImageLightbox, resourceUrl } from '../core/env'
+import { type EditorEnv, frameSandbox, openImageLightbox, resourceUrl } from '../core/env'
 import { schema } from '../core/schema'
 import { ICONS, h, svgIcon } from '../ui/dom'
 
@@ -175,12 +175,16 @@ export function sanitizeHtml(html: string, env: EditorEnv): DocumentFragment {
     ADD_TAGS: ['iframe', 'video', 'audio', 'source', 'details', 'summary', 'kbd'],
     ADD_ATTR: ['allowfullscreen', 'frameborder', 'controls', 'loop', 'muted', 'playsinline', 'target', 'align'],
     FORBID_TAGS: ['script', 'style', 'object', 'embed', 'form'],
+    // class、id 只在预览里去掉(源码与导出保留,对照表 X-44):文档里的 class 会套上应用自己的样式,
+    // 比如全屏遮罩类,能盖住界面仿冒对话框
+    FORBID_ATTR: ['class', 'id'],
   })
   for (const el of Array.from(fragment.querySelectorAll<HTMLElement>('img[src], video[src], audio[src], source[src], iframe[src]'))) {
     const src = el.getAttribute('src') ?? ''
     el.setAttribute('data-tz-src', src)
-    el.setAttribute('src', resourceUrl(env, src))
-    if (el.tagName === 'IFRAME') el.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-presentation')
+    const url = resourceUrl(env, src)
+    el.setAttribute('src', url)
+    if (el.tagName === 'IFRAME') el.setAttribute('sandbox', frameSandbox(url))
   }
   return fragment
 }

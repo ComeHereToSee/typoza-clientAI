@@ -214,4 +214,13 @@ describe('语义往返:每个块都重新生成后再解析,结构不变', () =>
       expect(b, `输入:\n${ex.markdown}\n输出:\n${out}`).toEqual(a)
     })
   }
+
+  // GFM 规范扩展章节(表格、任务列表、删除线、扩展自动链接、禁用的原始 HTML)与脚注的示例,按章节整理
+  const gfm = JSON.parse(fixture('gfm-extensions.json')) as { markdown: string; section: string; n: number }[]
+  for (const ex of gfm) {
+    it(`GFM ${ex.section} #${ex.n}`, () => {
+      const { a, b, out } = semanticRoundTrip(ex.markdown)
+      expect(b, `输入:\n${ex.markdown}\n输出:\n${out}`).toEqual(a)
+    })
+  }
 })
