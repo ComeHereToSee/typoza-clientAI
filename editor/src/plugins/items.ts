@@ -19,7 +19,7 @@ import {
   turnSelectedInto,
 } from '../core/commands'
 import type { EditorEnv } from '../core/env'
-import { CALLOUT_LABELS, runCommand } from '../core/registry'
+import { CALLOUT_LABELS, getCommand, runCommand } from '../core/registry'
 import { CALLOUT_KINDS, NOTION_COLORS, schema } from '../core/schema'
 import { rememberColor } from '../core/selection-commands'
 import type { MenuItem } from '../ui/menu'
@@ -480,5 +480,9 @@ export function slashItems(view: EditorView, env: EditorEnv, hooks: SlashHooks):
     { id: 'slash.icon', label: '页面图标', icon: '☺', group: '扩展', keywords: ['icon', 'yemiantubiao', 'ymtb'], run: cmd('page.icon') },
     { id: 'slash.cover', label: '页面封面', icon: '▧', group: '扩展', keywords: ['cover', 'yemianfengmian', 'ymfm'], run: cmd('page.cover') },
   ]
-  return [...basic, ...inline, ...media, ...advanced, ...colors, ...extended]
+  // AI 版:「AI 写作」(/ai,ai-prd 3.5);AI 模块注册了命令才出现
+  const ai: MenuItem[] = getCommand('ai.write')
+    ? [{ id: 'slash.ai', label: 'AI 写作', icon: '✦', group: 'AI', keywords: ['ai', 'ask ai', 'write', 'aixiezuo', 'xiezuo'], run: () => void runCommand(view, 'ai.write') }]
+    : []
+  return [...basic, ...inline, ...media, ...advanced, ...colors, ...extended, ...ai]
 }

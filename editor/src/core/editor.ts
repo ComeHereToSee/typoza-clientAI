@@ -7,6 +7,7 @@ import { Fragment, type Node as PMNode } from 'prosemirror-model'
 import { type Command, EditorState, type Plugin, type Transaction } from 'prosemirror-state'
 import { tableEditing } from 'prosemirror-tables'
 import { EditorView } from 'prosemirror-view'
+import { aiPlugin } from '../ai/plugin'
 import { autoPairPlugin, editingPlugin, placeholderPlugin, tocRefreshPlugin, viewModesPlugin } from '../plugins/basics'
 import { copyLinePlugin, markdownPairsPlugin } from '../plugins/editing-prefs'
 import { blockSelectionPlugin } from '../plugins/blockselect'
@@ -124,6 +125,8 @@ export function buildPlugins(env: EditorEnv): Plugin[] {
   return [
     // 块选中态的输入拦截、粘贴到下方要先于斜杠、表情与粘贴插件
     blockSelectionPlugin(env),
+    // AI 版:AI 卡片与差异预览的装饰、空行按空格唤起 AI、AI 菜单打开时的按键
+    aiPlugin(),
     slashPlugin(env),
     suggestPlugin(env),
     pastePlugin(env),

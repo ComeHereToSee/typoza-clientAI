@@ -48,6 +48,8 @@ export const MENU_KEYS: Record<string, string> = {
   'Mod-[': 'nav.back',
   'Mod-]': 'nav.forward',
   'Mod-Shift-/': 'native.welcome',
+  // AI 版:菜单「AI ▸ 打开对话」(ai-prd 3.2)
+  'Mod-j': 'ai.open',
 }
 
 /** 只在原生外壳里有的命令(网页注册表里没有),快捷键页照样列出。 */

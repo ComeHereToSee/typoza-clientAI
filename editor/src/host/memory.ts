@@ -1,6 +1,7 @@
 // 内存宿主:浏览器开发与 E2E 测试用。文件全部放在内存里,测试经 window.typozaTest 预置。
 import { firstHeadingOf } from '../core/excerpt'
 import { isOpenable, isTextBundle, isTextDocument } from '../core/filetypes'
+import { createFakeAi, type FakeAi } from './fake-ai'
 import { createFakeSync } from './fake-sync'
 import type { DeletedHistoryFile, DraftRestore, FileStat, Host, HostEvents, SearchHit } from './types'
 
@@ -33,6 +34,8 @@ export interface MemoryHost extends Host {
   drafts: Map<string, string>
   /** 模拟外壳要求本窗口恢复的草稿 */
   pendingDraft: DraftRestore | null
+  /** 模拟的 AI 服务(测试排脚本、查调用记录) */
+  ai: FakeAi
 }
 
 function parentOf(path: string): string {
@@ -152,6 +155,9 @@ export function createMemoryHost(): MemoryHost {
     readText: (path) => (files.has(path) ? text(path) : null),
   })
 
+  // 模拟的 AI 服务:不连网,按测试排好的脚本推事件(行为与错误码对齐辅助进程 helper/internal/aisvc)
+  const fakeAi = createFakeAi()
+
   const host: MemoryHost = {
     platform: 'browser',
     isLaunchWindow: false,
@@ -165,6 +171,7 @@ export function createMemoryHost(): MemoryHost {
     history,
     drafts,
     pendingDraft: firstDraft ? { id: firstDraft[0], text: firstDraft[1] } : null,
+    ai: fakeAi,
     emit(event, payload) {
       for (const fn of listeners.get(event) ?? []) fn(payload)
     },
@@ -420,6 +427,8 @@ export function createMemoryHost(): MemoryHost {
       record('runNativeCommand', id)
     },
     syncCall: (method, params) => fakeSync(method, params ?? {}) as Promise<never>,
+    aiCall: (method, params) => fakeAi.call(method, params ?? {}) as Promise<never>,
+    onAiEvent: (cb) => fakeAi.subscribe(cb),
     async clipboardWrite(data) {
       record('clipboardWrite', data)
       host.clipboard = { text: data.text, html: data.html ?? null, rtf: Boolean(data.rtf) }

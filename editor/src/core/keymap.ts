@@ -86,7 +86,8 @@ export const DEFAULT_KEYS: Record<string, string> = {
   'Mod-Alt-Shift-l': 'delete.line',
   'Mod-Alt-Shift-e': 'delete.format',
   'Mod-Shift-d': 'delete.word',
-  'Mod-j': 'edit.jumpToSelection',
+  // AI 版:⌘J 给「打开 AI 对话」(Notion Ask AI,见 app/shortcuts.ts 的 MENU_KEYS),跳转到所选内容改为 ⌥⌘J
+  'Mod-Alt-j': 'edit.jumpToSelection',
   // 撤销
   'Mod-z': 'edit.undo',
   'Mod-Shift-z': 'edit.redo',

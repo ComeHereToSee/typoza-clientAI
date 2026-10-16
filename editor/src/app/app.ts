@@ -2,6 +2,7 @@
 import type { Node as PMNode } from 'prosemirror-model'
 import { type EditorState, Selection, TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
+import { AiController } from '../ai/controller'
 import { collectHeadings, type HeadingItem } from '../core/blocks'
 import { createEditorState, createEditorView, sliceToMarkdown } from '../core/editor'
 import { selectionText } from '../core/block-selection'
@@ -69,6 +70,8 @@ export class App {
   readonly session: DocumentSession
   readonly env: EditorEnv
   readonly sync: SyncController
+  /** AI 版:AI 侧栏、正文里的 AI 动作与改文档预览、AI 设置页 */
+  readonly ai: AiController
   view!: EditorView
   private source: SourceEditor | null = null
   private sidebar!: Sidebar
@@ -126,6 +129,27 @@ export class App {
         if (this.session.path && paths.includes(this.session.path)) await this.onExternalChange()
       },
     })
+    this.ai = new AiController({
+      host: this.host,
+      view: () => this.view,
+      documentText: () => this.aiDocumentText(),
+      sourceOffset: (pos) => docPosToSource(this.view.state.doc, pos, this.aiDocumentText(), { ...this.session.meta, bom: false }, this.serializeOptions()),
+      selectionText: () => {
+        const { from, to } = this.view.state.selection
+        return sliceToMarkdown(this.view.state.doc.slice(from, to).content, this.env)
+      },
+      parseOptions: () => parseOptionsFrom(this.settings),
+      documentTitle: () => this.session.title,
+      documentPath: () => this.session.path,
+      rootFolder: () => this.sidebar?.rootFolder ?? null,
+      readOnly: () => this.session.readOnly !== null,
+      ensureRichMode: () => {
+        if (this.source) this.toggleSourceMode(false)
+      },
+      listDocuments: () => this.listDocuments(),
+      toast: (message, error, action) => this.toast(message, error, action),
+      openPreferences: (page) => this.openPreferences(page),
+    })
     const header = h('div', { class: 'tz-page-header' })
     const editor = h('div', { class: 'tz-editor-host' })
     const page = h('div', { class: 'tz-page', id: 'write-wrapper' }, header, editor)
@@ -152,10 +176,13 @@ export class App {
       syncBadge: (path, mtime, isDir) => this.sync.fileState(path, mtime, isDir),
     })
     this.els.app.prepend(this.sidebar.el, this.resizer())
+    // AI 侧栏在编辑区右侧
+    this.els.app.append(this.ai.el)
     this.options.mount.replaceChildren(this.els.app)
     this.applyAppearance()
-    this.extraSettingsSections.push(this.sync.settingsSection())
+    this.extraSettingsSections.push(this.sync.settingsSection(), ...this.ai.settingsSections())
     this.registerCommands()
+    this.ai.init()
     this.bindHostEvents()
     this.sync.bind()
     this.bindBrowserKeys()
@@ -1436,6 +1463,14 @@ export class App {
     clearTimeout(Number(t.dataset.timer))
     // 带操作按钮的提示多留一会儿,给用户时间点
     t.dataset.timer = String(window.setTimeout(() => (t.hidden = true), action ? 12000 : error ? 6000 : 2500))
+  }
+
+  /** 发给 AI 的当前文档:Markdown 原文,换行统一为 \n、去掉 BOM(doc.edit 的偏移也按这个算) */
+  private aiDocumentText(): string {
+    return this.session
+      .serialize(this.currentDoc())
+      .replace(/^\uFEFF/, '')
+      .replace(/\r\n?/g, '\n')
   }
 
   /** 供 E2E 与冒烟测试使用的当前 Markdown。 */

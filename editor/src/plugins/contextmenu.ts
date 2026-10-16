@@ -4,6 +4,7 @@
 import type { Node as PMNode, NodeType } from 'prosemirror-model'
 import { NodeSelection, Plugin, Selection, TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
+import { aiHooks } from '../ai/plugin'
 import { type EditorEnv, localPathOf, openImageLightbox, resourceUrl } from '../core/env'
 import { ZOOM_PRESETS, currentImage, deleteImage, setImageAttrs, zoomAttrs } from '../core/image-ops'
 import { getCommand, runCommand } from '../core/registry'
@@ -150,6 +151,8 @@ function buildItems(view: EditorView, env: EditorEnv, target: Element, e: MouseE
     )
   }
   if (text) {
+    // AI 版:选中文字的 AI 动作(ai-prd 3.4「右键 AI ▸」)
+    items.push(submenu('ctx.ai', 'AI', edit, aiHooks.selectionMenu?.(view) ?? []))
     items.push(
       submenu(
         'ctx.search',
@@ -356,7 +359,7 @@ function jumpItems(view: EditorView, target: Element, group: string): (MenuItem 
     { id: 'ctx.jump.end', label: '文末', hint: '⌘↓', group, run: () => jump(Selection.atEnd(view.state.doc)) },
   ]
   if (getCommand('edit.jumpToSelection')) {
-    items.push({ id: 'ctx.jump.selection', label: '所选内容', hint: '⌘J', group, run: () => (runCommand(view, 'edit.jumpToSelection'), view.focus()) })
+    items.push({ id: 'ctx.jump.selection', label: '所选内容', hint: '⌥⌘J', group, run: () => (runCommand(view, 'edit.jumpToSelection'), view.focus()) })
   }
   const ref = hitNode(view, target, 'sup.tz-footnote-ref', [n.footnote_ref])
   const def = ref ? null : hitNode(view, target, '.tz-footnote-def', [n.footnote_def])

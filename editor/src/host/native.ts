@@ -1,4 +1,5 @@
 // 原生宿主:经 WKScriptMessageHandlerWithReply(名为 typoza)调用 Swift;Swift 通过 window.__typozaEmit 推事件。
+import { AiError, type AiCallReply, type AiEvent } from './ai-types'
 import { type Host, type HostEvents, SyncError } from './types'
 
 declare global {
@@ -105,6 +106,22 @@ export async function createNativeHost(): Promise<{ host: Host; info: AppInfo }>
       const r = await call<{ ok: boolean; result?: unknown; error?: { code: string; message: string } }>('sync.call', { method, params })
       if (!r.ok) throw new SyncError(r.error?.code ?? 'error', r.error?.message ?? '云同步出错')
       return r.result as T
+    },
+
+    // 与 syncCall 同一套返回结构:外壳把 ai.* 转给辅助进程,结果里带 ok 与错误码
+    async aiCall<T>(method: string, params: Record<string, unknown> = {}): Promise<T> {
+      const r = await call<AiCallReply>('ai.call', { method, params })
+      if (!r.ok) throw new AiError(r.error?.code ?? 'internal', r.error?.message ?? 'AI 调用出错')
+      return r.result as T
+    },
+    onAiEvent(cb) {
+      const set = listeners.get('ai.event') ?? new Set<Listener>()
+      listeners.set('ai.event', set)
+      const fn: Listener = (payload) => cb(payload as AiEvent)
+      set.add(fn)
+      return () => {
+        set.delete(fn)
+      }
     },
 
     clipboardWrite: (data) => call('clipboard.write', { text: data.text, html: data.html ?? null, rtf: data.rtf ?? false }),

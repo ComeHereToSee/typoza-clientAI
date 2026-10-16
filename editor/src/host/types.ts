@@ -1,6 +1,7 @@
 // 宿主接口:编辑内核(网页)与 macOS 外壳(Swift)之间的桥接契约。
 // 原生实现见 native.ts(经 WKScriptMessageHandlerWithReply 调 Swift);浏览器开发与 E2E 用 memory.ts。
 // 方法名同时是桥接消息的 method(如 fs.readText),Swift 侧 BridgeRouter 按同名分发。
+import type { AiEvent } from './ai-types'
 
 export interface FileStat {
   path: string
@@ -230,6 +231,11 @@ export interface Host {
 
   /** 云同步:调用辅助进程的 sync.* 方法;失败抛 SyncError */
   syncCall<T = unknown>(method: string, params?: Record<string, unknown>): Promise<T>
+
+  /** AI:经外壳调用辅助进程的 ai.* 方法(外壳只放行 ai. 开头、不含 ai.secrets);失败抛 AiError(ai-types.ts) */
+  aiCall<T = unknown>(method: string, params?: Record<string, unknown>): Promise<T>
+  /** AI 通知(辅助进程发 ai.event,外壳原样广播);返回取消订阅 */
+  onAiEvent(cb: (event: AiEvent) => void): () => void
 
   // 剪贴板、媒体(网页写不了 RTF、读剪贴板会弹系统授权,这些交给外壳)
   /** 清空剪贴板后写入纯文本,可带 HTML;rtf 为 true 时外壳从同一段 HTML 生成 RTF 一并写入 */

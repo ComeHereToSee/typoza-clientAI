@@ -183,7 +183,10 @@ class SelectionToolbar {
       const r = color.getBoundingClientRect()
       this.menu.open(colorItems(view, false), r)
     }, isMarkActive(state, m.color))
+    // AI 版:格式条最前面的【AI】(ai-prd 3.4),弹出 AI 动作菜单
+    const ai = getCommand('ai.selection') ? [this.button('AI', 'AI 动作', () => runCommand(view, 'ai.selection'), false, 'tz-tb-ai'), h('span', { class: 'tz-tb-sep' })] : []
     this.el.replaceChildren(
+      ...ai,
       turn,
       h('span', { class: 'tz-tb-sep' }),
       this.button(svgIcon(ICONS.link, 15), '链接(⌘K)', () => void editLink(view, this.env), isMarkActive(state, m.link)),

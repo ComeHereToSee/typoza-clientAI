@@ -171,7 +171,8 @@ enum MainMenu {
                 cmd("删除当前格式文本", "delete.format", "e", [.command, .option, .shift]),
                 cmd("删除当前词", "delete.word", "d", [.command, .shift]),
             ]),
-            cmd("跳转到所选内容", "edit.jumpToSelection", "j"),
+            // AI 版:⌘J 让给「AI ▸ 打开对话」(Notion「Ask AI」,冲突时 Notion 优先)
+            cmd("跳转到所选内容", "edit.jumpToSelection", "j", [.command, .option]),
             sep,
             submenu("数学工具", [
                 cmd("刷新所有数学公式", "math.refresh"),
@@ -381,6 +382,14 @@ enum MainMenu {
         let theme = submenu("主题", [])
         theme.submenu?.delegate = MenuCustomizer.shared
 
+        let ai = submenu("AI", [
+            cmd("打开对话", "ai.open", "j"),
+            cmd("AI 动作…", "ai.selection"),
+            cmd("AI 写作", "ai.write"),
+            sep,
+            cmd("AI 设置…", "app.preferences"),
+        ])
+
         let window = NSMenuItem(title: "窗口", action: nil, keyEquivalent: "")
         windowMenu.addItem(std("最小化", #selector(NSWindow.performMiniaturize(_:)), "m"))
         windowMenu.addItem(std("缩放", #selector(NSWindow.performZoom(_:))))
@@ -403,7 +412,7 @@ enum MainMenu {
         helpMenu.addItem(cmd("反馈", "native.feedback"))
         help.submenu = helpMenu
 
-        for item in [appMenu, file, edit, paragraph, format, view, theme, window, help] { main.addItem(item) }
+        for item in [appMenu, file, edit, paragraph, format, view, theme, ai, window, help] { main.addItem(item) }
         return main
     }
 }
