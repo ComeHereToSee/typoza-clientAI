@@ -77,11 +77,11 @@ test('待办复选框与文字第一行垂直居中对齐(默认主题与行高�
     page.evaluate(() =>
       [...document.querySelectorAll('.tz-editor li.tz-task')].map((li) => {
         const box = li.querySelector('.tz-task-box')!.getBoundingClientRect()
-        const p = li.querySelector('.tz-task-content > p')!
-        const range = document.createRange()
-        range.selectNodeContents(p)
-        const line = range.getClientRects()[0]
-        return Math.abs(box.top + box.height / 2 - (line.top + line.height / 2))
+        const p = li.querySelector<HTMLElement>('.tz-task-content > p')!
+        // 第一行的行盒:段落内容区顶部 + 半个行高(不用字形框:CI 上的中文回退字体上下不对称)
+        const cs = getComputedStyle(p)
+        const lineTop = p.getBoundingClientRect().top + parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop)
+        return Math.abs(box.top + box.height / 2 - (lineTop + parseFloat(cs.lineHeight) / 2))
       }),
     )
   for (const o of await offsets()) expect(o).toBeLessThan(1.5)
