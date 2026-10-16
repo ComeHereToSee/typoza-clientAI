@@ -28,6 +28,7 @@ type fakeHost struct {
 	opened   []string
 	elicits  []ElicitArgs
 	onElicit func(ElicitArgs) ElicitAnswer
+	stored   [][2]string // StoreSecret 收到的 [ref, value]
 }
 
 func newFakeHost() *fakeHost { return &fakeHost{signal: make(chan struct{}, 1)} }
@@ -70,6 +71,13 @@ func (h *fakeHost) Elicit(_ context.Context, req ElicitArgs) (ElicitAnswer, erro
 		return ElicitAnswer{Action: "cancel"}, nil
 	}
 	return fn(req), nil
+}
+
+func (h *fakeHost) StoreSecret(_ context.Context, ref, value string) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.stored = append(h.stored, [2]string{ref, value})
+	return nil
 }
 
 // waitFor 等到出现满足 pred 的事件(包括之前已经出现的),返回它。

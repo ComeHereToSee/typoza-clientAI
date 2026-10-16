@@ -28,6 +28,9 @@ type Host interface {
 	OpenURL(ctx context.Context, url string) error
 	// Elicit 让外壳弹原生表单向用户征询信息(MCP elicitation)。
 	Elicit(ctx context.Context, req ElicitArgs) (ElicitAnswer, error)
+	// StoreSecret 让外壳把 MCP OAuth 令牌写进钥匙串(ref 以 mcp-oauth: 开头;value 为空表示删除),
+	// 外壳随后全量推回 ai.secrets。
+	StoreSecret(ctx context.Context, ref, value string) error
 }
 
 // ElicitArgs 是 host.elicit 的参数。serverName 是契约之外新增的字段,外壳弹窗标题用它显示服务器名。

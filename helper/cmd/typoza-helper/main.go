@@ -42,6 +42,11 @@ func (h shellHost) Elicit(ctx context.Context, req aisvc.ElicitArgs) (aisvc.Elic
 	return ans, err
 }
 
+// StoreSecret 让外壳把 MCP OAuth 令牌写进钥匙串。
+func (h shellHost) StoreSecret(ctx context.Context, ref, value string) error {
+	return h.srv.Call(ctx, "host.storeSecret", map[string]string{"ref": ref, "value": value}, nil)
+}
+
 func main() {
 	dataDir := flag.String("data-dir", "", "同步配置与状态目录(绝对路径);AI 数据放在它的同级 ai/ 与 skills/")
 	deviceName := flag.String("device-name", "", "本机名称")

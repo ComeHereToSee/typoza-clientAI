@@ -117,16 +117,20 @@ func (m *mcpManager) reconcile(servers []MCPServer) {
 		m.conns[cfg.ID] = c
 		changed = append(changed, c)
 	}
+	var removed []string
 	for id, c := range m.conns {
 		if !want[id] {
 			toClose = append(toClose, c)
 			delete(m.conns, id)
+			delete(m.tokens, id)
+			removed = append(removed, id)
 		}
 	}
 	m.mu.Unlock()
 	for _, c := range toClose {
 		go m.closeConn(c)
 	}
+	m.forgetTokens(removed)
 	for _, c := range changed {
 		if c.cfg.Enabled {
 			go m.connect(c)
@@ -166,6 +170,7 @@ func (m *mcpManager) connect(c *mcpConn) {
 			m.mu.Lock()
 			m.tokens[c.cfg.ID] = ts
 			m.mu.Unlock()
+			m.saveToken(ctx, c, ts)
 		}
 	}
 	m.mu.Lock()

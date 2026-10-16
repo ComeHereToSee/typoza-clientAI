@@ -297,7 +297,7 @@ func (c *providerClient) do(ctx context.Context, method, u string, body []byte) 
 			c.svc.mu.Unlock()
 			return resp, nil
 		}
-		lastErr = statusError(resp)
+		lastErr = httpStatusError(resp)
 		if resp.StatusCode != http.StatusUnauthorized && resp.StatusCode != http.StatusTooManyRequests {
 			break
 		}
@@ -326,8 +326,8 @@ func (c *providerClient) post(ctx context.Context, u string, body any) (*http.Re
 	return resp, nil
 }
 
-// statusError 把非 2xx 响应转成契约错误码,message 带服务商原文。
-func statusError(resp *http.Response) *aiError {
+// httpStatusError 把非 2xx 响应转成契约错误码,message 带服务商原文。
+func httpStatusError(resp *http.Response) *aiError {
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 	msg := errorMessage(raw)

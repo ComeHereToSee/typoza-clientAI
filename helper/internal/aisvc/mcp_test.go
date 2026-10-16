@@ -296,6 +296,59 @@ func TestMCPHTTPHeadersFromKeychain(t *testing.T) {
 	waitMCP(t, env, "web", mcpConnected)
 }
 
+func TestMCPOAuthTokenFromKeychainSavedAndForgotten(t *testing.T) {
+	server := newTestMCPServer()
+	handler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, nil)
+	// 只认钥匙串里存的访问令牌:能连上就说明启动时用了它,没有走浏览器登录
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer stored-token" {
+			http.Error(w, "unauthorized", http.StatusBadRequest)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	}))
+	t.Cleanup(func() {
+		ts.CloseClientConnections()
+		ts.Close()
+	})
+	env := newTestService(t)
+	env.call(t, "ai.secrets", map[string]any{"secrets": map[string]string{"mcp-oauth:web": `{"access_token":"stored-token","token_type":"Bearer"}`}})
+	addMCPServer(t, env, map[string]any{"id": "web", "name": "HTTP", "enabled": true, "transport": "http", "url": ts.URL})
+	env.call(t, "ai.mcp.status", nil)
+	waitMCP(t, env, "web", mcpConnected)
+	env.host.mu.Lock()
+	opened := append([]string(nil), env.host.opened...)
+	env.host.mu.Unlock()
+	if len(opened) != 0 {
+		t.Fatalf("有存下的令牌就不应打开登录页:%v", opened)
+	}
+	// 连上后把令牌交给外壳写钥匙串
+	waitStored(t, env, func(ref, value string) bool { return ref == "mcp-oauth:web" && strings.Contains(value, "stored-token") })
+	// 删掉服务器时一并删除钥匙串里的令牌
+	env.call(t, "ai.settings.update", map[string]any{"mcpServers": []any{}})
+	waitStored(t, env, func(ref, value string) bool { return ref == "mcp-oauth:web" && value == "" })
+}
+
+// waitStored 等外壳收到满足 pred 的 host.storeSecret。
+func waitStored(t *testing.T, env *testEnv, pred func(ref, value string) bool) {
+	t.Helper()
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		env.host.mu.Lock()
+		stored := append([][2]string(nil), env.host.stored...)
+		env.host.mu.Unlock()
+		for _, kv := range stored {
+			if pred(kv[0], kv[1]) {
+				return
+			}
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("外壳一直没收到期望的 host.storeSecret:%q", stored)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
 // waitLog 轮询 ai.mcp.status,等某个服务器的日志里出现 want(标准错误是异步写进来的)。
 func waitLog(t *testing.T, env *testEnv, id, want string) {
 	t.Helper()

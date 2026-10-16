@@ -18,8 +18,9 @@ import (
 // MCP 的 OAuth 授权(只用于 HTTP 服务器):SDK 的授权码流程 + 本机回调地址;登录页交给系统浏览器打开
 // (规范要求客户端看不到页面内容)。客户端用动态注册(DCR)取得:Typoza 没有可公开托管的客户端元数据文档。
 //
-// 令牌目前只留在内存里:契约没有「辅助进程把新令牌交给外壳写钥匙串」的方法,重启辅助进程后要重新登录。
-// 外壳若在钥匙串 mcp-oauth:<serverId> 里存了令牌(JSON,oauth2.Token 格式),启动时会先用它。
+// 令牌经 host.storeSecret 交给外壳存进钥匙串 mcp-oauth:<serverId>(JSON,oauth2.Token 格式),
+// 重启后先用存下的访问令牌;过期后服务器回 401,再走一次浏览器登录(动态注册的客户端不落盘,
+// 重启后没法用刷新令牌换新)。每次连上时存一次,删掉服务器时一并删除。
 
 type tokenSource = oauth2.TokenSource
 
@@ -101,4 +102,41 @@ func (m *mcpManager) oauthHandler(c *mcpConn, secrets map[string]string) (*auth.
 		return nil, nil, err
 	}
 	return h, cleanup, nil
+}
+
+// saveToken 把连上时的令牌交给外壳写钥匙串;和钥匙串里已有的相同就不写。
+func (m *mcpManager) saveToken(ctx context.Context, c *mcpConn, ts tokenSource) {
+	tok, err := ts.Token()
+	if err != nil || tok == nil || tok.AccessToken == "" {
+		return
+	}
+	b, err := json.Marshal(tok)
+	if err != nil {
+		return
+	}
+	ref := mcpOAuthSecretRef(c.cfg.ID)
+	if m.svc.snap().secrets[ref] == string(b) {
+		return
+	}
+	if err := m.svc.opts.Host.StoreSecret(ctx, ref, string(b)); err != nil {
+		c.log.add("保存授权令牌失败,下次启动需要重新登录:" + err.Error())
+	}
+}
+
+// forgetTokens 删掉已移除服务器在钥匙串里的令牌。
+func (m *mcpManager) forgetTokens(serverIDs []string) {
+	secrets := m.svc.snap().secrets
+	for _, id := range serverIDs {
+		ref := mcpOAuthSecretRef(id)
+		if secrets[ref] == "" {
+			continue
+		}
+		go func() {
+			ctx, cancel := context.WithTimeout(m.svc.ctx, 10*time.Second)
+			defer cancel()
+			if err := m.svc.opts.Host.StoreSecret(ctx, ref, ""); err != nil {
+				m.svc.log.Warn("删除 MCP 授权令牌失败", "server", id, "err", err)
+			}
+		}()
+	}
 }
