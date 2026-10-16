@@ -204,3 +204,50 @@ func TestDeletedProviderFallsBackToDefaultModel(t *testing.T) {
 		t.Fatalf("显式指定的模型应优先:%+v", m)
 	}
 }
+
+// 默认模型换到另一个服务商(协议也不同)后,新的请求确实发给那个服务商、带它自己的密钥(ai-prd 验收:配置切换)。
+func TestSwitchDefaultModelToAnotherProvider(t *testing.T) {
+	env := newTestService(t)
+	llmA := newMockLLM(t, protoOpenAIChat)
+	llmA.fallback = func(recorded) turn { return turn{text: []string{"甲"}} }
+	llmB := newMockLLM(t, protoAnthropic)
+	llmB.fallback = func(recorded) turn { return turn{text: []string{"乙"}} }
+	env.call(t, "ai.settings.update", map[string]any{
+		"providers": []map[string]any{
+			{"id": "p1", "name": "甲", "protocol": protoOpenAIChat, "baseUrl": llmA.srv.URL, "enabled": true, "models": []map[string]any{{"id": "m1"}, {"id": "fast"}}},
+			{"id": "p2", "name": "乙", "protocol": protoAnthropic, "baseUrl": llmB.srv.URL, "enabled": true, "models": []map[string]any{{"id": "claude-x"}}},
+		},
+		"defaultModel": map[string]any{"providerId": "p1", "modelId": "m1"},
+		"fastModel":    map[string]any{"providerId": "p1", "modelId": "fast"},
+	})
+	env.call(t, "ai.secrets", map[string]any{"secrets": map[string]string{"provider:p1": "key-a", "provider:p2": "key-b"}})
+
+	answer := func() string {
+		r := env.send(t, map[string]any{"text": "你好"})
+		env.host.waitDone(t, r.AssistantMessageID)
+		var b strings.Builder
+		for _, p := range partsOf(env.conversation(t, r.ConversationID), r.AssistantMessageID) {
+			b.WriteString(p.Text)
+		}
+		return b.String()
+	}
+	if got := answer(); got != "甲" {
+		t.Fatalf("默认模型在甲时应由甲回答:%q", got)
+	}
+	if n := len(llmB.requests()); n != 0 {
+		t.Fatalf("乙还没被选中,不应收到请求:%d", n)
+	}
+
+	env.call(t, "ai.settings.update", map[string]any{"defaultModel": map[string]any{"providerId": "p2", "modelId": "claude-x"}})
+	if got := answer(); got != "乙" {
+		t.Fatalf("默认模型换到乙后应由乙回答:%q", got)
+	}
+	reqs := llmB.requests()
+	if len(reqs) == 0 {
+		t.Fatal("乙应收到请求")
+	}
+	last := reqs[len(reqs)-1]
+	if last.path != "/v1/messages" || last.header.Get("x-api-key") != "key-b" || !strings.Contains(last.body, `"claude-x"`) {
+		t.Fatalf("请求应按乙的协议、带乙的密钥与模型:%s %q %s", last.path, last.header.Get("x-api-key"), last.body)
+	}
+}

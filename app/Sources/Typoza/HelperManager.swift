@@ -222,7 +222,7 @@ final class HelperManager {
             respond(ElicitationForm.run(params), nil)
         case "host.storeSecret":
             // 辅助进程只能存 MCP OAuth 令牌(登录后拿到的新令牌);其它密钥只能由用户在设置页写入
-            guard let ref = params["ref"] as? String, ref.hasPrefix("mcp-oauth:"), let value = params["value"] as? String else {
+            guard let ref = params["ref"] as? String, AISecretStore.helperMayStore(ref), let value = params["value"] as? String else {
                 return respond(nil, "只能保存 mcp-oauth: 开头的令牌")
             }
             keychainQueue.async {

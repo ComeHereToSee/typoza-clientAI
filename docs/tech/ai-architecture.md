@@ -8,7 +8,7 @@
 | 部分 | 做什么 | 位置 |
 |---|---|---|
 | 辅助进程(Go) | 服务商适配与流式请求、对话存储与分支、工具调用循环、MCP 客户端、内置连接器、Skills 读取、助手与 AI 设置存储 | `helper/internal/aisvc/` |
-| 外壳(Swift) | 把网页的 `ai.*` 转给辅助进程并把 `ai.*` 通知广播给窗口;钥匙串存取 AI 密钥(服务 `app.typoza.mac.ai`);菜单「AI」 | `HelperManager`、`AISecrets`(TypozaKit)、`MainMenu` |
+| 外壳(Swift) | 把网页的 `ai.*` 转给辅助进程并把 `ai.*` 通知广播给窗口;钥匙串存取 AI 密钥(服务 `app.typoza.mac.ai`);菜单「AI」 | `HelperManager`、`AISecretStore`(TypozaKit)、`MainMenu` |
 | 网页(TS) | AI 侧栏、选中文字动作、`/ai` 与空行空格、工具卡片与改文档的差异预览、AI 设置页;浏览器宿主用模拟实现 | `editor/src/ai/`、`editor/src/host/ai-types.ts`、`editor/src/host/fake-ai.ts` |
 
 - 为什么在辅助进程里发请求:网页从 `typoza://app` 发往外部 API 受跨源限制,密钥也不该进网页;Go 擅长流式 HTTP 与子进程管理(stdio MCP)。
@@ -157,4 +157,4 @@ interface McpStatus { serverId: string; state: 'connected' | 'connecting' | 'fai
 
 - Go:四种协议的模拟服务商(httptest,按脚本吐 SSE)、对话分支、工具循环(允许 / 拒绝 / 总是允许 / 禁用 / 轮次上限)、MCP(SDK 的内存传输 + httptest 的 Streamable HTTP 服务器)、Skills 解析(合规 / 不合规)、设置读写不含密钥。
 - 网页:`host/fake-ai.ts` 按脚本模拟事件流;Playwright 覆盖侧栏对话与分支、工具卡片、选中文字改写、`/ai`、设置页。
-- 外壳:`swift test` 覆盖 `ai.*` 转发白名单、密钥写入后推送。
+- 外壳:`swift test` 覆盖网页可调方法白名单(`ai.secrets` 不可调)、密钥引用名前缀、辅助进程只能写 `mcp-oauth:` 引用(`AIKitTests`)。写钥匙串后全量推回 `ai.secrets` 在 `HelperManager` 里,依赖真实钥匙串与辅助进程,没有自动化测试。

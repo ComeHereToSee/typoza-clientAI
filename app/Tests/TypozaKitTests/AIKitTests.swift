@@ -21,4 +21,12 @@ final class AIKitTests: XCTestCase {
         XCTAssertFalse(AISecretStore.isValidRef("provider:a\nb"))
         XCTAssertFalse(AISecretStore.isValidRef("provider:" + String(repeating: "x", count: 300)))
     }
+
+    func testHelperMayStoreOnlyMCPOAuthTokens() {
+        XCTAssertTrue(AISecretStore.helperMayStore("mcp-oauth:srv1"))
+        XCTAssertFalse(AISecretStore.helperMayStore("mcp-oauth:"))
+        XCTAssertFalse(AISecretStore.helperMayStore("provider:abc"))
+        XCTAssertFalse(AISecretStore.helperMayStore("mcp:srv1:TOKEN"))
+        XCTAssertFalse(AISecretStore.helperMayStore("mcp-oauth:a\nb"))
+    }
 }

@@ -234,3 +234,21 @@ test('/ 指令里的 MCP 提示词:带参数时逐个询问,必填项不能空',
   const [call] = await aiCalls(page, 'ai.mcp.prompt')
   expect(call).toMatchObject({ serverId: 'demo', name: 'translate', args: { language: '英文' } })
 })
+
+test('@ 引用 MCP 资源:出现在建议里,选中后成为上下文标签,发送时带上资源内容', async ({ page }) => {
+  await loadDoc(page, '正文。\n')
+  await openAiPanel(page)
+  const input = page.locator('.tz-ai-panel textarea[name=prompt]')
+  await input.click()
+  await input.pressSequentially('@演示')
+  await expect(page.locator('.tz-ai-suggest .tz-menu-item[data-id="res:demo:demo://readme"]')).toBeVisible()
+  await input.press('Enter')
+  await expect(page.locator('.tz-ai-panel .tz-ai-chip[data-kind=resource]')).toContainText('演示说明')
+
+  await queueReply(page, [{ text: '收到。' }])
+  await input.fill('看看这个资源')
+  await input.press('Enter')
+  await expect(lastAnswer(page)).toHaveAttribute('data-status', 'done')
+  const [sent] = await aiCalls(page, 'ai.chat.send')
+  expect(sent.context as unknown[]).toContainEqual(expect.objectContaining({ kind: 'resource', ref: 'demo://readme', text: '演示资源 demo://readme 的内容' }))
+})

@@ -17,6 +17,12 @@ public struct AISecretStore {
         return false
     }
 
+    /// 辅助进程经 host.storeSecret 能写的引用名:只有 MCP OAuth 令牌(登录后拿到的新令牌);
+    /// 服务商密钥与 MCP 环境变量 / 请求头只能由用户在设置页写入。
+    public static func helperMayStore(_ ref: String) -> Bool {
+        ref.hasPrefix("mcp-oauth:") && isValidRef(ref)
+    }
+
     /// 写入;value 为空串表示删除。
     public func set(_ ref: String, value: String) throws {
         guard Self.isValidRef(ref) else { throw BridgeError("密钥引用名不合法:\(ref)") }
