@@ -75,11 +75,14 @@ export async function runSmoke(app: App, bootTimings: Record<string, number> = {
     t = performance.now()
     createEditorState(parsed.doc, app.env)
     timings.bigStateMs = Math.round(performance.now() - t)
+    // PRD 口径「首屏渲染完成、可滚动」= bigOpenMs;其余分段在后台续上,全文载完 = bigLoadedMs
     t = performance.now()
     await app.openFile(`${dir}/big.md`, { replace: true })
     timings.bigOpenSyncMs = Math.round(performance.now() - t)
     await nextFrame()
     timings.bigOpenMs = Math.round(performance.now() - t)
+    while (app.loading) await new Promise((r) => setTimeout(r, 50))
+    timings.bigLoadedMs = Math.round(performance.now() - t)
     checks.bigDocLoaded = app.view.state.doc.childCount > 10000
     const view = app.view
     view.dispatch(view.state.tr.setSelection(TextSelection.near(view.state.doc.resolve(view.state.doc.child(0).nodeSize - 1))))

@@ -69,7 +69,13 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
         }
         app.mark("windowInit")
         let config = WKWebViewConfiguration()
-        config.setURLSchemeHandler(TypozaSchemeHandler(appRoot: editorRoot), forURLScheme: TypozaSchemeHandler.scheme)
+        let schemeHandler = TypozaSchemeHandler(appRoot: editorRoot)
+        // 启动时间点:网页进程起来后第一次取 index.html、第一个脚本(mark 只记第一次)
+        schemeHandler.onRequest = { [weak app] url in
+            if url.lastPathComponent == "index.html" { app?.mark("indexRequested") }
+            if url.pathExtension == "js" { app?.mark("scriptRequested") }
+        }
+        config.setURLSchemeHandler(schemeHandler, forURLScheme: TypozaSchemeHandler.scheme)
         config.preferences.isElementFullscreenEnabled = true
         config.mediaTypesRequiringUserActionForPlayback = []
         webView = DropWebView(frame: .zero, configuration: config)

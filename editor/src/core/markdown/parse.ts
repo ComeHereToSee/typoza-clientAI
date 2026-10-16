@@ -11,6 +11,7 @@ import { type Processor, unified } from 'unified'
 import { schema } from '../schema'
 import type { TzToggle } from './mdast-types'
 import { type TyporaSyntaxFlags, typoraInlineFromMarkdown, typoraInlineSyntax } from './syntax'
+import { splitMarkdown } from './chunks'
 import { transformTree } from './transform'
 
 /** 解析选项,对应 Typora 偏好设置「Markdown」页。可选项不传时取括号里的默认值。 */
@@ -131,67 +132,129 @@ export function normalizeUnicodeMarkers(text: string): string {
     .join('\n')
 }
 
-export function parseMarkdown(markdown: string, options: ParseOptions): ParsedDoc {
-  let mark = performance.now()
-  const lap = (name: string) => {
-    const now = performance.now()
-    parseTimings[name] = Math.round(now - mark)
-    mark = now
-  }
-  const bom = markdown.startsWith('\uFEFF')
-  let text = bom ? markdown.slice(1) : markdown
-  const lineEnding: DocMeta['lineEnding'] = text.includes('\r\n') ? '\r\n' : '\n'
-  text = text.replace(/\r\n?/g, '\n')
+/** 分段解析的每段大小(字符);小文档整篇一段,与不分段完全相同 */
+export const PARSE_CHUNK_CHARS = 32 * 1024
 
-  // 「解析时转化 Unicode 标点」开启时按半角标记解析;替换是等长的,原文切片(blockSources)仍取未改动的 text
-  const source = unicodePunctuation ? normalizeUnicodeMarkers(text) : text
-  const flags: TyporaSyntaxFlags = {
-    highlight: options.highlight ?? true,
-    superscript: options.superscript ?? false,
-    subscript: options.subscript ?? false,
-  }
-  const tree = processorFor(options.inlineMath, flags).parse(source) as Root
-  lap('micromark')
-  const hiddenAlerts: Blockquote[] = []
-  if (options.alerts === false) hideAlerts(tree, hiddenAlerts)
-  transformTree(tree, source)
-  for (const bq of hiddenAlerts) {
-    // 还原成普通引用,并补做被跳过的内部处理(媒体、折叠块、行内 HTML 配对……)
-    ;(bq as { type: string }).type = 'blockquote'
-    transformTree({ type: 'root', children: bq.children } as unknown as Root, source)
-  }
-  if (options.strict === false) relaxHeadings(tree, source)
-  lap('transform')
+/**
+ * 分段解析:构造时只做换行与 BOM 处理并切段(core/markdown/chunks.ts),之后逐段解析成顶层块。
+ * 段与段之间块的原文索引与间隔接续,未编辑的块仍按原文写回;打开大文档时先显示第一段、其余后台续上。
+ */
+export class MarkdownChunks {
+  readonly meta: DocMeta
+  private readonly parts: string[]
+  private next = 0
+  private index = 0
+  /** 上一段最后一个块之后的原文(下一段第一个块的间隔开头);第一段之前为 null */
+  private carry: string | null = null
 
-  const conv = new ToProseMirror(source, options.autolink ?? true)
-  conv.collectDefinitions(tree)
+  constructor(
+    markdown: string,
+    private readonly options: ParseOptions,
+    chunkChars = PARSE_CHUNK_CHARS,
+  ) {
+    const bom = markdown.startsWith('\uFEFF')
+    let text = bom ? markdown.slice(1) : markdown
+    const lineEnding: DocMeta['lineEnding'] = text.includes('\r\n') ? '\r\n' : '\n'
+    text = text.replace(/\r\n?/g, '\n')
+    this.parts = splitMarkdown(text, chunkChars)
+    this.meta = { lineEnding, bom, leading: '', trailing: '', bullet: detectBullet(text) }
+  }
 
-  const blocks: PMNode[] = []
-  let prevEnd = 0
-  let leading = ''
-  tree.children.forEach((child, index) => {
-    const start = child.position?.start.offset
-    const end = child.position?.end.offset
-    const gap = start !== undefined ? text.slice(prevEnd, start) : '\n\n'
-    if (index === 0) leading = gap
-    const nodes = conv.block(child)
-    if (nodes.length === 1 && start !== undefined && end !== undefined) {
-      blockSources.set(nodes[0], { text: text.slice(start, end), index, gapBefore: index === 0 ? '' : gap })
+  get total(): number {
+    return this.parts.length
+  }
+
+  get done(): boolean {
+    return this.next >= this.parts.length
+  }
+
+  /** 已解析的段数 */
+  get parsed(): number {
+    return this.next
+  }
+
+  /** 解析下一段,返回它的顶层块(段内没有块时为空数组)。最后一段解析完后 meta.trailing 才确定。 */
+  nextBlocks(): PMNode[] {
+    if (this.done) throw new Error('Markdown 已全部解析')
+    const text = this.parts[this.next++]
+    const options = this.options
+    let mark = performance.now()
+    const lap = (name: string) => {
+      const now = performance.now()
+      parseTimings[name] = (parseTimings[name] ?? 0) + Math.round(now - mark)
+      mark = now
     }
-    if (end !== undefined) prevEnd = end
-    blocks.push(...nodes)
-  })
-  const trailing = text.slice(prevEnd)
-  lap('convert')
+    // 「解析时转化 Unicode 标点」开启时按半角标记解析;替换是等长的,原文切片(blockSources)仍取未改动的 text
+    const source = unicodePunctuation ? normalizeUnicodeMarkers(text) : text
+    const flags: TyporaSyntaxFlags = {
+      highlight: options.highlight ?? true,
+      superscript: options.superscript ?? false,
+      subscript: options.subscript ?? false,
+    }
+    const tree = processorFor(options.inlineMath, flags).parse(source) as Root
+    lap('micromark')
+    const hiddenAlerts: Blockquote[] = []
+    if (options.alerts === false) hideAlerts(tree, hiddenAlerts)
+    transformTree(tree, source)
+    for (const bq of hiddenAlerts) {
+      // 还原成普通引用,并补做被跳过的内部处理(媒体、折叠块、行内 HTML 配对……)
+      ;(bq as { type: string }).type = 'blockquote'
+      transformTree({ type: 'root', children: bq.children } as unknown as Root, source)
+    }
+    if (options.strict === false) relaxHeadings(tree, source)
+    lap('transform')
 
+    const conv = new ToProseMirror(source, options.autolink ?? true)
+    conv.collectDefinitions(tree)
+    const blocks: PMNode[] = []
+    let prevEnd = 0
+    tree.children.forEach((child, i) => {
+      const start = child.position?.start.offset
+      const end = child.position?.end.offset
+      let gap = start !== undefined ? text.slice(prevEnd, start) : '\n\n'
+      // 本段第一个块:前面还要接上一段末尾剩下的原文
+      if (i === 0 && this.carry !== null) gap = this.carry + gap
+      const index = this.index++
+      if (index === 0) {
+        this.meta.leading = gap
+        gap = ''
+      }
+      const nodes = conv.block(child)
+      if (nodes.length === 1 && start !== undefined && end !== undefined) {
+        blockSources.set(nodes[0], { text: text.slice(start, end), index, gapBefore: gap })
+      }
+      if (end !== undefined) prevEnd = end
+      blocks.push(...nodes)
+    })
+    // 本段没有块时,整段原文都并入下一个块之前的间隔
+    const rest = text.slice(prevEnd)
+    this.carry = tree.children.length === 0 && this.carry !== null ? this.carry + rest : rest
+    if (this.done) this.meta.trailing = this.carry
+    lap('convert')
+    return blocks
+  }
+}
+
+/** 把块装成文档:最后一块是 front matter 或没有块时补一个空段落。 */
+export function assembleDoc(blocks: PMNode[]): PMNode {
   if (blocks.length === 0 || blocks[blocks.length - 1].type === schema.nodes.frontmatter) {
     blocks.push(schema.nodes.paragraph.create())
   }
   const doc = schema.nodes.doc.createAndFill(null, blocks)
   if (!doc) throw new Error('Markdown 解析结果不符合文档结构(frontmatter 只能位于文首)')
-  lap('assemble')
+  return doc
+}
 
-  return { doc, meta: { lineEnding, bom, leading, trailing, bullet: detectBullet(text) } }
+export function parseMarkdown(markdown: string, options: ParseOptions): ParsedDoc {
+  for (const k of Object.keys(parseTimings)) delete parseTimings[k]
+  const chunks = new MarkdownChunks(markdown, options)
+  const blocks: PMNode[] = []
+  while (!chunks.done) blocks.push(...chunks.nextBlocks())
+  const t = performance.now()
+  const doc = assembleDoc(blocks)
+  parseTimings.assemble = Math.round(performance.now() - t)
+  parseTimings.chunks = chunks.total
+  return { doc, meta: chunks.meta }
 }
 
 function detectBullet(text: string): DocMeta['bullet'] {

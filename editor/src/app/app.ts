@@ -10,7 +10,8 @@ import { type DocumentRef, type EditorEnv, DEFAULT_EDITOR_SETTINGS, type ImportF
 import { detectEmbed } from '../core/embed'
 import { bundleOf, isTextBundle, TEXT_EXTENSIONS } from '../core/filetypes'
 import { scrollToAnchor } from '../core/links'
-import { parseMarkdown } from '../core/markdown/parse'
+import { type MarkdownChunks, parseMarkdown } from '../core/markdown/parse'
+import { UI_ONLY } from '../core/commands'
 import { basename, dirname, joinPath, markdownHref, relativePath, resolveLocalPath } from '../core/paths'
 import { getCommand, registerCommand, runCommand } from '../core/registry'
 import { schema } from '../core/schema'
@@ -85,6 +86,9 @@ export class App {
   readonly fileOps: FileOps
   /** 只读文件已提示过(每次打开提示一次) */
   private readOnlyWarned = false
+  /** 每换一篇文档加一,分段载入据此判断是否已换文档 */
+  private loadToken = 0
+  private loadProgress: () => number = () => 0
   /** 连续保存失败中:自动保存失败只在第一次把全文放进剪贴板,免得边打字边覆盖用户的剪贴板 */
   private saveFailing = false
 
@@ -316,6 +320,8 @@ export class App {
   }
 
   private setDocument(doc: PMNode): void {
+    // 换了文档:停掉上一篇还没载完的分段
+    this.loadToken++
     resetMacros()
     const fm = frontMatterInfo(doc, this.session.path)
     this.env.ctx.path = this.session.path
@@ -332,6 +338,51 @@ export class App {
     this.sidebar.markCurrent()
     this.updateWindowState()
     this.onEditorUpdate(this.view)
+  }
+
+  /** 大文档还在分段载入(冒烟与性能剖析用来等全文载完) */
+  get loading(): boolean {
+    return this.session.loading
+  }
+
+  /**
+   * 大文档其余各段:每次解析一段追加到文末,之间让出主线程,滚动与界面保持响应。
+   * 载完之前正文不可编辑、不能保存或导出(正文不全);换了文档就停下。追加不算修改、不进撤销历史。
+   */
+  private continueLoading(chunks: MarkdownChunks): void {
+    const token = ++this.loadToken
+    this.session.loading = true
+    this.view.setProps({ editable: () => !this.session.loading })
+    const step = () => {
+      if (token !== this.loadToken) return
+      try {
+        // 每步在约 50ms 内多解析几段再一次追加:追加一次要走一遍全文的插件与视图更新,步数越少越快
+        const started = performance.now()
+        const blocks: PMNode[] = []
+        do blocks.push(...chunks.nextBlocks())
+        while (!chunks.done && performance.now() - started < 50)
+        if (blocks.length) {
+          const tr = this.view.state.tr.insert(this.view.state.doc.content.size, blocks)
+          this.view.dispatch(tr.setMeta(UI_ONLY, true).setMeta('addToHistory', false))
+        }
+      } catch (err) {
+        // 后面的段解析失败:停在已载入的部分,只读,避免把半截文档存回去
+        this.session.loading = false
+        this.session.readOnly = 'permission'
+        this.toast(`文档后半部分解析失败,已停止载入并改为只读:${errText(err)}`, true)
+        this.renderStatus()
+        return
+      }
+      if (chunks.done) {
+        this.session.loading = false
+        this.view.setProps({ editable: () => true })
+      } else {
+        window.setTimeout(step, 0)
+      }
+      this.renderStatus()
+    }
+    this.loadProgress = () => Math.round((chunks.parsed / chunks.total) * 100)
+    window.setTimeout(step, 0)
   }
 
   /**
@@ -374,9 +425,11 @@ export class App {
         this.openSource(text, true)
         this.toast(`文件较大(${(stat.size / 1024 / 1024).toFixed(1)} MB),已以只读源码方式打开`)
       } else {
-        const doc = await this.session.load(textPath, opts.encoding)
+        // 大文档先显示第一段,其余分段在后台续上(PRD 质量要求:5MB 文档首屏 ≤1.5 秒)
+        const { doc, rest } = await this.session.loadProgressive(textPath, opts.encoding)
         if (stat.writable === false) this.session.readOnly = 'permission'
         this.setDocument(doc)
+        if (rest) this.continueLoading(rest)
       }
       if (!this.sidebar.rootFolder) this.sidebar.setRoot(dirname(bundleOf(textPath) ?? textPath))
       this.renderStatus()
@@ -445,6 +498,10 @@ export class App {
 
   async save(opts: { auto?: boolean } = {}): Promise<boolean> {
     clearTimeout(this.autosaveTimer)
+    if (this.session.loading) {
+      this.toast('文档还在载入,载入完成后才能保存', true)
+      return false
+    }
     if (this.session.readOnly === 'large') {
       this.toast('文件过大,以只读源码方式打开,不能保存', true)
       return false
@@ -480,6 +537,10 @@ export class App {
   }
 
   async saveAs(): Promise<boolean> {
+    if (this.session.loading) {
+      this.toast('文档还在载入,载入完成后才能保存', true)
+      return false
+    }
     const wasUntitled = !this.session.path
     const shown = this.session.path ? (bundleOf(this.session.path) ?? this.session.path) : null
     // 新文件扩展名按偏好(PF-03)
@@ -663,14 +724,15 @@ export class App {
 
   private renderStatus(): void {
     if (!this.view || !this.settings.showStatusBar) return
-    // 超大文件(只读源码)不逐字统计,免得每次刷新状态栏都扫一遍
+    // 超大文件(只读源码)与正在分段载入的文档不逐字统计,免得每次刷新状态栏都扫一遍
     const large = this.session.readOnly === 'large'
-    const text = this.source ? (large ? '' : this.source.text) : this.view.state.doc.textBetween(0, this.view.state.doc.content.size, '\n\n', ' ')
+    const loading = this.session.loading
+    const text = this.source ? (large ? '' : this.source.text) : loading ? '' : this.view.state.doc.textBetween(0, this.view.state.doc.content.size, '\n\n', ' ')
     const stats = countWords(text, this.settings.readingSpeed)
     // 有选区或选中了块(含多块)时显示所选部分的字数
     const selected = this.source ? null : selectionText(this.view.state)
     const sel = selected === null ? null : countWords(selected, this.settings.readingSpeed)
-    const words = h('button', { type: 'button', class: 'tz-status-btn tz-status-words', title: '字数统计' }, large ? '只读源码' : sel ? `已选 ${sel.words} 字 / 共 ${stats.words} 字` : `${stats.words} 字`)
+    const words = h('button', { type: 'button', class: 'tz-status-btn tz-status-words', title: '字数统计' }, loading ? `载入中 ${this.loadProgress()}%` : large ? '只读源码' : sel ? `已选 ${sel.words} 字 / 共 ${stats.words} 字` : `${stats.words} 字`)
     words.addEventListener('click', () => runCommand(this.view, 'view.wordCount'))
     const sidebarBtn = h('button', { type: 'button', class: 'tz-status-btn', title: '显示 / 隐藏侧栏(⌃⌘S)' }, '☰')
     sidebarBtn.addEventListener('click', () => this.runAppCommand('view.toggleSidebar'))
@@ -707,6 +769,10 @@ export class App {
 
   /** 切换源代码模式,来回切换保持光标所在位置(PRD 3.10)。 */
   toggleSourceMode(on = !this.source): void {
+    if (this.session.loading) {
+      this.toast('文档还在载入,载入完成后才能切换源代码模式', true)
+      return
+    }
     if (this.session.readOnly === 'large') {
       if (!on) this.toast('文件过大,只能以只读源码方式查看', true)
       return
@@ -1091,6 +1157,10 @@ export class App {
 
   /** 导出(流程见 export-flow.ts):formatId 为内置格式名或 item:导出项 ID;mode 为重复导出(F-37、F-38)。 */
   private async exportAs(formatId: string, mode: 'new' | 'previous' | 'overwrite' = 'new'): Promise<void> {
+    if (this.session.loading) {
+      this.toast('文档还在载入,载入完成后才能导出', true)
+      return
+    }
     if (this.session.readOnly === 'large') {
       this.toast('文件过大,以只读源码方式打开,不能导出', true)
       return

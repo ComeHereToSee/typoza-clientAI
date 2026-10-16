@@ -65,7 +65,10 @@
   flex: none;
   width: 16px;
   height: 16px;
-  margin-top: 0.42em;
+  /* 与正文第一行居中对齐:段落上内边距 3px + (行高 - 框高) / 2。lh 跟着主题的行高与字号变;
+     不认 lh 的旧 WebKit 用默认行高 1.75 */
+  margin-top: calc(3px + (1.75em - 16px) / 2);
+  margin-top: calc(3px + (1lh - 16px) / 2);
   border: 1.5px solid var(--tz-text-muted);
   border-radius: 3px;
   cursor: pointer;
@@ -84,6 +87,8 @@
   transform: rotate(45deg);
 }
 .tz-task-content { flex: 1; min-width: 0; }
+/* 段落包在 .tz-task-content 里,「li > p 无外边距」够不着;不补上的话文字比复选框低 2px 外边距 */
+.tz-editor .tz-task-content > p { margin: 0; }
 .tz-task[data-checked='true'] > .tz-task-content > p:first-child { color: var(--tz-text-faint); text-decoration: line-through; }
 
 /* 折叠块 */

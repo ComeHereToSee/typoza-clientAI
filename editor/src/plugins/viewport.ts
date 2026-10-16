@@ -1,4 +1,5 @@
 // 大文档视口裁剪(PRD 质量要求:5MB 文档输入 p95 ≤16ms)。
+// 不用节点装饰标记隐藏块:ProseMirror 的 DecorationSet 建 / 加顶层节点装饰是「子节点数 × 装饰数」,几万个块时卡死。
 // 顶层块很多时,离视口较远的块用样式表隐藏(display:none,不参与排版),外层容器用上下内边距补足它们的高度,
 // 每次按键与滚动只排版视口附近的一百来个块。只改样式表与外层容器,不碰 ProseMirror 管理的 DOM
 // (改了会被当成外部修改而重绘)。打印与导出不受影响:规则只在屏幕上、且挂在编辑器外层容器的类上。
@@ -46,8 +47,15 @@ function docEdgeKey(e: KeyboardEvent): -1 | 0 | 1 {
 }
 
 export function viewportPlugin(): Plugin {
+  let current: Viewport | null = null
   return new Plugin({
-    view: (view) => new Viewport(view),
+    view: (view) => (current = new Viewport(view, () => (current = null))),
+    // 光标跳进被隐藏的块(文末、查找定位、大纲跳转):要在 ProseMirror 把 DOM 选区放进去之前先显示它,
+    // 放进不排版元素里的选区会被 WebKit 直接丢掉,之后 ProseMirror 也不再同步选区
+    appendTransaction(_trs, oldState, newState) {
+      if (current && oldState.doc === newState.doc && !oldState.selection.eq(newState.selection)) current.reveal(newState)
+      return null
+    },
     props: {
       // 裁剪后被隐藏的块里放不进原生光标,文首 / 文末跳转由这里按文档位置处理
       handleKeyDown(view, event) {
@@ -79,7 +87,10 @@ class Viewport {
   private readonly resize = new ResizeObserver(() => this.schedule(true))
   private lastWidth = 0
 
-  constructor(private readonly view: EditorView) {
+  constructor(
+    private readonly view: EditorView,
+    private readonly onDestroy: () => void,
+  ) {
     this.host = view.dom.parentElement ?? document.body
     this.scroller = (view.dom.closest('.tz-scroll') as HTMLElement | null) ?? document.documentElement
     this.scroller.addEventListener('scroll', this.onScroll, { passive: true })
@@ -115,7 +126,9 @@ class Viewport {
       } else if (at <= this.to) {
         this.to = Math.max(this.from + 1, this.to + delta)
       }
-      this.rebuildHeights(doc)
+      // 只在文末追加了块(分段载入)时,沿用已有高度、只给新块估高
+      if (at >= prev.doc.childCount && this.heights.length === prev.doc.childCount) this.appendHeights(doc)
+      else this.rebuildHeights(doc)
       changed = true
     }
     // 光标移动或输入后,光标所在块必须在窗口里:跳转、全选、查找定位后要能显示光标、滚到光标。
@@ -140,7 +153,19 @@ class Viewport {
     }
   }
 
+  /** 新状态的光标所在块不在窗口里时,立即把窗口移过去(文档结构与当前 DOM 相同时才调用)。 */
+  reveal(state: EditorState): void {
+    if (!this.active) return
+    const head = topIndex(state.doc, state.selection.head)
+    if (head >= this.from && head < this.to) return
+    this.from = Math.max(0, head - 40)
+    this.to = Math.min(state.doc.childCount, head + 80)
+    this.apply(state)
+    this.schedule()
+  }
+
   destroy(): void {
+    this.onDestroy()
     cancelAnimationFrame(this.frame)
     this.scroller.removeEventListener('scroll', this.onScroll)
     this.resize.disconnect()
@@ -190,6 +215,15 @@ class Viewport {
     this.heights = heights
   }
 
+  private appendHeights(doc: PMNode): void {
+    const heights = new Float64Array(doc.childCount)
+    heights.set(this.heights)
+    const width = Math.max(200, this.view.dom.clientWidth || 700)
+    const font = Number.parseFloat(getComputedStyle(this.view.dom).fontSize) || 16
+    for (let i = this.heights.length; i < doc.childCount; i++) heights[i] = this.estimate(doc.child(i), font, width)
+    this.heights = heights
+  }
+
   private sum(from: number, to: number): number {
     let s = 0
     for (let i = from; i < to; i++) s += this.heights[i]
@@ -197,14 +231,16 @@ class Viewport {
   }
 
   /** 应用窗口:隐藏规则与上下内边距。 */
-  private apply(): void {
+  private apply(state: EditorState = this.view.state): void {
     const first = this.domIndex(this.from)
     const last = this.domIndex(this.to - 1)
     if (first < 0 || last < 0) return
-    const head = topIndex(this.view.state.doc, this.view.state.selection.head)
+    const head = topIndex(state.doc, state.selection.head)
     const keep = head < this.from || head >= this.to ? this.domIndex(head) + 1 : 0
     styleEl ??= document.head.appendChild(Object.assign(document.createElement('style'), { id: 'tz-viewport' }))
-    styleEl.textContent = ruleFor(first, last + 1, keep)
+    // 规则没变就不写:改样式表会让整页样式重算(分段追加时窗口不变,只有下内边距变)
+    const rule = ruleFor(first, last + 1, keep)
+    if (styleEl.textContent !== rule) styleEl.textContent = rule
     this.host.style.paddingTop = `${Math.round(this.sum(0, this.from))}px`
     this.host.style.paddingBottom = `${Math.round(this.sum(this.to, this.heights.length))}px`
   }

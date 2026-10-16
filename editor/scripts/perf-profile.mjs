@@ -61,12 +61,66 @@ function summarize(profile, n = 40) {
   return { self: top(self), total: top(total) }
 }
 
+/** 打包文件里模块标记(`//#region node_modules/…` 或 `src/…`)对应的包名 / 源码目录。 */
+function moduleGroup(path) {
+  const m = /node_modules\/((?:@[^/]+\/)?[^/]+)/.exec(path)
+  if (m) return m[1]
+  return path.split('/').slice(0, 2).join('/')
+}
+
+/** V8 覆盖率 → 每个脚本启动时执行过的字节,并按模块标记分组,看启动时加载了却没执行的大头。 */
+function coverageReport(entries) {
+  const scripts = []
+  const groups = new Map()
+  for (const e of entries) {
+    if (!e.url.includes('/assets/') || !e.source) continue
+    const used = new Uint8Array(e.source.length)
+    // 外层范围先填、内层后填覆盖(V8 的块覆盖是嵌套的)
+    const ranges = e.functions.flatMap((f) => f.ranges).sort((a, b) => a.startOffset - b.startOffset || b.endOffset - a.endOffset)
+    for (const r of ranges) used.fill(r.count > 0 ? 1 : 0, r.startOffset, r.endOffset)
+    let usedBytes = 0
+    for (const b of used) usedBytes += b
+    scripts.push({ script: e.url.replace(/^https?:\/\/[^/]+/, ''), kb: Math.round(e.source.length / 1024), usedKb: Math.round(usedBytes / 1024) })
+    const re = /^\/\/(?:#region)? ?((?:\.\.\/)*node_modules\/\S+|src\/\S+)/gm
+    let name = '(未标记)'
+    let start = 0
+    const flush = (end) => {
+      let u = 0
+      for (let i = start; i < end; i++) u += used[i]
+      const g = groups.get(name) ?? { bytes: 0, used: 0 }
+      g.bytes += end - start
+      g.used += u
+      groups.set(name, g)
+    }
+    for (let m = re.exec(e.source); m; m = re.exec(e.source)) {
+      flush(m.index)
+      name = moduleGroup(m[1])
+      start = m.index
+    }
+    flush(e.source.length)
+  }
+  const modules = [...groups.entries()]
+    .map(([name, g]) => ({ module: name, kb: Math.round(g.bytes / 1024), unusedKb: Math.round((g.bytes - g.used) / 1024) }))
+    .sort((a, b) => b.unusedKb - a.unusedKb)
+    .slice(0, 30)
+  return { scripts, modules }
+}
+
 // 开发服务器会走依赖的 development 构建(micromark 带断言与 debug),剖析结果失真;这里用生产构建
 await new Promise((resolve, reject) => {
   const build = spawn('npx', ['vite', 'build', '--minify', 'false', '--outDir', 'dist-perf'], { stdio: 'inherit' })
   build.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`构建失败:${code}`))))
 })
-const server = spawn('npx', ['vite', 'preview', '--outDir', 'dist-perf', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'inherit'] })
+// 单独成进程组:npx 拉起的 vite 子进程继承了标准错误,只杀 npx 时它还占着 CI 的 tee 管道,步骤会一直等到超时
+const server = spawn('npx', ['vite', 'preview', '--outDir', 'dist-perf', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'inherit'], detached: true })
+const stopServer = () => {
+  try {
+    process.kill(-server.pid, 'SIGTERM')
+  } catch {
+    // 进程组已经退出
+  }
+}
+process.on('exit', stopServer)
 await new Promise((resolve, reject) => {
   const timer = setTimeout(() => reject(new Error('Vite 开发服务器 60 秒内没起来')), 60_000)
   server.stdout.on('data', (d) => {
@@ -77,12 +131,16 @@ await new Promise((resolve, reject) => {
   })
 })
 
-const report = { scaling: [], scalingWebkit: [], phases: {}, profiles: {}, hotSource: {} }
+const report = { scaling: [], scalingWebkit: [], startup: {}, phases: {}, profiles: {}, hotSource: {} }
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 function writeReport() {
   writeFileSync(join(out, 'perf.json'), JSON.stringify(report, null, 2))
   const lines = [`# 大文档性能剖析(Chromium,不压缩的生产构建)`, '', '## 规模与耗时', '', '```json', JSON.stringify(report.scaling, null, 2), '```', '', `剖析文档 ${report.bytes} 字节,${report.blocks} 个顶层块`, '', '```json', JSON.stringify(report.phases, null, 2), '```']
   lines.push('', '## WebKit 规模与耗时', '', '```json', JSON.stringify(report.scalingWebkit, null, 2), '```')
+  if (report.startup.scripts) {
+    lines.push('', `## 启动 · 到编辑器就绪 ${report.startup.readyMs} 毫秒`, '', '| 脚本 | KB | 启动时执行过 KB |', '|---|---|---|', ...report.startup.scripts.map((x) => `| ${x.script} | ${x.kb} | ${x.usedKb} |`))
+    lines.push('', '## 启动 · 加载了没执行的模块 Top', '', '| 模块 | KB | 没执行 KB |', '|---|---|---|', ...report.startup.modules.map((x) => `| ${x.module} | ${x.kb} | ${x.unusedKb} |`))
+  }
   for (const [fn, src] of Object.entries(report.hotSource)) {
     lines.push('', `## 热点源码 · ${fn}`, '', `所属:${src.origin || '未识别'}`, '', '```js', src.code, '```')
   }
@@ -105,16 +163,38 @@ const measure = (page, size, path) =>
       await window.typozaTest.app.openFile(path, { replace: true })
       await new Promise((r) => requestAnimationFrame(() => r()))
       const openMs = performance.now() - t1
+      // 大文档分段载入:等全文载完(最多 3 分钟,载不完记为 -1,别让整个剖析挂住)
+      while (window.typozaTest.app.loading && performance.now() - t1 < 180_000) await new Promise((r) => setTimeout(r, 20))
+      const loadedMs = window.typozaTest.app.loading ? -1 : performance.now() - t1
       const t2 = performance.now()
       await window.typozaTest.load('# 小文档\n\n一段话。\n')
       const closeMs = performance.now() - t2
-      return { blocks: doc.childCount, parseMs: Math.round(parseMs), openMs: Math.round(openMs), closeMs: Math.round(closeMs) }
+      return { blocks: doc.childCount, parseMs: Math.round(parseMs), openMs: Math.round(openMs), loadedMs: Math.round(loadedMs), closeMs: Math.round(closeMs) }
     },
     { text: bigMarkdown(size), path },
   )
 
 const browser = await chromium.launch()
 try {
+  // 启动:从导航到编辑器就绪的 CPU 剖析与脚本覆盖率(冷启动 ≤1 秒的 JS 一侧)
+  {
+    const sp = await browser.newPage({ viewport: { width: 1280, height: 860 } })
+    const scdp = await sp.context().newCDPSession(sp)
+    await scdp.send('Profiler.enable')
+    await scdp.send('Profiler.setSamplingInterval', { interval: 200 })
+    await sp.coverage.startJSCoverage({ resetOnNavigation: false })
+    await scdp.send('Profiler.start')
+    const t = Date.now()
+    await sp.goto(`http://localhost:${PORT}/`)
+    await sp.waitForSelector('html[data-ready="true"]', { timeout: 120_000 })
+    report.startup.readyMs = Date.now() - t
+    const { profile } = await scdp.send('Profiler.stop')
+    report.profiles['启动'] = summarize(profile)
+    Object.assign(report.startup, coverageReport(await sp.coverage.stopJSCoverage()))
+    report.startup.marks = await sp.evaluate(() => performance.getEntriesByType('mark').map((m) => ({ name: m.name, ms: Math.round(m.startTime) })))
+    await sp.close()
+    log('启动剖析完成', report.startup.readyMs, 'ms')
+  }
   const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
   page.setDefaultTimeout(600_000)
   await page.goto(`http://localhost:${PORT}/`)
@@ -156,7 +236,9 @@ try {
       const t = performance.now()
       await window.typozaTest.app.openFile('/demo/big.md', { replace: true })
       await new Promise((r) => requestAnimationFrame(() => r()))
-      return Math.round(performance.now() - t)
+      const first = Math.round(performance.now() - t)
+      while (window.typozaTest.app.loading && performance.now() - t < 180_000) await new Promise((r) => setTimeout(r, 20))
+      return { firstScreen: first, loaded: window.typozaTest.app.loading ? -1 : Math.round(performance.now() - t) }
     }),
   )
   report.phases.input = await profiled('连续输入', () =>
@@ -220,7 +302,7 @@ writeReport()
     const wpage = await wk.newPage({ viewport: { width: 1280, height: 860 } })
     await wpage.goto(`http://localhost:${PORT}/`)
     await wpage.waitForSelector('html[data-ready="true"]', { timeout: 120_000 })
-    for (const kb of [64, 128, 256, 512]) {
+    for (const kb of [64, 128, 256, 512, 1024, 2048, 5120]) {
       const started = Date.now()
       const r = await Promise.race([
         measure(wpage, kb * 1024, `/demo/wk-${kb}.md`),
@@ -236,10 +318,10 @@ writeReport()
     }
   } finally {
     await wk.close()
-    server.kill()
+    stopServer()
   }
 }
 writeReport()
 console.log(JSON.stringify(report.phases))
-// vite preview 由 npx 拉起,kill 只结束 npx,子进程会让本进程挂住;显式退出
+// 显式退出:还有未结束的句柄时 node 不会自己退
 process.exit(0)

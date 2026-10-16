@@ -2,7 +2,7 @@
 import type { Node as PMNode } from 'prosemirror-model'
 import YAML from 'yaml'
 import { bundleOf } from '../core/filetypes'
-import { type DocMeta, parseMarkdown } from '../core/markdown/parse'
+import { assembleDoc, type DocMeta, MarkdownChunks, parseMarkdown } from '../core/markdown/parse'
 import { serializeMarkdown } from '../core/markdown/serialize'
 import { dirname, joinPath, normalizePath } from '../core/paths'
 import { schema } from '../core/schema'
@@ -28,6 +28,8 @@ export class DocumentSession {
   savedText = ''
   /** 只读原因(PRD 3.1 异常):permission = 没有写权限,large = 超过大文件阈值、以只读源码打开;null 为可写 */
   readOnly: 'permission' | 'large' | null = null
+  /** 大文档还在分段载入:正文不全,不能编辑、保存、导出 */
+  loading = false
 
   constructor(
     private readonly host: Host,
@@ -50,6 +52,23 @@ export class DocumentSession {
     return parsed.doc
   }
 
+  /**
+   * 渐进打开:读入全文,只先解析第一段返回;其余段由调用方用 rest 逐段解析后追加(rest 为 null 表示已全部解析)。
+   * 会话的 meta 与 rest 共用一个对象,最后一段解析完时文末原文(trailing)才确定。
+   */
+  async loadProgressive(path: string, encoding?: string): Promise<{ doc: PMNode; rest: MarkdownChunks | null }> {
+    const result = await this.host.readText(path, encoding)
+    const chunks = new MarkdownChunks(result.text, parseOptionsFrom(this.settings()))
+    const blocks: PMNode[] = []
+    // 第一段若只到 front matter 为止就再多解析一段:半截文档的末尾不能是 front matter(组装时会补空段落)
+    do blocks.push(...chunks.nextBlocks())
+    while (!chunks.done && (blocks.length === 0 || blocks[blocks.length - 1].type === schema.nodes.frontmatter))
+    const doc = chunks.done ? assembleDoc(blocks) : schema.nodes.doc.create(null, blocks)
+    this.adopt(path, result)
+    this.meta = chunks.meta
+    return { doc, rest: chunks.done ? null : chunks }
+  }
+
   /** 只读进原文、不解析(超大文件以只读源码打开) */
   async loadText(path: string, encoding?: string): Promise<string> {
     const result = await this.host.readText(path, encoding)
@@ -65,6 +84,7 @@ export class DocumentSession {
     this.savedText = result.text
     this.dirty = false
     this.readOnly = null
+    this.loading = false
   }
 
   createEmpty(): PMNode {
@@ -76,6 +96,7 @@ export class DocumentSession {
     this.savedText = ''
     this.dirty = false
     this.readOnly = null
+    this.loading = false
     return schema.nodes.doc.create(null, schema.nodes.paragraph.create())
   }
 

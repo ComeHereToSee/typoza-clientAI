@@ -10,9 +10,8 @@ const modules = join(dirname(fileURLToPath(import.meta.url)), '..', 'node_module
 
 const PATCHES = [
   {
-    // micromark-extension-gfm-table 2.1.2:每解析完一张表,EditMap.consume 都把「文档到目前为止的全部分词事件」
-    // 复制一遍再塞回去。文档含列表、引用等容器时整篇共用一个分词器,事件随文档增长,
-    // 于是总耗时 = 表格数 × 文档长度(5MB 混排文档解析要几十秒)。第一处修改之前的前缀根本没变,不必复制。
+    // micromark-extension-gfm-table 2.1.2:EditMap.consume 把第一处修改之前的全部事件复制一遍再塞回去;
+    // 这段前缀根本没变,不必复制(对很长的事件数组反复调用时,复制是主要耗时)。
     file: 'micromark-extension-gfm-table/lib/edit-map.js',
     before: '    vecs.push(events.slice());\n    events.length = 0;\n    let slice = vecs.pop();',
     after: '    // [typoza 补丁] 不复制未改动的前缀\n    let slice = vecs.pop();',
@@ -20,6 +19,18 @@ const PATCHES = [
   {
     // 同一处的开发版(Vite 开发服务器与带 development 条件的运行环境会用到)
     file: 'micromark-extension-gfm-table/dev/lib/edit-map.js',
+    before: '    vecs.push(events.slice())\n    events.length = 0\n\n    let slice = vecs.pop()',
+    after: '    // [typoza 补丁] 不复制未改动的前缀\n    let slice = vecs.pop()',
+  },
+  {
+    // micromark-util-edit-map 1.0.0(上面那份的独立包版本):micromark 的文档分词器每关一次容器(列表、引用)
+    // 都对「整篇到目前为止的事件」调用 consume,同样复制整个前缀,整篇解析成了平方级(剖析热点,5MB 约 50 秒)
+    file: 'micromark-util-edit-map/index.js',
+    before: '    vecs.push(events.slice());\n    events.length = 0;\n    let slice = vecs.pop();',
+    after: '    // [typoza 补丁] 不复制未改动的前缀\n    let slice = vecs.pop();',
+  },
+  {
+    file: 'micromark-util-edit-map/dev/index.js',
     before: '    vecs.push(events.slice())\n    events.length = 0\n\n    let slice = vecs.pop()',
     after: '    // [typoza 补丁] 不复制未改动的前缀\n    let slice = vecs.pop()',
   },

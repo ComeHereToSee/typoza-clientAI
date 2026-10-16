@@ -70,6 +70,28 @@ test('快捷键:加粗、标题、复制块、待办切换', async ({ page }) =>
   expect((await markdown(page)).trim()).toBe('- [x] 任务')
 })
 
+test('待办复选框与文字第一行垂直居中对齐(默认主题与行高更大的主题、改字号)', async ({ page }) => {
+  await loadDoc(page, '- 项目\n- 名称\n\n- [ ] 待办事项 2\n- [x] 已完成\n')
+  /** 复选框中心与第一行文字中心的垂直偏差(像素) */
+  const offsets = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.tz-editor li.tz-task')].map((li) => {
+        const box = li.querySelector('.tz-task-box')!.getBoundingClientRect()
+        const p = li.querySelector('.tz-task-content > p')!
+        const range = document.createRange()
+        range.selectNodeContents(p)
+        const line = range.getClientRects()[0]
+        return Math.abs(box.top + box.height / 2 - (line.top + line.height / 2))
+      }),
+    )
+  for (const o of await offsets()) expect(o).toBeLessThan(1.5)
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = 'whitey'
+    document.documentElement.style.setProperty('--tz-font-size', '20px')
+  })
+  for (const o of await offsets()) expect(o).toBeLessThan(1.5)
+})
+
 test('Esc 选中块后用方向键与 ⇧⌘↑ 移动', async ({ page }) => {
   const mod = await modKey(page)
   await loadDoc(page, '第一段\n\n第二段\n')

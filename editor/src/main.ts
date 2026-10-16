@@ -43,6 +43,8 @@ async function boot(): Promise<void> {
       async load(markdown, path = `${DEMO_ROOT}/测试-${++loadSeq}.md`) {
         host.files.set(path, { kind: 'file', data: markdown, mtime: Date.now() })
         await app.openFile(path, { replace: true })
+        // 大文档分段载入:等全文载完再交给用例
+        while (app.loading) await new Promise((r) => setTimeout(r, 10))
       },
       markdown: () => app.markdown(),
       parse: parseMarkdown,

@@ -134,6 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             openWelcome(reuseBlank: true)
         }
         NSApp.activate(ignoringOtherApps: true)
+        mark("didFinishLaunchingEnd")
     }
 
     var isDark: Bool {

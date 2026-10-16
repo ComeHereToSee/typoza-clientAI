@@ -11,4 +11,12 @@ describe('依赖性能补丁', () => {
       expect(code).not.toContain('vecs.push(events.slice())')
     }
   })
+
+  it('文档分词器关容器时不再复制整篇事件前缀(micromark-util-edit-map)', () => {
+    for (const file of ['index.js', 'dev/index.js']) {
+      const code = readFileSync(resolve(process.cwd(), 'node_modules/micromark-util-edit-map', file), 'utf8')
+      expect(code).toContain('[typoza 补丁]')
+      expect(code).not.toContain('vecs.push(events.slice())')
+    }
+  })
 })

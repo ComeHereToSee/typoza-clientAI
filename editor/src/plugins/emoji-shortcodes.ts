@@ -48,7 +48,9 @@ function scanAll(doc: PMNode): Candidate[] {
 /** 文档变化后:未改动段落里的候选按映射平移,改动过的段落整段重扫。 */
 function rescan(prev: Candidate[], tr: Transaction): Candidate[] {
   const doc = tr.doc
-  const blocks: [number, number][] = []
+  // 记下遍历时拿到的节点:之后再用 doc.nodeAt(pos) 定位,顶层要线性扫子节点,
+  // 大文档一次追加上千块(分段载入)时就成了「块数 × 全文块数」
+  const blocks: [number, number, PMNode][] = []
   tr.mapping.maps.forEach((map, i) => {
     const rest = tr.mapping.slice(i + 1)
     map.forEach((_a, _b, start, end) => {
@@ -56,7 +58,7 @@ function rescan(prev: Candidate[], tr: Transaction): Candidate[] {
       const to = Math.min(doc.content.size, rest.map(end, 1))
       doc.nodesBetween(from, to, (node, pos) => {
         if (node.isTextblock) {
-          blocks.push([pos, pos + node.nodeSize])
+          blocks.push([pos, pos + node.nodeSize, node])
           return false
         }
         return true
@@ -72,11 +74,10 @@ function rescan(prev: Candidate[], tr: Transaction): Candidate[] {
     out.push({ from: from.pos, to: to.pos, code: c.code })
   }
   const seen = new Set<number>()
-  for (const [pos] of blocks) {
+  for (const [pos, , node] of blocks) {
     if (seen.has(pos)) continue
     seen.add(pos)
-    const node = doc.nodeAt(pos)
-    if (node?.isTextblock) scanBlock(node, pos, out)
+    scanBlock(node, pos, out)
   }
   return out.sort((a, b) => a.from - b.from)
 }

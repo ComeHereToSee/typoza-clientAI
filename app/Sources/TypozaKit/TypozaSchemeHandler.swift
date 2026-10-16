@@ -13,6 +13,9 @@ public final class TypozaSchemeHandler: NSObject, WKURLSchemeHandler {
     private var stopped = Set<ObjectIdentifier>()
     private let queue = DispatchQueue(label: "typoza.scheme", qos: .userInitiated, attributes: .concurrent)
 
+    /// 每个请求开始时回调(主线程),冒烟自检用它记启动时间点
+    public var onRequest: ((URL) -> Void)?
+
     public init(appRoot: URL) {
         self.appRoot = appRoot.standardizedFileURL
     }
@@ -26,6 +29,7 @@ public final class TypozaSchemeHandler: NSObject, WKURLSchemeHandler {
             urlSchemeTask.didFailWithError(URLError(.badURL))
             return
         }
+        onRequest?(url)
         let fileURL: URL
         switch url.host {
         case "app":
