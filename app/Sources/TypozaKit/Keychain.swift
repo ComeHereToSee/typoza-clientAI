@@ -15,14 +15,17 @@ public struct KeychainError: Error, LocalizedError, Equatable {
     }
 }
 
-/// 登录钥匙串里的一条通用密码。云同步的会话密钥(刷新令牌、账户密钥)只存这里,不写任何文件。
+/// 登录钥匙串里的一条通用密码。云同步的会话密钥(刷新令牌、账户密钥)与 AI 密钥只存这里,不写任何文件。
 public struct KeychainItem {
     public let service: String
     public let account: String
+    /// 钥匙串访问里显示的名称
+    public let label: String
 
-    public init(service: String, account: String) {
+    public init(service: String, account: String, label: String = "Typoza 云同步") {
         self.service = service
         self.account = account
+        self.label = label
     }
 
     private var query: [String: Any] {
@@ -49,7 +52,7 @@ public struct KeychainItem {
         if status == errSecItemNotFound {
             var add = query
             add[kSecValueData as String] = data
-            add[kSecAttrLabel as String] = "Typoza 云同步"
+            add[kSecAttrLabel as String] = label
             // 只在本机、开机解锁后可读;不随 iCloud 钥匙串同步到其它设备
             add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
             status = SecItemAdd(add as CFDictionary, nil)

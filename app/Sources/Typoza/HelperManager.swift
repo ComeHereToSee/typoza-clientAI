@@ -2,11 +2,12 @@ import AppKit
 import SystemConfiguration
 import TypozaKit
 
-/// 管理同步辅助进程 typoza-helper:按需启动、意外退出后退避重启、退出应用时让它收尾。
-/// 会话密钥只存在钥匙串:启动后从钥匙串取出经管道交给辅助进程,辅助进程推来新密钥时写回钥匙串。
+/// 管理辅助进程 typoza-helper(云同步与 AI):按需启动、意外退出后退避重启、退出应用时让它收尾。
+/// 会话密钥与 AI 密钥只存在钥匙串:启动后从钥匙串取出经管道交给辅助进程,辅助进程推来新密钥时写回钥匙串。
 final class HelperManager {
-    /// 把辅助进程的 sync.* 通知推给所有窗口
+    /// 把辅助进程的 sync.* 与 ai.event 通知推给所有窗口
     var broadcast: ((String, [String: Any]) -> Void)?
+    private let aiSecrets = AISecretStore()
 
     private let keychain = KeychainItem(service: "app.typoza.mac.sync", account: "session")
     // 钥匙串读写走串行队列,保证「写入新令牌」与「退出时删除」按发生顺序执行
@@ -73,18 +74,24 @@ final class HelperManager {
         connection = conn
         startedAt = Date()
         resumeSession(conn)
+        pushAISecrets(conn)
     }
 
-    /// 网页调用 sync.*。结果统一包成 {ok, result} 或 {ok: false, error: {code, message}},网页据错误码分支。
+    /// 网页调用 sync.* 与 ai.*。结果统一包成 {ok, result} 或 {ok: false, error: {code, message}},网页据错误码分支。
     func callFromWeb(_ method: String, params: [String: Any], reply: @escaping ([String: Any]) -> Void) {
-        // session.* 带密钥,只在外壳与辅助进程之间流转,网页不能调用
-        guard method.hasPrefix("sync.") else {
+        // session.* 与 ai.secrets 带密钥,只在外壳与辅助进程之间流转,网页不能调用
+        guard HelperPolicy.webCallable(method) else {
             reply(["ok": false, "error": ["code": "forbidden", "message": "不允许调用 \(method)"]])
+            return
+        }
+        if method == "ai.secret.set" {
+            setAISecret(params, reply: reply)
             return
         }
         ensureStarted()
         guard let conn = connection else {
-            reply(["ok": false, "error": ["code": "unavailable", "message": "同步组件没能启动,详见 ~/Library/Logs/Typoza/helper.log"]])
+            let part = method.hasPrefix("ai.") ? "AI 组件" : "同步组件"
+            reply(["ok": false, "error": ["code": "unavailable", "message": "\(part)没能启动,详见 ~/Library/Logs/Typoza/helper.log"]])
             return
         }
         conn.call(method, params: params) { result in
@@ -108,6 +115,42 @@ final class HelperManager {
     }
 
     // ---------- 私有 ----------
+
+    /// 网页写 AI 密钥:存钥匙串后把全量密钥推给辅助进程(网页读不回来)。
+    private func setAISecret(_ params: [String: Any], reply: @escaping ([String: Any]) -> Void) {
+        guard let ref = params["ref"] as? String, let value = params["value"] as? String else {
+            reply(["ok": false, "error": ["code": "invalid", "message": "缺少参数 ref 或 value"]])
+            return
+        }
+        keychainQueue.async {
+            do {
+                try self.aiSecrets.set(ref, value: value)
+            } catch {
+                DispatchQueue.main.async { reply(["ok": false, "error": ["code": "invalid", "message": error.localizedDescription]]) }
+                return
+            }
+            DispatchQueue.main.async {
+                if let conn = self.connection { self.pushAISecrets(conn) }
+                reply(["ok": true, "result": [String: Any]()])
+            }
+        }
+    }
+
+    private func pushAISecrets(_ conn: HelperConnection) {
+        keychainQueue.async {
+            let secrets: [String: String]
+            do {
+                secrets = try self.aiSecrets.all()
+            } catch {
+                NSLog("Typoza:读取 AI 密钥失败:%@", error.localizedDescription)
+                return
+            }
+            conn.call("ai.secrets", params: ["secrets": secrets]) { result in
+                guard case .failure(let failure) = result else { return }
+                NSLog("Typoza:向辅助进程推送 AI 密钥失败:%@", failure.message)
+            }
+        }
+    }
 
     private func resumeSession(_ conn: HelperConnection) {
         keychainQueue.async {
@@ -150,6 +193,10 @@ final class HelperManager {
             }
             return
         }
+        if method == "ai.event" {
+            broadcast?("ai.event", (params as? [String: Any]) ?? [:])
+            return
+        }
         guard method.hasPrefix("sync.") else { return }
         broadcast?("sync.event", ["method": method, "params": params ?? NSNull()])
     }
@@ -164,6 +211,15 @@ final class HelperManager {
             } catch {
                 respond(nil, error.localizedDescription)
             }
+        case "host.openURL":
+            // MCP 授权与征询的网址交给系统浏览器(规范要求客户端看不到页面内容)
+            guard let raw = params["url"] as? String, let url = URL(string: raw), ["https", "http"].contains(url.scheme ?? "") else {
+                return respond(nil, "网址不合法")
+            }
+            NSWorkspace.shared.open(url)
+            respond([:], nil)
+        case "host.elicit":
+            respond(ElicitationForm.run(params), nil)
         default:
             respond(nil, "外壳不支持 \(method)")
         }

@@ -358,8 +358,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
                 }
             }
 
-        case "sync.call":
-            // 云同步:转发给辅助进程;结果里带 ok 与错误码,不走 reply 的错误通道
+        case "sync.call", "ai.call":
+            // 云同步与 AI:转发给辅助进程(外壳按白名单放行、AI 密钥由外壳写钥匙串);结果里带 ok 与错误码,不走 reply 的错误通道
             app.helper.callFromWeb(params.optionalString("method") ?? "", params: params.dictionary("params")) { reply($0, nil) }
 
         case "settings.get":
