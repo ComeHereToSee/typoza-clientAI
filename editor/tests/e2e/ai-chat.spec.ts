@@ -241,8 +241,10 @@ test('@ 引用 MCP 资源:出现在建议里,选中后成为上下文标签,发�
   const input = page.locator('.tz-ai-panel textarea[name=prompt]')
   await input.click()
   await input.pressSequentially('@演示')
-  await expect(page.locator('.tz-ai-suggest .tz-menu-item[data-id="res:demo:demo://readme"]')).toBeVisible()
-  await input.press('Enter')
+  const item = page.locator('.tz-ai-suggest .tz-menu-item[data-id="res:demo:demo://readme"]')
+  await expect(item).toBeVisible()
+  // 点选(建议里可能还有同名的文档排在前面,不用回车选第一项)
+  await item.click()
   await expect(page.locator('.tz-ai-panel .tz-ai-chip[data-kind=resource]')).toContainText('演示说明')
 
   await queueReply(page, [{ text: '收到。' }])
