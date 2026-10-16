@@ -127,7 +127,22 @@ interface McpStatus { serverId: string; state: 'connected' | 'connecting' | 'fai
 |---|---|---|
 | `ai.secrets` | 外壳 → 辅助进程 | `{secrets: Record<secretRef, string>}`,启动后与每次 `ai.secret.set` 后全量推送 |
 | `host.openURL` | 辅助进程 → 外壳(请求) | `{url}`:MCP OAuth 与征询的网址交给系统浏览器 |
-| `host.elicit` | 辅助进程 → 外壳(请求) | `{serverId, message, schema}` → `{action: 'accept' \| 'decline' \| 'cancel', content?}`;外壳弹原生表单 |
+| `host.elicit` | 辅助进程 → 外壳(请求) | `{serverId, serverName, message, schema}` → `{action: 'accept' \| 'decline' \| 'cancel', content?}`;外壳弹原生表单。网址型征询先以空 schema 征得同意,再 `host.openURL` |
+| `host.storeSecret` | 辅助进程 → 外壳(请求) | `{ref, value}`:只接受 `mcp-oauth:` 开头的引用(MCP OAuth 令牌);外壳写钥匙串后照常全量推回 `ai.secrets`;value 为空串表示删除 |
+
+### 3.6 实现定案(各方按此,2026-10-16 补)
+
+1. `typoza__edit_document` 参数 `kind, text, find?, from?, to?`;`from` / `to` 是当前文档 Markdown 原文(换行统一为 `\n`、不含 BOM)里的字符位置;给了 `find` 时以 `find` 为准;`insert` 两者都没给时追加到文末。`doc.edit` 事件的 `edit` 同此。
+2. `ai.complete`:网页发填好占位符的完整 `prompt`(必填),辅助进程原样交给模型;自定义动作另带 `actionId`(只用来取该动作指定的模型);`/ai` 另带 `cursor`。内置动作只在网页,设置里的 `actions` 只放用户自定义的。
+3. 连接器「当前文件夹」:网页在用户消息的 context 里带 `{kind: 'file', ref: 'folder', path}`,内置文档工具以它为根;没有时用当前文档所在文件夹。
+4. `ai.settings.update` 里 `defaultModel: null` / `fastModel: null` 表示删除该字段。
+5. 编辑第一条用户消息后重发:先 `ai.chat.setLeaf {leafId: null}`,再 `ai.chat.send`(不给 parentId),新消息成为新根。
+6. `ai.chat.setLeaf` 给的不是末端时,沿最新创建的子消息走到底;返回的 `leafId` 是实际末端。
+7. `message.delta` 接在该消息最后一个文字部件后;最后一个部件不是文字时新开一个文字部件(网页按同一规则拼接)。
+8. `McpStatus.prompts[]` 带 `arguments: {name, description?, required?}[]`。
+9. `ai.mcp.import` 的结果 `added` 是新服务器的 ID;像密钥的环境变量 / 请求头只留名字、值置空,用户要在设置页重填。
+10. 工具轮次到上限:回答状态 `done`,文末追加提示,超限那一轮的调用记为 `error`。
+11. 新建条目时 `id` 可留空由辅助进程分配;自带 id 只能是 `[a-z0-9_-]`;serverId 不能含 `__`。内置助手 ID 为 `writing`。
 
 ## 4. 关键实现
 

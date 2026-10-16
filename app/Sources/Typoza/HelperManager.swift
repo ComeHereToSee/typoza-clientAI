@@ -220,6 +220,23 @@ final class HelperManager {
             respond([:], nil)
         case "host.elicit":
             respond(ElicitationForm.run(params), nil)
+        case "host.storeSecret":
+            // 辅助进程只能存 MCP OAuth 令牌(登录后拿到的新令牌);其它密钥只能由用户在设置页写入
+            guard let ref = params["ref"] as? String, ref.hasPrefix("mcp-oauth:"), let value = params["value"] as? String else {
+                return respond(nil, "只能保存 mcp-oauth: 开头的令牌")
+            }
+            keychainQueue.async {
+                do {
+                    try self.aiSecrets.set(ref, value: value)
+                } catch {
+                    DispatchQueue.main.async { respond(nil, error.localizedDescription) }
+                    return
+                }
+                DispatchQueue.main.async {
+                    if let conn = self.connection { self.pushAISecrets(conn) }
+                    respond([:], nil)
+                }
+            }
         default:
             respond(nil, "外壳不支持 \(method)")
         }
