@@ -1,0 +1,1863 @@
+{
+  "scaling": [
+    {
+      "kb": 256,
+      "blocks": 2792,
+      "parseMs": 270,
+      "openMs": 125,
+      "loadedMs": 363,
+      "closeMs": 7
+    },
+    {
+      "kb": 512,
+      "blocks": 5556,
+      "parseMs": 339,
+      "openMs": 83,
+      "loadedMs": 553,
+      "closeMs": 7
+    },
+    {
+      "kb": 1024,
+      "blocks": 11036,
+      "parseMs": 610,
+      "openMs": 86,
+      "loadedMs": 1036,
+      "closeMs": 13
+    },
+    {
+      "kb": 2048,
+      "blocks": 21998,
+      "parseMs": 1352,
+      "openMs": 123,
+      "loadedMs": 1882,
+      "closeMs": 17
+    },
+    {
+      "kb": 5120,
+      "blocks": 54678,
+      "parseMs": 2669,
+      "openMs": 86,
+      "loadedMs": 4366,
+      "closeMs": 43
+    }
+  ],
+  "scalingWebkit": [
+    {
+      "kb": 64,
+      "blocks": 704,
+      "parseMs": 119,
+      "openMs": 210,
+      "loadedMs": 210,
+      "closeMs": 11
+    },
+    {
+      "kb": 128,
+      "blocks": 1402,
+      "parseMs": 142,
+      "openMs": 124,
+      "loadedMs": 357,
+      "closeMs": 16
+    },
+    {
+      "kb": 256,
+      "blocks": 2792,
+      "parseMs": 234,
+      "openMs": 131,
+      "loadedMs": 499,
+      "closeMs": 12
+    },
+    {
+      "kb": 512,
+      "blocks": 5556,
+      "parseMs": 471,
+      "openMs": 122,
+      "loadedMs": 867,
+      "closeMs": 23
+    },
+    {
+      "kb": 1024,
+      "blocks": 11036,
+      "parseMs": 906,
+      "openMs": 146,
+      "loadedMs": 1793,
+      "closeMs": 38
+    },
+    {
+      "kb": 2048,
+      "blocks": 21998,
+      "parseMs": 1841,
+      "openMs": 128,
+      "loadedMs": 2951,
+      "closeMs": 51
+    },
+    {
+      "kb": 5120,
+      "blocks": 54678,
+      "parseMs": 5073,
+      "openMs": 181,
+      "loadedMs": 10194,
+      "closeMs": 118
+    }
+  ],
+  "startup": {
+    "readyMs": 412,
+    "scripts": [
+      {
+        "script": "/assets/rolldown-runtime-DbVrKiKs.js",
+        "kb": 2,
+        "usedKb": 1
+      },
+      {
+        "script": "/assets/dist-CmDfL8fU.js",
+        "kb": 585,
+        "usedKb": 160
+      },
+      {
+        "script": "/assets/index-3bPuAcfn.js",
+        "kb": 2484,
+        "usedKb": 1014
+      },
+      {
+        "script": "/assets/demo-DEtO0BR2.js",
+        "kb": 2,
+        "usedKb": 2
+      },
+      {
+        "script": "/assets/memory-Be1n-XrM.js",
+        "kb": 41,
+        "usedKb": 10
+      },
+      {
+        "script": "/assets/mhchem-k8Vdd0Me.js",
+        "kb": 55,
+        "usedKb": 24
+      },
+      {
+        "script": "/assets/katex-BEPN8FI0.js",
+        "kb": 485,
+        "usedKb": 326
+      }
+    ],
+    "modules": [
+      {
+        "module": "@codemirror/view",
+        "kb": 312,
+        "unusedKb": 256
+      },
+      {
+        "module": "katex",
+        "kb": 540,
+        "unusedKb": 189
+      },
+      {
+        "module": "src/app",
+        "kb": 241,
+        "unusedKb": 170
+      },
+      {
+        "module": "yaml",
+        "kb": 198,
+        "unusedKb": 164
+      },
+      {
+        "module": "prosemirror-view",
+        "kb": 175,
+        "unusedKb": 115
+      },
+      {
+        "module": "src/core",
+        "kb": 161,
+        "unusedKb": 102
+      },
+      {
+        "module": "src/plugins",
+        "kb": 138,
+        "unusedKb": 96
+      },
+      {
+        "module": "src/ai",
+        "kb": 104,
+        "unusedKb": 90
+      },
+      {
+        "module": "@codemirror/state",
+        "kb": 115,
+        "unusedKb": 75
+      },
+      {
+        "module": "prosemirror-tables",
+        "kb": 69,
+        "unusedKb": 56
+      },
+      {
+        "module": "micromark-core-commonmark",
+        "kb": 91,
+        "unusedKb": 51
+      },
+      {
+        "module": "prosemirror-transform",
+        "kb": 65,
+        "unusedKb": 49
+      },
+      {
+        "module": "src/views",
+        "kb": 65,
+        "unusedKb": 49
+      },
+      {
+        "module": "@lezer/markdown",
+        "kb": 65,
+        "unusedKb": 49
+      },
+      {
+        "module": "@lezer/common",
+        "kb": 62,
+        "unusedKb": 45
+      },
+      {
+        "module": "dompurify",
+        "kb": 84,
+        "unusedKb": 42
+      },
+      {
+        "module": "mdast-util-to-markdown",
+        "kb": 77,
+        "unusedKb": 41
+      },
+      {
+        "module": "prosemirror-model",
+        "kb": 96,
+        "unusedKb": 40
+      },
+      {
+        "module": "@codemirror/language",
+        "kb": 58,
+        "unusedKb": 37
+      },
+      {
+        "module": "@codemirror/commands",
+        "kb": 62,
+        "unusedKb": 37
+      },
+      {
+        "module": "@lezer/lr",
+        "kb": 48,
+        "unusedKb": 37
+      },
+      {
+        "module": "src/host",
+        "kb": 46,
+        "unusedKb": 36
+      },
+      {
+        "module": "@codemirror/search",
+        "kb": 39,
+        "unusedKb": 31
+      },
+      {
+        "module": "src/ui",
+        "kb": 27,
+        "unusedKb": 23
+      },
+      {
+        "module": "@codemirror/language-data",
+        "kb": 32,
+        "unusedKb": 18
+      },
+      {
+        "module": "prosemirror-commands",
+        "kb": 22,
+        "unusedKb": 16
+      },
+      {
+        "module": "@codemirror/lang-markdown",
+        "kb": 17,
+        "unusedKb": 14
+      },
+      {
+        "module": "prosemirror-state",
+        "kb": 29,
+        "unusedKb": 11
+      },
+      {
+        "module": "micromark-extension-gfm-autolink-literal",
+        "kb": 15,
+        "unusedKb": 10
+      },
+      {
+        "module": "vfile",
+        "kb": 23,
+        "unusedKb": 9
+      }
+    ],
+    "marks": []
+  },
+  "phases": {
+    "parseMs": 629,
+    "openMs": {
+      "firstScreen": 88,
+      "loaded": 988
+    },
+    "input": {
+      "total": {
+        "p50": 1.2,
+        "p95": 2.8,
+        "max": 5.1
+      },
+      "dispatch": {
+        "p50": 1.1,
+        "p95": 2.7,
+        "max": 4.5
+      }
+    },
+    "switchBackMs": 49
+  },
+  "profiles": {
+    "启动": {
+      "self": [
+        {
+          "fn": "(idle) :0",
+          "ms": 105.4
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 100.9
+        },
+        {
+          "fn": "(匿名) /assets/dist-CmDfL8fU.js:105",
+          "ms": 58.8
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 25.6
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 9.7
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:1",
+          "ms": 6.7
+        },
+        {
+          "fn": "(匿名) /assets/memory-Be1n-XrM.js:1232",
+          "ms": 3.8
+        },
+        {
+          "fn": "decodeArray /assets/index-3bPuAcfn.js:71991",
+          "ms": 3.7
+        },
+        {
+          "fn": "computeBox :3181",
+          "ms": 3.5
+        },
+        {
+          "fn": "(匿名) /assets/dist-CmDfL8fU.js:1",
+          "ms": 2.4
+        },
+        {
+          "fn": "computeElementStyleVisibilityVisible :3155",
+          "ms": 2.3
+        },
+        {
+          "fn": "h /assets/index-3bPuAcfn.js:6622",
+          "ms": 1.9
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31608",
+          "ms": 1.3
+        },
+        {
+          "fn": "Facet /assets/dist-CmDfL8fU.js:1525",
+          "ms": 1.1
+        },
+        {
+          "fn": "(匿名) /assets/katex-BEPN8FI0.js:1",
+          "ms": 1.1
+        },
+        {
+          "fn": "boot /assets/index-3bPuAcfn.js:80060",
+          "ms": 1.1
+        },
+        {
+          "fn": "query :5816",
+          "ms": 1.1
+        },
+        {
+          "fn": "(匿名) /assets/mhchem-k8Vdd0Me.js:1",
+          "ms": 1
+        },
+        {
+          "fn": "compile /assets/index-3bPuAcfn.js:32174",
+          "ms": 1
+        },
+        {
+          "fn": "resourceURL /assets/memory-Be1n-XrM.js:1176",
+          "ms": 1
+        },
+        {
+          "fn": "evaluate :364",
+          "ms": 0.9
+        },
+        {
+          "fn": "pastePlugin /assets/index-3bPuAcfn.js:49978",
+          "ms": 0.8
+        },
+        {
+          "fn": "createMemoryHost /assets/memory-Be1n-XrM.js:1054",
+          "ms": 0.8
+        },
+        {
+          "fn": "init /assets/index-3bPuAcfn.js:78481",
+          "ms": 0.8
+        },
+        {
+          "fn": "(匿名) :2",
+          "ms": 0.8
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 0.7
+        },
+        {
+          "fn": "create /assets/index-3bPuAcfn.js:7852",
+          "ms": 0.7
+        },
+        {
+          "fn": "toNode /assets/katex-BEPN8FI0.js:777",
+          "ms": 0.7
+        },
+        {
+          "fn": "buildPlugins /assets/index-3bPuAcfn.js:56766",
+          "ms": 0.6
+        },
+        {
+          "fn": "createTokenType /assets/dist-CmDfL8fU.js:16973",
+          "ms": 0.5
+        },
+        {
+          "fn": "LRParser /assets/index-3bPuAcfn.js:72791",
+          "ms": 0.5
+        },
+        {
+          "fn": "createEditorState /assets/index-3bPuAcfn.js:56805",
+          "ms": 0.5
+        },
+        {
+          "fn": "updateChildren /assets/index-3bPuAcfn.js:7910",
+          "ms": 0.5
+        },
+        {
+          "fn": "updatePluginViews /assets/index-3bPuAcfn.js:11178",
+          "ms": 0.5
+        },
+        {
+          "fn": "createElementNS :0",
+          "ms": 0.5
+        },
+        {
+          "fn": "addToSet /assets/index-3bPuAcfn.js:43056",
+          "ms": 0.5
+        },
+        {
+          "fn": "renderTree /assets/index-3bPuAcfn.js:68513",
+          "ms": 0.5
+        },
+        {
+          "fn": "InjectedScript :6969",
+          "ms": 0.5
+        },
+        {
+          "fn": "now /assets/index-3bPuAcfn.js:31424",
+          "ms": 0.5
+        },
+        {
+          "fn": "go /assets/index-3bPuAcfn.js:31468",
+          "ms": 0.5
+        }
+      ],
+      "total": [
+        {
+          "fn": "(root) :0",
+          "ms": 388.3
+        },
+        {
+          "fn": "(idle) :0",
+          "ms": 105.4
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 100.9
+        },
+        {
+          "fn": "(匿名) /assets/dist-CmDfL8fU.js:1",
+          "ms": 63.9
+        },
+        {
+          "fn": "(匿名) /assets/dist-CmDfL8fU.js:105",
+          "ms": 58.8
+        },
+        {
+          "fn": "openFile /assets/index-3bPuAcfn.js:78689",
+          "ms": 37.1
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 32.1
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:1",
+          "ms": 18.2
+        },
+        {
+          "fn": "loadProgressive /assets/index-3bPuAcfn.js:63706",
+          "ms": 14.3
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 13.5
+        },
+        {
+          "fn": "init /assets/index-3bPuAcfn.js:78481",
+          "ms": 12.9
+        },
+        {
+          "fn": "(匿名) :1",
+          "ms": 11.8
+        },
+        {
+          "fn": "parse /assets/index-3bPuAcfn.js:35004",
+          "ms": 10.9
+        },
+        {
+          "fn": "fromMarkdown /assets/index-3bPuAcfn.js:32042",
+          "ms": 9.8
+        },
+        {
+          "fn": "parser /assets/index-3bPuAcfn.js:33049",
+          "ms": 9.8
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 9.7
+        },
+        {
+          "fn": "evaluate :364",
+          "ms": 9.4
+        },
+        {
+          "fn": "createEditorView /assets/index-3bPuAcfn.js:56811",
+          "ms": 9.2
+        },
+        {
+          "fn": "newView /assets/index-3bPuAcfn.js:78609",
+          "ms": 9.2
+        },
+        {
+          "fn": "EditorView /assets/index-3bPuAcfn.js:10997",
+          "ms": 9
+        },
+        {
+          "fn": "docViewDesc /assets/index-3bPuAcfn.js:8012",
+          "ms": 6.5
+        },
+        {
+          "fn": "write /assets/index-3bPuAcfn.js:31407",
+          "ms": 6.4
+        },
+        {
+          "fn": "updateChildren /assets/index-3bPuAcfn.js:7910",
+          "ms": 6.2
+        },
+        {
+          "fn": "go /assets/index-3bPuAcfn.js:31468",
+          "ms": 6.1
+        },
+        {
+          "fn": "main /assets/index-3bPuAcfn.js:31450",
+          "ms": 6.1
+        },
+        {
+          "fn": "iterDeco /assets/index-3bPuAcfn.js:8443",
+          "ms": 6
+        },
+        {
+          "fn": "replaceView /assets/index-3bPuAcfn.js:78620",
+          "ms": 6
+        },
+        {
+          "fn": "computeBox :3181",
+          "ms": 5.8
+        },
+        {
+          "fn": "isElementVisible :3200",
+          "ms": 5.8
+        },
+        {
+          "fn": "elementState :7553",
+          "ms": 5.8
+        },
+        {
+          "fn": "addNode /assets/index-3bPuAcfn.js:8362",
+          "ms": 5.7
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:7921",
+          "ms": 5.7
+        },
+        {
+          "fn": "renderTex /assets/index-3bPuAcfn.js:39296",
+          "ms": 5.6
+        },
+        {
+          "fn": "LRParser /assets/index-3bPuAcfn.js:72791",
+          "ms": 5.2
+        },
+        {
+          "fn": "deserialize /assets/index-3bPuAcfn.js:73023",
+          "ms": 5.2
+        },
+        {
+          "fn": "create /assets/index-3bPuAcfn.js:7852",
+          "ms": 5.2
+        },
+        {
+          "fn": "render /assets/katex-BEPN8FI0.js:26282",
+          "ms": 4.5
+        },
+        {
+          "fn": "createEditorState /assets/index-3bPuAcfn.js:56805",
+          "ms": 4.3
+        },
+        {
+          "fn": "renderDir /assets/index-3bPuAcfn.js:68541",
+          "ms": 4.3
+        },
+        {
+          "fn": "renderTree /assets/index-3bPuAcfn.js:68513",
+          "ms": 4.3
+        }
+      ]
+    },
+    "解析": {
+      "self": [
+        {
+          "fn": "(program) :0",
+          "ms": 420.8
+        },
+        {
+          "fn": "subtokenize /assets/index-3bPuAcfn.js:24776",
+          "ms": 128.8
+        },
+        {
+          "fn": "compile /assets/index-3bPuAcfn.js:32174",
+          "ms": 101
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 91.4
+        },
+        {
+          "fn": "subcontent /assets/index-3bPuAcfn.js:24850",
+          "ms": 37.2
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31608",
+          "ms": 33.8
+        },
+        {
+          "fn": "onexitdata /assets/index-3bPuAcfn.js:32592",
+          "ms": 16
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:22031",
+          "ms": 11.7
+        },
+        {
+          "fn": "data /assets/index-3bPuAcfn.js:31091",
+          "ms": 11.7
+        },
+        {
+          "fn": "set webkitSpeechRecognitionEvent :0",
+          "ms": 10.6
+        },
+        {
+          "fn": "writeToChild /assets/index-3bPuAcfn.js:30926",
+          "ms": 9.5
+        },
+        {
+          "fn": "flowContinue /assets/index-3bPuAcfn.js:30901",
+          "ms": 8.5
+        },
+        {
+          "fn": "write /assets/index-3bPuAcfn.js:31407",
+          "ms": 8.5
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:24647",
+          "ms": 8.5
+        },
+        {
+          "fn": "enter /assets/index-3bPuAcfn.js:32397",
+          "ms": 6.4
+        },
+        {
+          "fn": "resolveAllAttention /assets/index-3bPuAcfn.js:22905",
+          "ms": 5.3
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 5.3
+        },
+        {
+          "fn": "type /assets/index-3bPuAcfn.js:16287",
+          "ms": 5.3
+        },
+        {
+          "fn": "inlines /assets/index-3bPuAcfn.js:36505",
+          "ms": 4.3
+        },
+        {
+          "fn": "data /assets/index-3bPuAcfn.js:30757",
+          "ms": 4.3
+        },
+        {
+          "fn": "prepareList /assets/index-3bPuAcfn.js:32262",
+          "ms": 3.2
+        },
+        {
+          "fn": "postprocess /assets/index-3bPuAcfn.js:31816",
+          "ms": 3.2
+        },
+        {
+          "fn": "paragraphInitial /assets/index-3bPuAcfn.js:30742",
+          "ms": 3.2
+        },
+        {
+          "fn": "sliceChunks /assets/index-3bPuAcfn.js:31697",
+          "ms": 3.2
+        },
+        {
+          "fn": "check /assets/index-3bPuAcfn.js:16303",
+          "ms": 3.2
+        },
+        {
+          "fn": "resolveHeadingAtx /assets/index-3bPuAcfn.js:25845",
+          "ms": 3.2
+        },
+        {
+          "fn": "prefix /assets/index-3bPuAcfn.js:23348",
+          "ms": 3.2
+        },
+        {
+          "fn": "headDelimiterStart /assets/index-3bPuAcfn.js:29468",
+          "ms": 3.2
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31577",
+          "ms": 3.2
+        },
+        {
+          "fn": "createTokenizer /assets/index-3bPuAcfn.js:31351",
+          "ms": 3.2
+        },
+        {
+          "fn": "chunkInside /assets/index-3bPuAcfn.js:24987",
+          "ms": 3.2
+        },
+        {
+          "fn": "transformFlow /assets/index-3bPuAcfn.js:35812",
+          "ms": 3.2
+        },
+        {
+          "fn": "documentContinue /assets/index-3bPuAcfn.js:30824",
+          "ms": 3.2
+        },
+        {
+          "fn": "collectDefinitions /assets/index-3bPuAcfn.js:36395",
+          "ms": 2.1
+        },
+        {
+          "fn": "slice /assets/index-3bPuAcfn.js:24620",
+          "ms": 2.1
+        },
+        {
+          "fn": "fromMarkdown /assets/index-3bPuAcfn.js:32042",
+          "ms": 2.1
+        },
+        {
+          "fn": "initializeFlow /assets/index-3bPuAcfn.js:31011",
+          "ms": 2.1
+        },
+        {
+          "fn": "accountForPotentialSkip /assets/index-3bPuAcfn.js:31680",
+          "ms": 2.1
+        },
+        {
+          "fn": "headRowData /assets/index-3bPuAcfn.js:29429",
+          "ms": 2.1
+        },
+        {
+          "fn": "notText /assets/index-3bPuAcfn.js:31081",
+          "ms": 2.1
+        }
+      ],
+      "total": [
+        {
+          "fn": "(root) :0",
+          "ms": 1053.1
+        },
+        {
+          "fn": "parseMarkdown /assets/index-3bPuAcfn.js:36309",
+          "ms": 539.6
+        },
+        {
+          "fn": "(匿名) :1",
+          "ms": 539.6
+        },
+        {
+          "fn": "evaluate :364",
+          "ms": 539.6
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 534.2
+        },
+        {
+          "fn": "fromMarkdown /assets/index-3bPuAcfn.js:32042",
+          "ms": 512.9
+        },
+        {
+          "fn": "parser /assets/index-3bPuAcfn.js:33049",
+          "ms": 512.9
+        },
+        {
+          "fn": "parse /assets/index-3bPuAcfn.js:35004",
+          "ms": 512.9
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 420.8
+        },
+        {
+          "fn": "subtokenize /assets/index-3bPuAcfn.js:24776",
+          "ms": 253.2
+        },
+        {
+          "fn": "postprocess /assets/index-3bPuAcfn.js:31816",
+          "ms": 231.9
+        },
+        {
+          "fn": "compile /assets/index-3bPuAcfn.js:32174",
+          "ms": 151.1
+        },
+        {
+          "fn": "write /assets/index-3bPuAcfn.js:31407",
+          "ms": 126.7
+        },
+        {
+          "fn": "subcontent /assets/index-3bPuAcfn.js:24850",
+          "ms": 113.7
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 91.4
+        },
+        {
+          "fn": "writeToChild /assets/index-3bPuAcfn.js:30926",
+          "ms": 56.4
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31608",
+          "ms": 41.2
+        },
+        {
+          "fn": "flowContinue /assets/index-3bPuAcfn.js:30901",
+          "ms": 37.3
+        },
+        {
+          "fn": "onsuccessfulconstruct /assets/index-3bPuAcfn.js:31522",
+          "ms": 34.1
+        },
+        {
+          "fn": "thereIsNoNewContainer /assets/index-3bPuAcfn.js:30868",
+          "ms": 30.9
+        },
+        {
+          "fn": "resolveContent /assets/index-3bPuAcfn.js:24949",
+          "ms": 25.6
+        },
+        {
+          "fn": "contentEnd /assets/index-3bPuAcfn.js:24998",
+          "ms": 25.6
+        },
+        {
+          "fn": "data /assets/index-3bPuAcfn.js:31091",
+          "ms": 23.2
+        },
+        {
+          "fn": "documentContinue /assets/index-3bPuAcfn.js:30824",
+          "ms": 22.3
+        },
+        {
+          "fn": "onexitdata /assets/index-3bPuAcfn.js:32592",
+          "ms": 16
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31577",
+          "ms": 16
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:23340",
+          "ms": 12.8
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:22031",
+          "ms": 11.7
+        },
+        {
+          "fn": "set webkitSpeechRecognitionEvent :0",
+          "ms": 10.6
+        },
+        {
+          "fn": "prefix /assets/index-3bPuAcfn.js:23348",
+          "ms": 9.6
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:24647",
+          "ms": 9.6
+        },
+        {
+          "fn": "block /assets/index-3bPuAcfn.js:36420",
+          "ms": 8.5
+        },
+        {
+          "fn": "any /assets/index-3bPuAcfn.js:16249",
+          "ms": 8.5
+        },
+        {
+          "fn": "enter /assets/index-3bPuAcfn.js:32397",
+          "ms": 6.4
+        },
+        {
+          "fn": "createTokenizer /assets/index-3bPuAcfn.js:31351",
+          "ms": 6.4
+        },
+        {
+          "fn": "thereIsANewContainer /assets/index-3bPuAcfn.js:30862",
+          "ms": 6.4
+        },
+        {
+          "fn": "check /assets/index-3bPuAcfn.js:16303",
+          "ms": 6.4
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:30815",
+          "ms": 6.4
+        },
+        {
+          "fn": "chunkInside /assets/index-3bPuAcfn.js:24987",
+          "ms": 6.4
+        },
+        {
+          "fn": "inlines /assets/index-3bPuAcfn.js:36505",
+          "ms": 5.3
+        }
+      ]
+    },
+    "打开并渲染": {
+      "self": [
+        {
+          "fn": "(program) :0",
+          "ms": 420.1
+        },
+        {
+          "fn": "subtokenize /assets/index-3bPuAcfn.js:24776",
+          "ms": 123.8
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 122.9
+        },
+        {
+          "fn": "compile /assets/index-3bPuAcfn.js:32174",
+          "ms": 105.9
+        },
+        {
+          "fn": "rebuildHeights /assets/index-3bPuAcfn.js:51339",
+          "ms": 45
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31608",
+          "ms": 38.3
+        },
+        {
+          "fn": "subcontent /assets/index-3bPuAcfn.js:24850",
+          "ms": 29.8
+        },
+        {
+          "fn": "appendHeights /assets/index-3bPuAcfn.js:51348",
+          "ms": 22.8
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 20.2
+        },
+        {
+          "fn": "onexitdata /assets/index-3bPuAcfn.js:32592",
+          "ms": 15.3
+        },
+        {
+          "fn": "writeToChild /assets/index-3bPuAcfn.js:30926",
+          "ms": 14.1
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:208",
+          "ms": 14
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:22031",
+          "ms": 13.9
+        },
+        {
+          "fn": "data /assets/index-3bPuAcfn.js:31091",
+          "ms": 13.2
+        },
+        {
+          "fn": "createTextNode :0",
+          "ms": 12.8
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 11.7
+        },
+        {
+          "fn": "set webkitSpeechRecognitionEvent :0",
+          "ms": 10.6
+        },
+        {
+          "fn": "create /assets/index-3bPuAcfn.js:7852",
+          "ms": 9.7
+        },
+        {
+          "fn": "write /assets/index-3bPuAcfn.js:31407",
+          "ms": 9.6
+        },
+        {
+          "fn": "(idle) :0",
+          "ms": 8.7
+        },
+        {
+          "fn": "createTokenizer /assets/index-3bPuAcfn.js:31351",
+          "ms": 8.6
+        },
+        {
+          "fn": "headRowData /assets/index-3bPuAcfn.js:29429",
+          "ms": 8.5
+        },
+        {
+          "fn": "addNode /assets/index-3bPuAcfn.js:8362",
+          "ms": 7.8
+        },
+        {
+          "fn": "insertBefore :0",
+          "ms": 7.6
+        },
+        {
+          "fn": "splice /assets/index-3bPuAcfn.js:24647",
+          "ms": 7.5
+        },
+        {
+          "fn": "renderDescs /assets/index-3bPuAcfn.js:8119",
+          "ms": 7.5
+        },
+        {
+          "fn": "get nextSibling :0",
+          "ms": 7.4
+        },
+        {
+          "fn": "check /assets/index-3bPuAcfn.js:16303",
+          "ms": 5.5
+        },
+        {
+          "fn": "rescan /assets/index-3bPuAcfn.js:47308",
+          "ms": 5.4
+        },
+        {
+          "fn": "createElement :0",
+          "ms": 5.3
+        },
+        {
+          "fn": "suspiciousAttributes /assets/index-3bPuAcfn.js:3037",
+          "ms": 5.3
+        },
+        {
+          "fn": "slice /assets/index-3bPuAcfn.js:24620",
+          "ms": 4.4
+        },
+        {
+          "fn": "syncToMarks /assets/index-3bPuAcfn.js:8238",
+          "ms": 4.3
+        },
+        {
+          "fn": "refresh /assets/index-3bPuAcfn.js:51395",
+          "ms": 4.3
+        },
+        {
+          "fn": "sliceChunks /assets/index-3bPuAcfn.js:31697",
+          "ms": 4.3
+        },
+        {
+          "fn": "resolveAllAttention /assets/index-3bPuAcfn.js:22905",
+          "ms": 4.3
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 4.3
+        },
+        {
+          "fn": "block /assets/index-3bPuAcfn.js:36420",
+          "ms": 4.3
+        },
+        {
+          "fn": "thereIsNoNewContainer /assets/index-3bPuAcfn.js:30868",
+          "ms": 4.2
+        },
+        {
+          "fn": "postprocess /assets/index-3bPuAcfn.js:31816",
+          "ms": 3.4
+        }
+      ],
+      "total": [
+        {
+          "fn": "(root) :0",
+          "ms": 1343.9
+        },
+        {
+          "fn": "step /assets/index-3bPuAcfn.js:78657",
+          "ms": 720.6
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 546.2
+        },
+        {
+          "fn": "fromMarkdown /assets/index-3bPuAcfn.js:32042",
+          "ms": 522.6
+        },
+        {
+          "fn": "parser /assets/index-3bPuAcfn.js:33049",
+          "ms": 522.6
+        },
+        {
+          "fn": "parse /assets/index-3bPuAcfn.js:35004",
+          "ms": 522.6
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 420.1
+        },
+        {
+          "fn": "subtokenize /assets/index-3bPuAcfn.js:24776",
+          "ms": 242.2
+        },
+        {
+          "fn": "postprocess /assets/index-3bPuAcfn.js:31816",
+          "ms": 231.6
+        },
+        {
+          "fn": "EditorView.dispatch /assets/index-3bPuAcfn.js:11416",
+          "ms": 189.2
+        },
+        {
+          "fn": "dispatchTransaction /assets/index-3bPuAcfn.js:56837",
+          "ms": 188.1
+        },
+        {
+          "fn": "updateStateInner /assets/index-3bPuAcfn.js:11111",
+          "ms": 177.4
+        },
+        {
+          "fn": "updateState /assets/index-3bPuAcfn.js:11108",
+          "ms": 176.3
+        },
+        {
+          "fn": "compile /assets/index-3bPuAcfn.js:32174",
+          "ms": 152.2
+        },
+        {
+          "fn": "write /assets/index-3bPuAcfn.js:31407",
+          "ms": 135.5
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 122.9
+        },
+        {
+          "fn": "subcontent /assets/index-3bPuAcfn.js:24850",
+          "ms": 107.6
+        },
+        {
+          "fn": "updateChildren /assets/index-3bPuAcfn.js:7910",
+          "ms": 106.8
+        },
+        {
+          "fn": "updateInner /assets/index-3bPuAcfn.js:7978",
+          "ms": 101
+        },
+        {
+          "fn": "update /assets/index-3bPuAcfn.js:7973",
+          "ms": 101
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:7921",
+          "ms": 85.3
+        },
+        {
+          "fn": "iterDeco /assets/index-3bPuAcfn.js:8443",
+          "ms": 85.3
+        },
+        {
+          "fn": "addNode /assets/index-3bPuAcfn.js:8362",
+          "ms": 80
+        },
+        {
+          "fn": "updatePluginViews /assets/index-3bPuAcfn.js:11178",
+          "ms": 74.3
+        },
+        {
+          "fn": "update /assets/index-3bPuAcfn.js:51251",
+          "ms": 73.2
+        },
+        {
+          "fn": "writeToChild /assets/index-3bPuAcfn.js:30926",
+          "ms": 64.3
+        },
+        {
+          "fn": "create /assets/index-3bPuAcfn.js:7852",
+          "ms": 52.9
+        },
+        {
+          "fn": "rebuildHeights /assets/index-3bPuAcfn.js:51339",
+          "ms": 46
+        },
+        {
+          "fn": "start /assets/index-3bPuAcfn.js:31608",
+          "ms": 43.7
+        },
+        {
+          "fn": "flowContinue /assets/index-3bPuAcfn.js:30901",
+          "ms": 39.7
+        },
+        {
+          "fn": "loadProgressive /assets/index-3bPuAcfn.js:63706",
+          "ms": 36.1
+        },
+        {
+          "fn": "thereIsNoNewContainer /assets/index-3bPuAcfn.js:30868",
+          "ms": 32.1
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 28.1
+        },
+        {
+          "fn": "openFile /assets/index-3bPuAcfn.js:78689",
+          "ms": 28.1
+        },
+        {
+          "fn": "appendHeights /assets/index-3bPuAcfn.js:51348",
+          "ms": 27.2
+        },
+        {
+          "fn": "renderDescs /assets/index-3bPuAcfn.js:8119",
+          "ms": 25.7
+        },
+        {
+          "fn": "data /assets/index-3bPuAcfn.js:31091",
+          "ms": 22.8
+        },
+        {
+          "fn": "onsuccessfulconstruct /assets/index-3bPuAcfn.js:31522",
+          "ms": 22.6
+        },
+        {
+          "fn": "renderStatus /assets/index-3bPuAcfn.js:79045",
+          "ms": 17.1
+        },
+        {
+          "fn": "documentContinue /assets/index-3bPuAcfn.js:30824",
+          "ms": 17
+        }
+      ]
+    },
+    "连续输入": {
+      "self": [
+        {
+          "fn": "(program) :0",
+          "ms": 443.7
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 89.2
+        },
+        {
+          "fn": "preMatch /assets/index-3bPuAcfn.js:8407",
+          "ms": 24.2
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 12.8
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:208",
+          "ms": 10.8
+        },
+        {
+          "fn": "getBoundingClientRect :0",
+          "ms": 8
+        },
+        {
+          "fn": "findNodeMatch /assets/index-3bPuAcfn.js:8284",
+          "ms": 5.8
+        },
+        {
+          "fn": "get nodeSize /assets/index-3bPuAcfn.js:1137",
+          "ms": 5.5
+        },
+        {
+          "fn": "slugify /assets/index-3bPuAcfn.js:14378",
+          "ms": 3.2
+        },
+        {
+          "fn": "iterDeco /assets/index-3bPuAcfn.js:8443",
+          "ms": 2.1
+        },
+        {
+          "fn": "child /assets/index-3bPuAcfn.js:341",
+          "ms": 1.2
+        },
+        {
+          "fn": "matchesNode /assets/index-3bPuAcfn.js:7901",
+          "ms": 1.1
+        },
+        {
+          "fn": "cut /assets/index-3bPuAcfn.js:260",
+          "ms": 1.1
+        },
+        {
+          "fn": "get nodeSize /assets/index-3bPuAcfn.js:1525",
+          "ms": 1.1
+        },
+        {
+          "fn": "get $to /assets/index-3bPuAcfn.js:4990",
+          "ms": 1.1
+        },
+        {
+          "fn": "addTransform /assets/index-3bPuAcfn.js:14791",
+          "ms": 1.1
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:14358",
+          "ms": 1.1
+        },
+        {
+          "fn": "observe :0",
+          "ms": 1.1
+        },
+        {
+          "fn": "h /assets/index-3bPuAcfn.js:6622",
+          "ms": 1.1
+        },
+        {
+          "fn": "sameOuterDeco /assets/index-3bPuAcfn.js:8209",
+          "ms": 1.1
+        },
+        {
+          "fn": "ViewTreeUpdater /assets/index-3bPuAcfn.js:8220",
+          "ms": 1.1
+        },
+        {
+          "fn": "(匿名) :1",
+          "ms": 1.1
+        },
+        {
+          "fn": "updateStateInner /assets/index-3bPuAcfn.js:11111",
+          "ms": 1.1
+        },
+        {
+          "fn": "syncToMarks /assets/index-3bPuAcfn.js:8238",
+          "ms": 1.1
+        },
+        {
+          "fn": "findIndex /assets/index-3bPuAcfn.js:384",
+          "ms": 0.8
+        },
+        {
+          "fn": "renderDescs /assets/index-3bPuAcfn.js:8119",
+          "ms": 0.6
+        },
+        {
+          "fn": "changedDescendants /assets/index-3bPuAcfn.js:12296",
+          "ms": 0.4
+        },
+        {
+          "fn": "canReplace /assets/index-3bPuAcfn.js:1431",
+          "ms": 0.1
+        },
+        {
+          "fn": "from /assets/index-3bPuAcfn.js:446",
+          "ms": 0.1
+        },
+        {
+          "fn": "append /assets/index-3bPuAcfn.js:246",
+          "ms": 0.1
+        },
+        {
+          "fn": "validContent /assets/index-3bPuAcfn.js:2115",
+          "ms": 0
+        },
+        {
+          "fn": "updateNextNode /assets/index-3bPuAcfn.js:8321",
+          "ms": 0
+        },
+        {
+          "fn": "get childCount /assets/index-3bPuAcfn.js:1143",
+          "ms": 0
+        },
+        {
+          "fn": "matchType /assets/index-3bPuAcfn.js:1593",
+          "ms": 0
+        },
+        {
+          "fn": "matchFragment /assets/index-3bPuAcfn.js:1601",
+          "ms": 0
+        }
+      ],
+      "total": [
+        {
+          "fn": "(root) :0",
+          "ms": 622.8
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 443.7
+        },
+        {
+          "fn": "(garbage collector) :0",
+          "ms": 89.2
+        },
+        {
+          "fn": "(匿名) :1",
+          "ms": 60.9
+        },
+        {
+          "fn": "evaluate :364",
+          "ms": 60.9
+        },
+        {
+          "fn": "dispatchTransaction /assets/index-3bPuAcfn.js:56837",
+          "ms": 49.6
+        },
+        {
+          "fn": "EditorView.dispatch /assets/index-3bPuAcfn.js:11416",
+          "ms": 49.6
+        },
+        {
+          "fn": "updateStateInner /assets/index-3bPuAcfn.js:11111",
+          "ms": 44.4
+        },
+        {
+          "fn": "updateState /assets/index-3bPuAcfn.js:11108",
+          "ms": 44.4
+        },
+        {
+          "fn": "updateChildren /assets/index-3bPuAcfn.js:7910",
+          "ms": 42.2
+        },
+        {
+          "fn": "updateInner /assets/index-3bPuAcfn.js:7978",
+          "ms": 42.2
+        },
+        {
+          "fn": "update /assets/index-3bPuAcfn.js:7973",
+          "ms": 42.2
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:79023",
+          "ms": 29
+        },
+        {
+          "fn": "ViewTreeUpdater /assets/index-3bPuAcfn.js:8220",
+          "ms": 26.5
+        },
+        {
+          "fn": "preMatch /assets/index-3bPuAcfn.js:8407",
+          "ms": 25.5
+        },
+        {
+          "fn": "renderStatus /assets/index-3bPuAcfn.js:79045",
+          "ms": 18.2
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:208",
+          "ms": 15.1
+        },
+        {
+          "fn": "iterDeco /assets/index-3bPuAcfn.js:8443",
+          "ms": 13.8
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 12.8
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:7921",
+          "ms": 11.7
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:1177",
+          "ms": 10.8
+        },
+        {
+          "fn": "descendants /assets/index-3bPuAcfn.js:1184",
+          "ms": 10.8
+        },
+        {
+          "fn": "collectHeadings /assets/index-3bPuAcfn.js:14355",
+          "ms": 10.8
+        },
+        {
+          "fn": "findNodeMatch /assets/index-3bPuAcfn.js:8284",
+          "ms": 8
+        },
+        {
+          "fn": "getBoundingClientRect :0",
+          "ms": 8
+        },
+        {
+          "fn": "get nodeSize /assets/index-3bPuAcfn.js:1137",
+          "ms": 5.5
+        },
+        {
+          "fn": "applyTransaction /assets/index-3bPuAcfn.js:5695",
+          "ms": 5.2
+        },
+        {
+          "fn": "apply /assets/index-3bPuAcfn.js:5675",
+          "ms": 5.2
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:14358",
+          "ms": 4.3
+        },
+        {
+          "fn": "textBetween /assets/index-3bPuAcfn.js:1201",
+          "ms": 4.3
+        },
+        {
+          "fn": "appendTransaction /assets/index-3bPuAcfn.js:13599",
+          "ms": 4.1
+        },
+        {
+          "fn": "slugify /assets/index-3bPuAcfn.js:14378",
+          "ms": 3.2
+        },
+        {
+          "fn": "changedDescendants /assets/index-3bPuAcfn.js:12296",
+          "ms": 3.1
+        },
+        {
+          "fn": "fixTables /assets/index-3bPuAcfn.js:12320",
+          "ms": 3.1
+        },
+        {
+          "fn": "insertText /assets/index-3bPuAcfn.js:5531",
+          "ms": 2.3
+        },
+        {
+          "fn": "matchesNode /assets/index-3bPuAcfn.js:7901",
+          "ms": 2.2
+        },
+        {
+          "fn": "get nodeSize /assets/index-3bPuAcfn.js:1525",
+          "ms": 2.1
+        },
+        {
+          "fn": "replaceRangeWith /assets/index-3bPuAcfn.js:4515",
+          "ms": 1.5
+        },
+        {
+          "fn": "replaceRangeWith /assets/index-3bPuAcfn.js:4802",
+          "ms": 1.5
+        },
+        {
+          "fn": "replaceRange /assets/index-3bPuAcfn.js:4452",
+          "ms": 1.4
+        }
+      ]
+    },
+    "切回小文档": {
+      "self": [
+        {
+          "fn": "(program) :0",
+          "ms": 86.8
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 13.8
+        },
+        {
+          "fn": "suspiciousAttributes /assets/index-3bPuAcfn.js:3037",
+          "ms": 7.4
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:36276",
+          "ms": 7.4
+        },
+        {
+          "fn": "removeChild :0",
+          "ms": 4.2
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:208",
+          "ms": 3.2
+        },
+        {
+          "fn": "destroy /assets/index-3bPuAcfn.js:7421",
+          "ms": 2.1
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 1.1
+        },
+        {
+          "fn": "get tr /assets/index-3bPuAcfn.js:5751",
+          "ms": 1.1
+        },
+        {
+          "fn": "forEach /assets/index-3bPuAcfn.js:356",
+          "ms": 1.1
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:36638",
+          "ms": 1.1
+        },
+        {
+          "fn": "save /assets/index-3bPuAcfn.js:78793",
+          "ms": 1.1
+        },
+        {
+          "fn": "buildKeymaps /assets/index-3bPuAcfn.js:56676",
+          "ms": 1.1
+        },
+        {
+          "fn": "setAttribute :0",
+          "ms": 1.1
+        },
+        {
+          "fn": "overload /assets/index-3bPuAcfn.js:18616",
+          "ms": 1.1
+        },
+        {
+          "fn": "destroy /assets/index-3bPuAcfn.js:7839",
+          "ms": 1.1
+        },
+        {
+          "fn": "serialize /assets/index-3bPuAcfn.js:20748",
+          "ms": 1
+        },
+        {
+          "fn": "one /assets/index-3bPuAcfn.js:18665",
+          "ms": 0
+        },
+        {
+          "fn": "all /assets/index-3bPuAcfn.js:18686",
+          "ms": 0
+        }
+      ],
+      "total": [
+        {
+          "fn": "(root) :0",
+          "ms": 135.6
+        },
+        {
+          "fn": "(program) :0",
+          "ms": 86.8
+        },
+        {
+          "fn": "openFile /assets/index-3bPuAcfn.js:78689",
+          "ms": 22.3
+        },
+        {
+          "fn": "save /assets/index-3bPuAcfn.js:78793",
+          "ms": 22.3
+        },
+        {
+          "fn": "setDocument /assets/index-3bPuAcfn.js:78626",
+          "ms": 18.1
+        },
+        {
+          "fn": "renderStatus /assets/index-3bPuAcfn.js:79045",
+          "ms": 17
+        },
+        {
+          "fn": "replaceView /assets/index-3bPuAcfn.js:78620",
+          "ms": 15.9
+        },
+        {
+          "fn": "countWords /assets/index-3bPuAcfn.js:47741",
+          "ms": 13.8
+        },
+        {
+          "fn": "docViewDesc /assets/index-3bPuAcfn.js:8012",
+          "ms": 8.5
+        },
+        {
+          "fn": "EditorView /assets/index-3bPuAcfn.js:10997",
+          "ms": 8.5
+        },
+        {
+          "fn": "createEditorView /assets/index-3bPuAcfn.js:56811",
+          "ms": 8.5
+        },
+        {
+          "fn": "newView /assets/index-3bPuAcfn.js:78609",
+          "ms": 8.5
+        },
+        {
+          "fn": "destroy /assets/index-3bPuAcfn.js:11370",
+          "ms": 7.4
+        },
+        {
+          "fn": "suspiciousAttributes /assets/index-3bPuAcfn.js:3037",
+          "ms": 7.4
+        },
+        {
+          "fn": "renderSpec /assets/index-3bPuAcfn.js:3057",
+          "ms": 7.4
+        },
+        {
+          "fn": "renderSpec /assets/index-3bPuAcfn.js:2998",
+          "ms": 7.4
+        },
+        {
+          "fn": "create /assets/index-3bPuAcfn.js:7852",
+          "ms": 7.4
+        },
+        {
+          "fn": "addNode /assets/index-3bPuAcfn.js:8362",
+          "ms": 7.4
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:7921",
+          "ms": 7.4
+        },
+        {
+          "fn": "iterDeco /assets/index-3bPuAcfn.js:8443",
+          "ms": 7.4
+        },
+        {
+          "fn": "updateChildren /assets/index-3bPuAcfn.js:7910",
+          "ms": 7.4
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:36276",
+          "ms": 7.4
+        },
+        {
+          "fn": "nextBlocks /assets/index-3bPuAcfn.js:36242",
+          "ms": 7.4
+        },
+        {
+          "fn": "loadProgressive /assets/index-3bPuAcfn.js:63706",
+          "ms": 7.4
+        },
+        {
+          "fn": "serializeMarkdown /assets/index-3bPuAcfn.js:36630",
+          "ms": 4.3
+        },
+        {
+          "fn": "serialize /assets/index-3bPuAcfn.js:63760",
+          "ms": 4.3
+        },
+        {
+          "fn": "save /assets/index-3bPuAcfn.js:63764",
+          "ms": 4.3
+        },
+        {
+          "fn": "confirmLeave /assets/index-3bPuAcfn.js:78740",
+          "ms": 4.3
+        },
+        {
+          "fn": "removeChild :0",
+          "ms": 4.2
+        },
+        {
+          "fn": "destroy /assets/index-3bPuAcfn.js:7421",
+          "ms": 3.2
+        },
+        {
+          "fn": "nodesBetween /assets/index-3bPuAcfn.js:208",
+          "ms": 3.2
+        },
+        {
+          "fn": "textBetween /assets/index-3bPuAcfn.js:1201",
+          "ms": 3.2
+        },
+        {
+          "fn": "(匿名) /assets/index-3bPuAcfn.js:36638",
+          "ms": 3.2
+        },
+        {
+          "fn": "heading$1 /assets/index-3bPuAcfn.js:18750",
+          "ms": 2.1
+        },
+        {
+          "fn": "one /assets/index-3bPuAcfn.js:17839",
+          "ms": 2.1
+        },
+        {
+          "fn": "containerFlow /assets/index-3bPuAcfn.js:20786",
+          "ms": 2.1
+        },
+        {
+          "fn": "containerFlowBound /assets/index-3bPuAcfn.js:21231",
+          "ms": 2.1
+        },
+        {
+          "fn": "root /assets/index-3bPuAcfn.js:19410",
+          "ms": 2.1
+        },
+        {
+          "fn": "toMarkdown /assets/index-3bPuAcfn.js:21103",
+          "ms": 2.1
+        },
+        {
+          "fn": "serializeBlock /assets/index-3bPuAcfn.js:36693",
+          "ms": 2.1
+        }
+      ]
+    }
+  },
+  "hotSource": {
+    "subtokenize /assets/index-3bPuAcfn.js:24776": {
+      "origin": "node_modules/micromark-util-subtokenize/index.js",
+      "code": "*   Whether subtokens were found.\n*/\nfunction subtokenize(eventsArray) {\n\t/** @type {Record<string, number>} */\n\tconst jumps = {};\n\tlet index = -1;\n\t/** @type {Event} */\n\tlet event;\n\t/** @type {number | undefined} */\n\tlet lineIndex;\n\t/** @type {number} */\n\tlet otherIndex;\n\t/** @type {Event} */\n\tlet otherEvent;\n\t/** @type {Array<Event>} */"
+    },
+    "compile /assets/index-3bPuAcfn.js:32174": {
+      "origin": "node_modules/mdast-util-from-markdown/lib/index.js",
+      "code": "\t*   mdast tree.\n\t*/\n\tfunction compile(events) {\n\t\t/** @type {Root} */\n\t\tlet tree = {\n\t\t\ttype: \"root\",\n\t\t\tchildren: [],\n\t\t\tposition: void 0\n\t\t};\n\t\t/** @type {Omit<CompileContext, 'sliceSerialize'>} */\n\t\tconst context = {\n\t\t\tstack: [tree],\n\t\t\ttokenStack: [],\n\t\t\tconfig,\n\t\t\tenter,"
+    },
+    "subcontent /assets/index-3bPuAcfn.js:24850": {
+      "origin": "node_modules/micromark-util-subtokenize/index.js",
+      "code": "*   Gaps.\n*/\nfunction subcontent(events, eventIndex) {\n\tconst token = events.get(eventIndex)[1];\n\tconst context = events.get(eventIndex)[2];\n\tlet startPosition = eventIndex - 1;\n\t/** @type {Array<number>} */\n\tconst startPositions = [];\n\tlet tokenizer = token._tokenizer;\n\tif (!tokenizer) {\n\t\ttokenizer = context.parser[token.contentType](token.start);\n\t\tif (token._contentTypeTextTrailing) tokenizer._contentTypeTextTrailing = true;\n\t}\n\tconst childEvents = tokenizer.events;\n\t/** @type {Array<[number, number]>} */"
+    },
+    "start /assets/index-3bPuAcfn.js:31608": {
+      "origin": "node_modules/micromark/lib/create-tokenizer.js",
+      "code": "\t\t\t\treturn start;\n\t\t\t\t/** @type {State} */\n\t\t\t\tfunction start(code) {\n\t\t\t\t\tinfo = store();\n\t\t\t\t\tcurrentConstruct = construct;\n\t\t\t\t\tif (!construct.partial) context.currentConstruct = construct;\n\t\t\t\t\tif (construct.name && context.parser.constructs.disable.null.includes(construct.name)) return nok(code);\n\t\t\t\t\treturn construct.tokenize.call(fields ? Object.assign(Object.create(context), fields) : context, effects, ok, nok)(code);\n\t\t\t\t}\n\t\t\t}\n\t\t\t/** @type {State} */\n\t\t\tfunction ok(code) {\n\t\t\t\tonreturn(currentConstruct, info);\n\t\t\t\treturn returnState;\n\t\t\t}"
+    }
+  },
+  "bytes": 1048798,
+  "blocks": 11036
+}
