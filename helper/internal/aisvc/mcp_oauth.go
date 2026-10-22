@@ -110,7 +110,7 @@ func (m *mcpManager) saveToken(ctx context.Context, c *mcpConn, ts tokenSource) 
 	if err != nil || tok == nil || tok.AccessToken == "" {
 		return
 	}
-	b, err := json.Marshal(tok)
+	b, err := json.Marshal(tok) // #nosec G117 -- 令牌只经 host.storeSecret 交给外壳写钥匙串,不落盘、不进日志
 	if err != nil {
 		return
 	}
