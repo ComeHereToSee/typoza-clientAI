@@ -450,7 +450,7 @@ test.describe('7.1 块手柄拖动', () => {
    * Playwright 在 Linux WebKit 上模拟原生拖放时,编辑区收不到 drop(CI trace:鼠标按下、移动、松开都做了,文档不变;
    * 侧栏那条走自己的放置处理能过)。这里直接派发事件,验证手柄写入的拖动数据与 ProseMirror 的落点处理。
    */
-  async function dragBlock(page: Page, grip: Locator, target: Locator, position: { x: number; y: number }, alt = false): Promise<void> {
+  async function dragBlock(grip: Locator, target: Locator, position: { x: number; y: number }, alt = false): Promise<void> {
     const box = await target.boundingBox()
     if (!box) throw new Error('取不到落点的位置')
     await grip.evaluate(
@@ -483,7 +483,7 @@ test.describe('7.1 块手柄拖动', () => {
     const paras = page.locator('.tz-editor p')
     const target = paras.nth(2)
     const grip = await gripOf(page, paras.nth(0))
-    await dragBlock(page, grip, target, await endOf(target))
+    await dragBlock(grip, target, await endOf(target))
     await expect.poll(async () => (await markdown(page)).trim()).toBe('乙\n\n丙\n\n甲')
   })
 
@@ -493,7 +493,7 @@ test.describe('7.1 块手柄拖动', () => {
     const target = paras.nth(2)
     const grip = await gripOf(page, paras.nth(0))
     // 落下时按着 ⌥ 即复制(plugins/blockselect.ts dragCopies)
-    await dragBlock(page, grip, target, await endOf(target), true)
+    await dragBlock(grip, target, await endOf(target), true)
     await expect.poll(async () => (await markdown(page)).trim()).toBe('甲\n\n乙\n\n丙\n\n甲')
   })
 
@@ -520,7 +520,7 @@ test.describe('7.1 块手柄拖动', () => {
     if (!box) throw new Error('取不到块的位置')
     // 拖任一所选块的「⋮⋮」作用于全部所选块(plugins/handle.ts inMultiSelection);落在第一块行首 = 插在它之前
     const grip = await gripOf(page, paras.nth(1))
-    await dragBlock(page, grip, target, { x: 2, y: box.height / 2 })
+    await dragBlock(grip, target, { x: 2, y: box.height / 2 })
     await expect.poll(async () => (await markdown(page)).trim()).toBe('二\n\n三\n\n一')
   })
 })
