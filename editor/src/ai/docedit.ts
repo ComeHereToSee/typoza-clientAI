@@ -3,6 +3,7 @@
 // 差异按顶层块算:没改动的块保留原节点(写回时仍是原文),只替换改动的块。
 import { closeHistory } from 'prosemirror-history'
 import { DOMSerializer, Fragment, type Node as PMNode } from 'prosemirror-model'
+import { Selection } from 'prosemirror-state'
 import { Decoration, type EditorView } from 'prosemirror-view'
 import { parseMarkdown } from '../core/markdown/parse'
 import { schema } from '../core/schema'
@@ -136,7 +137,10 @@ export class DocEditPreview {
     }
     const bar = this.bar(item)
     decos.push(Decoration.widget(starts[hunks[0].aFrom], bar, { slot: 'diff', side: -2, key: `tz-ai-bar-${item.callId}`, stopEvent: () => true, ignoreSelection: true }))
-    view.dispatch(setAiDecorations(view.state.tr, 'diff', decos).setMeta('addToHistory', false))
+    // 光标移到第一处改动:大文档里视口裁剪只排版光标附近的块,改动在别处时预览条会被一起藏起来
+    const tr = setAiDecorations(view.state.tr, 'diff', decos).setMeta('addToHistory', false)
+    tr.setSelection(Selection.near(tr.doc.resolve(Math.min(starts[hunks[0].aFrom], tr.doc.content.size))))
+    view.dispatch(tr)
     requestAnimationFrame(() => bar.scrollIntoView({ block: 'center' }))
     this.changed(item)
   }

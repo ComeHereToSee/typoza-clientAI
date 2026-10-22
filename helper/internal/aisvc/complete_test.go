@@ -91,6 +91,8 @@ func TestCompleteStopAndErrors(t *testing.T) {
 	env.call(t, "ai.complete", map[string]any{"requestId": "s", "prompt": "写长文"})
 	llm.waitHeld(t)
 	env.wantErr(t, codeInvalid, "ai.complete", map[string]any{"requestId": "s", "prompt": "重复的 requestId"})
+	// 模拟服务商写完「开头」就挂住,但客户端读到、推出增量还要一点时间:等增量出来再停,否则停得太早、增量没推出
+	env.host.waitFor(t, "complete.delta s", func(e map[string]any) bool { return e["type"] == "complete.delta" && e["requestId"] == "s" })
 	env.call(t, "ai.complete.stop", map[string]any{"requestId": "s"})
 	if done := completeDone(env, t, "s"); done["status"] != statusStopped {
 		t.Fatalf("停止后应为 stopped:%v", done)
