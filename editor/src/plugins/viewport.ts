@@ -17,15 +17,15 @@ const INITIAL_BLOCKS = 120
 const HOST_CLASS = 'tz-vp'
 let styleEl: HTMLStyleElement | null = null
 
-function ruleFor(hiddenBefore: number, lastVisible: number, keep: number): string {
-  // :nth-child 从 1 起算;前 hiddenBefore 个与第 lastVisible 个之后的子元素隐藏。
+function ruleFor(hiddenBefore: number, lastVisible: number | null, keep: number): string {
+  // :nth-child 从 1 起算;前 hiddenBefore 个与第 lastVisible 个之后的子元素隐藏(lastVisible 为 null 表示窗口到文末,后面不藏)。
   // keep(从 1 起算,0 为没有)是光标所在块:用户滚走后它也不能隐藏,否则 WebKit 里打不进字
   const sel = `.tz-editor-host.${HOST_CLASS} > .ProseMirror`
   const not = keep > 0 ? `:not(:nth-child(${keep}))` : ''
   const parts: string[] = []
   if (hiddenBefore > 0) parts.push(`${sel} > :nth-child(-n+${hiddenBefore})${not}`)
-  parts.push(`${sel} > :nth-child(n+${lastVisible + 1})${not}`)
-  return `@media screen { ${parts.join(', ')} { display: none !important; } }`
+  if (lastVisible !== null) parts.push(`${sel} > :nth-child(n+${lastVisible + 1})${not}`)
+  return parts.length ? `@media screen { ${parts.join(', ')} { display: none !important; } }` : ''
 }
 
 /** 位置所在的顶层块下标。 */
@@ -238,8 +238,11 @@ class Viewport {
     const head = topIndex(state.doc, state.selection.head)
     const keep = head < this.from || head >= this.to ? this.domIndex(head) + 1 : 0
     styleEl ??= document.head.appendChild(Object.assign(document.createElement('style'), { id: 'tz-viewport' }))
+    // 窗口到了文首 / 文末时,前 / 后不再藏:那里只剩装饰小部件(如 AI 改文档的预览条),藏了就看不见
+    const hiddenBefore = this.from === 0 ? 0 : first
+    const lastVisible = this.to >= state.doc.childCount ? null : last + 1
     // 规则没变就不写:改样式表会让整页样式重算(分段追加时窗口不变,只有下内边距变)
-    const rule = ruleFor(first, last + 1, keep)
+    const rule = ruleFor(hiddenBefore, lastVisible, keep)
     if (styleEl.textContent !== rule) styleEl.textContent = rule
     this.host.style.paddingTop = `${Math.round(this.sum(0, this.from))}px`
     this.host.style.paddingBottom = `${Math.round(this.sum(this.to, this.heights.length))}px`
