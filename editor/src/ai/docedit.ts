@@ -137,9 +137,10 @@ export class DocEditPreview {
     }
     const bar = this.bar(item)
     decos.push(Decoration.widget(starts[hunks[0].aFrom], bar, { slot: 'diff', side: -2, key: `tz-ai-bar-${item.callId}`, stopEvent: () => true, ignoreSelection: true }))
-    // 光标移到第一处改动:大文档里视口裁剪只排版光标附近的块,改动在别处时预览条会被一起藏起来
+    // 光标移到第一处改动并滚过去:大文档里视口裁剪按滚动位置只排版附近的块,只挪光标不滚动,
+    // 下一帧窗口又按滚动位置退回去,远处的预览条会被一起藏起来
     const tr = setAiDecorations(view.state.tr, 'diff', decos).setMeta('addToHistory', false)
-    tr.setSelection(Selection.near(tr.doc.resolve(Math.min(starts[hunks[0].aFrom], tr.doc.content.size))))
+    tr.setSelection(Selection.near(tr.doc.resolve(Math.min(starts[hunks[0].aFrom], tr.doc.content.size)))).scrollIntoView()
     view.dispatch(tr)
     requestAnimationFrame(() => bar.scrollIntoView({ block: 'center' }))
     this.changed(item)
