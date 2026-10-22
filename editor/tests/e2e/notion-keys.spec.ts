@@ -207,6 +207,8 @@ test.describe('5.1 应用级键位', () => {
   test('#7 ⇧⌘L 切换浅色 / 深色外观', async ({ page }) => {
     const mod = await modKey(page)
     await loadDoc(page, '文字\n')
+    // Linux 上 Mod 是 Ctrl,焦点在正文时 Ctrl+Shift+L 到不了应用级键位(同 ⌘L);真应用里走原生菜单
+    await blurEditor(page)
     const html = page.locator('html')
     await expect(html).not.toHaveClass(/tz-dark/)
     await page.keyboard.press(`${mod}+Shift+l`)
@@ -443,6 +445,32 @@ test.describe('7.1 块手柄拖动', () => {
     return grip
   }
 
+  /**
+   * 在页面里用真实的 DragEvent + DataTransfer 走一遍拖放(dragstart → dragenter / dragover → drop → dragend)。
+   * Playwright 在 Linux WebKit 上模拟原生拖放时,编辑区收不到 drop(CI trace:鼠标按下、移动、松开都做了,文档不变;
+   * 侧栏那条走自己的放置处理能过)。这里直接派发事件,验证手柄写入的拖动数据与 ProseMirror 的落点处理。
+   */
+  async function dragBlock(page: Page, grip: Locator, target: Locator, position: { x: number; y: number }, alt = false): Promise<void> {
+    const box = await target.boundingBox()
+    if (!box) throw new Error('取不到落点的位置')
+    await grip.evaluate(
+      (el, { x, y, alt }) => {
+        const dt = new DataTransfer()
+        const fire = (node: Element, type: string, cx: number, cy: number) =>
+          node.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt, clientX: cx, clientY: cy, altKey: alt }))
+        const g = el.getBoundingClientRect()
+        fire(el, 'dragstart', g.x + g.width / 2, g.y + g.height / 2)
+        const over = document.elementFromPoint(x, y)
+        if (!over) throw new Error('落点下没有元素')
+        fire(over, 'dragenter', x, y)
+        fire(over, 'dragover', x, y)
+        fire(over, 'drop', x, y)
+        fire(el, 'dragend', x, y)
+      },
+      { x: box.x + position.x, y: box.y + position.y, alt },
+    )
+  }
+
   /** 落在段落行尾:ProseMirror 按落点在块的后半段,插在该块之后 */
   async function endOf(block: Locator): Promise<{ x: number; y: number }> {
     const box = await block.boundingBox()
@@ -455,7 +483,7 @@ test.describe('7.1 块手柄拖动', () => {
     const paras = page.locator('.tz-editor p')
     const target = paras.nth(2)
     const grip = await gripOf(page, paras.nth(0))
-    await grip.dragTo(target, { targetPosition: await endOf(target) })
+    await dragBlock(page, grip, target, await endOf(target))
     await expect.poll(async () => (await markdown(page)).trim()).toBe('乙\n\n丙\n\n甲')
   })
 
@@ -464,11 +492,8 @@ test.describe('7.1 块手柄拖动', () => {
     const paras = page.locator('.tz-editor p')
     const target = paras.nth(2)
     const grip = await gripOf(page, paras.nth(0))
-    const position = await endOf(target)
     // 落下时按着 ⌥ 即复制(plugins/blockselect.ts dragCopies)
-    await page.keyboard.down('Alt')
-    await grip.dragTo(target, { targetPosition: position })
-    await page.keyboard.up('Alt')
+    await dragBlock(page, grip, target, await endOf(target), true)
     await expect.poll(async () => (await markdown(page)).trim()).toBe('甲\n\n乙\n\n丙\n\n甲')
   })
 
@@ -495,7 +520,7 @@ test.describe('7.1 块手柄拖动', () => {
     if (!box) throw new Error('取不到块的位置')
     // 拖任一所选块的「⋮⋮」作用于全部所选块(plugins/handle.ts inMultiSelection);落在第一块行首 = 插在它之前
     const grip = await gripOf(page, paras.nth(1))
-    await grip.dragTo(target, { targetPosition: { x: 2, y: box.height / 2 } })
+    await dragBlock(page, grip, target, { x: 2, y: box.height / 2 })
     await expect.poll(async () => (await markdown(page)).trim()).toBe('二\n\n三\n\n一')
   })
 })
