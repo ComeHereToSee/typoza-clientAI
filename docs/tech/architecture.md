@@ -29,7 +29,7 @@ flowchart LR
 | 外壳工具库 | `app/Sources/TypozaKit` | 可单测的纯逻辑:编码、文件服务、搜索、历史、链接预览、`typoza://` 协议处理、桥接参数、桥接来源校验、辅助进程 JSON-RPC 连接、钥匙串 | — |
 | 编辑内核 | `editor/src` | Markdown ↔ 文档模型、所见即所得编辑、Notion 输入与快捷键、灯箱与媒体、侧栏、偏好、云同步界面 | 不直接碰文件系统,一律经 Host 接口 |
 | 辅助进程 | `helper/` | 账号、库关联、同步引擎(上传 / 下载 / 冲突 / 回收站 / 历史)、把事件推给外壳 | 不碰界面;密钥不落自己的磁盘 |
-| 同步核心 | `helper/third_party/typoza-sdk` | 后端仓库 `sdk/` 的副本(后端仓库私有,CI 拉不到),`scripts/vendor-sdk.sh` 拷贝,`SOURCE` 记来源提交 | 本仓库不改它,改动回后端仓库再拷 |
+| 同步核心 | `helper/third_party/typoza-sdk` | 后端仓库 `sdk/` 的副本(当初三仓私有、CI 拉不到;2026-10-22 起三仓公开,副本方式沿用,客户端构建不依赖后端仓库),`scripts/vendor-sdk.sh` 拷贝,`SOURCE` 记来源提交 | 本仓库不改它,改动回后端仓库再拷 |
 
 为什么这样分:编辑体验要 ProseMirror 生态(插件、输入规则、节点视图),外壳要原生菜单、文件权限与钥匙串;同步核心与服务端同一种语言、同一份协议实现,服务端 e2e 测试直接复用。
 
@@ -126,7 +126,7 @@ flowchart LR
 | macos(macOS 15) | `swift test`、组装通用二进制 Typoza.app(内嵌辅助进程、图标、ad-hoc 签名)、冒烟自检、打 DMG | `Typoza.dmg` |
 | perf(Ubuntu,独立工作流) | 推 `perf` 分支触发:大文档分阶段剖析(Chromium 采样 + WebKit 计时) | `perf/perf.md` |
 
-- 每个任务把步骤日志与产物强推到 `ci/<任务名>` 孤儿分支,本机 `git fetch origin '+refs/heads/ci/*:refs/remotes/origin/ci/*'` 后用 `git show origin/ci/<任务名>:<文件>` 查看(仓库私有、无 API 令牌)。
+- 每个任务把步骤日志与产物强推到 `ci/<任务名>` 孤儿分支,本机 `git fetch origin '+refs/heads/ci/*:refs/remotes/origin/ci/*'` 后用 `git show origin/ci/<任务名>:<文件>` 查看(本机无 API 令牌;三仓公开后,运行状态也可免令牌查 `api.github.com/repos/ComeHereToSee/<仓库>/actions/runs`)。
 - 冒烟自检:以 `--smoke-out` 启动打包好的应用,写入截图场景文档 → 打开 → 双击表格里的图片 → 确认灯箱与图片加载 → 字节往返 → 经外壳调辅助进程取同步状态 → 截图并写 `smoke.json`。
 
 ## 7. 已知限制
