@@ -37,19 +37,27 @@ test('远处的块不排版;跳到文末后可见并可输入;滚回开头仍可
 })
 
 test('大文档分段载入:先显示开头、载入中不可编辑;载完后全文完整,写回逐字相同', async ({ page }) => {
-  // 两万段约 60 万字符,分成二十来段载入,足够在载完前看到「载入中」
+  // 八千段约 24 万字符,按 32KB 一段分成七八段载入,足够在载完前看到「载入中」。
+  // 不用更大:CI 的 Linux WebKit 排版比 macOS 真应用慢得多,两万段要 70~85 秒,贴着超时偶发失败(真应用 5MB 约 6 秒)
   test.setTimeout(90_000)
-  const total = 20000
+  const total = 8000
   const md = bigDoc(total)
   await page.evaluate((text) => window.typozaTest!.host.files.set('/demo/分段.md', { kind: 'file', data: text, mtime: Date.now() }), md)
+  // 打开后立即(同一次执行里,后续段落还没来得及续上)看状态:正在载入、状态栏显示进度、不可编辑
   const first = await page.evaluate(async () => {
-    await window.typozaTest!.app.openFile('/demo/分段.md', { replace: true })
-    return { loading: window.typozaTest!.app.loading, blocks: window.typozaTest!.app.view.state.doc.childCount }
+    const app = window.typozaTest!.app
+    await app.openFile('/demo/分段.md', { replace: true })
+    return {
+      loading: app.loading,
+      blocks: app.view.state.doc.childCount,
+      editable: app.view.editable,
+      status: document.querySelector('.tz-status-words')?.textContent ?? '',
+    }
   })
   expect(first.loading).toBe(true)
   expect(first.blocks).toBeLessThan(total)
-  await expect(page.locator('.tz-status-words')).toContainText('载入中')
-  expect(await page.evaluate(() => window.typozaTest!.app.view.editable)).toBe(false)
+  expect(first.status).toContain('载入中')
+  expect(first.editable).toBe(false)
   // 每秒记一次状态栏的载入进度,载不完时随断言带出(区分「慢」与「卡住」)
   const samples: string[] = []
   for (let i = 0; i < 40 && (await page.evaluate(() => window.typozaTest!.app.loading)); i++) {
