@@ -283,18 +283,25 @@ test('大文档分段载入中收到改文档:载完才预览,应用后全文还
   // 八千段即可分段载入;两万段在 CI 的 Linux WebKit 上要七八十秒,贴着超时(见 large-doc.spec.ts)
   const total = 8000
   const big = `${Array.from({ length: total }, (_, i) => `段落 ${i + 1}`).join('\n\n')}\n`
-  await page.evaluate((md) => {
+  // 回答先停住;打开大文档后(此刻正在分段载入)立即放行,改文档请求一定在载入中到达,不跟载入速度赛跑
+  await openAiPanel(page)
+  await queueReply(page, [{ hold: true }, { edit: { kind: 'insert', text: '\n\n文末新增。' } }, { text: '好了。' }])
+  await ask(page, '在文末加一句')
+  await expect.poll(async () => (await aiCalls(page, 'ai.chat.send')).length).toBe(1)
+  const loadingAtRelease = await page.evaluate(async (md) => {
     const t = window.typozaTest!
     t.host.files.set('/demo/大文档-AI.md', { kind: 'file', data: md, mtime: Date.now() })
-    void t.app.openFile('/demo/大文档-AI.md', { replace: true })
+    await t.app.openFile('/demo/大文档-AI.md', { replace: true })
+    const loading = t.app.loading
+    t.host.ai.release()
+    // 等模拟服务推出改文档事件(下一轮微任务之后),再看此刻有没有预览
+    await new Promise((r) => setTimeout(r, 0))
+    return { loading, barWhileLoading: t.app.loading ? document.querySelectorAll('.tz-ai-diff-bar').length : -1 }
   }, big)
-  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.loading)).toBe(true)
-  await openAiPanel(page)
-  await queueReply(page, [{ edit: { kind: 'insert', text: '\n\n文末新增。' } }, { text: '好了。' }])
-  await ask(page, '在文末加一句')
+  expect(loadingAtRelease.loading).toBe(true)
   // 载完之前不出预览(正文不全时算出的差异会把后半篇当成删除)
+  expect(loadingAtRelease.barWhileLoading).not.toBeGreaterThan(0)
   const bar = page.locator('.tz-ai-diff-bar')
-  if (await page.evaluate(() => window.typozaTest!.app.loading)) await expect(bar).toHaveCount(0)
   await expect.poll(() => page.evaluate(() => window.typozaTest!.app.loading), { timeout: 90_000 }).toBe(false)
   await expect(bar).toBeVisible({ timeout: 10_000 })
   await bar.locator('button[name=applyEdit]').click()
