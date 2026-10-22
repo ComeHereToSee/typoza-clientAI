@@ -280,7 +280,8 @@ test('⌥⌘J 仍然跳转到所选内容;⌘J 打开 AI 侧栏', async ({ page 
 
 test('大文档分段载入中收到改文档:载完才预览,应用后全文还在', async ({ page }) => {
   test.setTimeout(120_000)
-  const total = 20000
+  // 八千段即可分段载入;两万段在 CI 的 Linux WebKit 上要七八十秒,贴着超时(见 large-doc.spec.ts)
+  const total = 8000
   const big = `${Array.from({ length: total }, (_, i) => `段落 ${i + 1}`).join('\n\n')}\n`
   await page.evaluate((md) => {
     const t = window.typozaTest!
