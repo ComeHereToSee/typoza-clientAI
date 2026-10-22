@@ -92,7 +92,8 @@
 /* ---------- 改文档的差异预览 ---------- */
 .tz-ai-del { background: rgba(212, 76, 71, 0.12); text-decoration: line-through; text-decoration-color: rgba(212, 76, 71, 0.7); outline: 1px solid rgba(212, 76, 71, 0.25); border-radius: 3px; }
 .tz-ai-ins { display: block; margin: 6px 0; padding: 4px 10px; border-left: 3px solid #4dab9a; border-radius: 3px; background: rgba(77, 171, 154, 0.14); white-space: normal; }
-.tz-ai-diff-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; padding: 6px 10px; border-radius: 6px; background: var(--tz-accent-soft); font-family: var(--tz-font-sans); font-size: 13px; }
+/* 浮在编辑区底部(不放进正文,见 ai/docedit.ts) */
+.tz-ai-diff-bar { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 8px; min-width: 320px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--tz-border); background: var(--tz-bg); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); font-family: var(--tz-font-sans); font-size: 13px; }
 .tz-ai-diff-bar span { flex: 1; color: var(--tz-accent); font-weight: 600; }
 
 /* 格式条上的【AI】 */

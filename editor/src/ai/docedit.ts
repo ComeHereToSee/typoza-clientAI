@@ -51,6 +51,8 @@ export class DocEditPreview {
   readonly items = new Map<string, PendingEdit>()
   private queue: PendingEdit[] = []
   private serializer: DOMSerializer | null = null
+  /** 浮在编辑区底部的【应用】【拒绝】条(同一时间只预览一处修改) */
+  private floating: HTMLElement | null = null
 
   constructor(private readonly ai: AiController) {}
 
@@ -135,14 +137,16 @@ export class DocEditPreview {
         decos.push(Decoration.widget(starts[hunk.aTo], ins, { slot: 'diff', side: -1, key: `tz-ai-ins-${item.callId}-${hunk.aTo}-${hunk.bFrom}`, stopEvent: () => true, ignoreSelection: true }))
       }
     }
-    const bar = this.bar(item)
-    decos.push(Decoration.widget(starts[hunks[0].aFrom], bar, { slot: 'diff', side: -2, key: `tz-ai-bar-${item.callId}`, stopEvent: () => true, ignoreSelection: true }))
-    // 光标移到第一处改动并滚过去:大文档里视口裁剪按滚动位置只排版附近的块,只挪光标不滚动,
-    // 下一帧窗口又按滚动位置退回去,远处的预览条会被一起藏起来
+    // 光标移到第一处改动并滚过去,用户能看到改了哪里
     const tr = setAiDecorations(view.state.tr, 'diff', decos).setMeta('addToHistory', false)
     tr.setSelection(Selection.near(tr.doc.resolve(Math.min(starts[hunks[0].aFrom], tr.doc.content.size)))).scrollIntoView()
     view.dispatch(tr)
-    requestAnimationFrame(() => bar.scrollIntoView({ block: 'center' }))
+    // 【应用】【拒绝】浮在编辑区底部,不放进正文:大文档的视口裁剪只排版滚动位置附近的块,
+    // 正文里的小部件在窗口来回调整时会被一起藏起来,按钮就点不到了
+    this.removeBar()
+    this.floating = this.bar(item)
+    const host = view.dom.closest('.tz-main') ?? document.body
+    host.append(this.floating)
     this.changed(item)
   }
 
@@ -161,6 +165,11 @@ export class DocEditPreview {
     return h('div', { class: 'tz-ai-diff-bar', contenteditable: 'false' }, h('span', null, `✦ AI 建议修改 ${item.hunks.length} 处`), apply, reject)
   }
 
+  private removeBar(): void {
+    this.floating?.remove()
+    this.floating = null
+  }
+
   /** 应用修改:一次编辑写入(⌘Z 一步撤回),然后回报模型 */
   apply(callId: string): void {
     const item = this.items.get(callId)
@@ -177,6 +186,7 @@ export class DocEditPreview {
     }
     setAiDecorations(tr, 'diff', [])
     view.dispatch(tr.setMeta(AI_EDIT, true).scrollIntoView())
+    this.removeBar()
     void this.resolve(item, 'applied', 'allow', `已应用修改(共 ${item.hunks.length} 处)`)
   }
 
@@ -202,6 +212,7 @@ export class DocEditPreview {
   }
 
   private clearDecorations(item: PendingEdit): void {
+    this.removeBar()
     const view = item.view
     if (view && !view.isDestroyed) view.dispatch(setAiDecorations(view.state.tr, 'diff', []).setMeta('addToHistory', false))
   }
@@ -223,6 +234,7 @@ export class DocEditPreview {
   onViewDestroyed(view: EditorView): void {
     const item = this.active()
     if (item?.state !== 'preview' || item.view !== view) return
+    this.removeBar()
     item.state = 'stale'
     item.note = '文档已切换或重新载入,预览已失效'
     item.view = null
