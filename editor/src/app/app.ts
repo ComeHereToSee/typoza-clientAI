@@ -21,6 +21,7 @@ import type { DraftRestore, ExportFormat, FileStat, HistoryEntry, Host } from '.
 import { h } from '../ui/dom'
 import { closeLightbox, isLightboxOpen } from '../ui/lightbox'
 import { promptInput, validateUrl } from '../ui/prompt'
+import { renderCodePreviews } from '../views/codeblock'
 import { resetMacros } from '../views/katex'
 import { applyAppearance as applyAppearanceSettings, bindZoomGestures, clampZoom, isDarkMode, loadThemeCss, openThemesFolder, printDocument } from './appearance'
 import { importFile, importNetworkImage, uploadImages } from './assets'
@@ -43,9 +44,17 @@ import { showQuickOpen } from './quickopen'
 import { type AppSettings, BUILTIN_THEMES, loadSettings, newFileExtension } from './settings'
 import { appKeyTable, BROWSER_ALIASES, keyName } from './shortcuts'
 import { type SearchFlags, Sidebar, type SidebarTab, showOutlinePopover } from './sidebar'
-import { SourceEditor } from './source'
+import type { SourceEditor } from './source'
 import { docPosToSource, sourceToDocPos } from './sourcemap'
 import { createTextBundle, textBundleText } from './textbundle'
+
+type SourceModule = typeof import('./source')
+/** 源代码模式的 CodeMirror 按需载入(不进启动主包),载入后同步可用 */
+let sourceModule: SourceModule | null = null
+async function loadSourceModule(): Promise<SourceModule> {
+  sourceModule ??= await import('./source')
+  return sourceModule
+}
 
 export interface AppOptions {
   host: Host
@@ -168,7 +177,9 @@ export class App {
   }
 
   async init(): Promise<void> {
+    // 启动分段打点(冒烟报告与性能剖析读 performance 的 mark):读偏好、建界面、查草稿、打开文档
     this.settings = await loadSettings(this.host)
+    performance.mark('tz:settings')
     initEditorPrefs(this.settings)
     this.syncEditorSettings()
     this.sidebar = new Sidebar(this.host, {
@@ -205,9 +216,11 @@ export class App {
     this.syncExportItems()
     if (Object.keys(this.settings.keybindings).length) syncMenuKeys(this.host, this.settings)
     syncSpelling(this.host, this.settings)
+    performance.mark('tz:ui')
 
     // 重启或网页进程崩溃后,外壳要求本窗口恢复的未命名草稿(PRD 3.1)
     const draft = await this.host.draftPending()
+    performance.mark('tz:draft')
     if (draft) this.restoreDraft(draft)
     const openPath = this.options.openPath
     if (openPath) {
@@ -216,6 +229,7 @@ export class App {
     } else if (!draft && this.host.isLaunchWindow) {
       await this.restoreStartup()
     }
+    performance.mark('tz:open')
     this.updateWindowState()
     this.renderStatus()
     this.view.focus()
@@ -427,10 +441,10 @@ export class App {
       this.closeSource()
       if (stat.size > LARGE_FILE_BYTES) {
         // 超大文件:不解析,以只读源码打开
-        const text = await this.session.loadText(textPath, opts.encoding)
+        const [text, source] = await Promise.all([this.session.loadText(textPath, opts.encoding), loadSourceModule()])
         this.session.readOnly = 'large'
         this.setDocument(schema.nodes.doc.create(null, schema.nodes.paragraph.create()))
-        this.openSource(text, true)
+        this.openSource(source, text, true)
         this.toast(`文件较大(${(stat.size / 1024 / 1024).toFixed(1)} MB),已以只读源码方式打开`)
       } else {
         // 大文档先显示第一段,其余分段在后台续上(PRD 质量要求:5MB 文档首屏 ≤1.5 秒)
@@ -759,12 +773,12 @@ export class App {
     return { inlineMath: this.settings.inlineMath, ensureTrailingNewline: this.settings.ensureTrailingNewline }
   }
 
-  private openSource(text: string, readOnly: boolean): SourceEditor {
+  private openSource(mod: SourceModule, text: string, readOnly: boolean): SourceEditor {
     this.els.editor.hidden = true
     this.els.header.hidden = true
     const mount = h('div', { class: 'tz-source-host' })
     this.els.page.append(mount)
-    this.source = new SourceEditor(mount, text, () => this.onDocChange(), this.settings.codeLineNumbers, readOnly)
+    this.source = new mod.SourceEditor(mount, text, () => this.onDocChange(), this.settings.codeLineNumbers, readOnly)
     return this.source
   }
 
@@ -788,9 +802,17 @@ export class App {
       return
     }
     if (on && !this.source) {
+      // 第一次切换时先载入 CodeMirror,载入后再切
+      if (!sourceModule) {
+        loadSourceModule().then(
+          () => this.toggleSourceMode(true),
+          (err: unknown) => this.toast(`源代码模式载入失败:${err instanceof Error ? err.message : String(err)}`, true),
+        )
+        return
+      }
       const doc = this.view.state.doc
       const pos = this.view.state.selection.from
-      const source = this.openSource(this.session.serialize(doc), false)
+      const source = this.openSource(sourceModule, this.session.serialize(doc), false)
       source.setCursor(docPosToSource(doc, pos, source.text, this.session.meta, this.serializeOptions()))
       source.focus()
     } else if (!on && this.source) {
@@ -1338,11 +1360,11 @@ export class App {
         if (enc) void this.openFile(path, { replace: true, encoding: enc })
       })
     })
-    // 深色主题时临时改用浅色主题打印(PRD 3.12)
+    // 深色主题时临时改用浅色主题打印(PRD 3.12);离视口远的图表、公式预览先画齐
     cmd('file.print', '打印…', () =>
-      void printDocument(this.host, this.settings, this.systemDark, () => this.applyAppearance()).catch((err: unknown) =>
-        this.toast(`打印失败:${err instanceof Error ? err.message : String(err)}`, true),
-      ),
+      void renderCodePreviews(this.view)
+        .then(() => printDocument(this.host, this.settings, this.systemDark, () => this.applyAppearance()))
+        .catch((err: unknown) => this.toast(`打印失败:${err instanceof Error ? err.message : String(err)}`, true)),
     )
     for (const f of ['pdf', 'html', 'html-plain', 'image', 'docx', 'odt', 'rtf', 'epub', 'latex', 'mediawiki', 'rst', 'textile', 'opml'] as ExportFormat[]) {
       cmd(`file.export.${f}`, `导出 ${f}`, () => void this.exportAs(f))

@@ -1,7 +1,7 @@
 import XCTest
 @testable import TypozaKit
 
-/// 文件与窗口、历史版本、搜索、草稿、检查更新(gaps 第 2、6、10、32、33、47、55 项)
+/// 文件与窗口、历史版本、搜索、草稿、检查更新(gaps 第 2、6、10、32、33、47、55 项)、应用标识
 final class FilesTests: XCTestCase {
     var dir: URL!
 
@@ -20,6 +20,25 @@ final class FilesTests: XCTestCase {
 
     private func write(_ name: String, _ text: String) throws {
         _ = try FileService.writeText(path(name), text: text, encoding: nil)
+    }
+
+    // ---------- 应用标识 ----------
+
+    /// 数据目录、日志、钥匙串服务名跟着应用包的名称与标识走(AI 版与基础版并装互不影响);没有应用包时按基础版
+    func testAppPathsFollowBundleIdentity() throws {
+        XCTAssertEqual(AppPaths.name, "Typoza")
+        XCTAssertEqual(AppPaths.bundleID, "app.typoza.mac")
+        XCTAssertEqual(AppPaths.support.lastPathComponent, "Typoza")
+        XCTAssertEqual(AppPaths.syncKeychainService, "app.typoza.mac.sync")
+
+        let app = dir.appendingPathComponent("Typoza AI.app/Contents", isDirectory: true)
+        try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
+        let plist: [String: Any] = ["CFBundleName": "Typoza AI", "CFBundleIdentifier": "app.typoza.ai", "CFBundlePackageType": "APPL"]
+        try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0).write(to: app.appendingPathComponent("Info.plist"))
+        let bundle = try XCTUnwrap(Bundle(url: app.deletingLastPathComponent()))
+        XCTAssertEqual(AppPaths.bundleValue("CFBundleName", bundle: bundle), "Typoza AI")
+        XCTAssertEqual(AppPaths.bundleValue("CFBundleIdentifier", bundle: bundle), "app.typoza.ai")
+        XCTAssertNil(AppPaths.bundleValue("CFBundleDisplayName", bundle: bundle))
     }
 
     // ---------- 草稿 ----------

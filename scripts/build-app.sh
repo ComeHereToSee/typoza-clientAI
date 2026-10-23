@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 用法:scripts/build-app.sh <输出目录>
-# 在 macOS CI 上组装 Typoza.app(通用二进制 arm64 + x86_64,ad-hoc 签名)。
+# 在 macOS CI 上组装 <应用名>.app(应用名取 app/Support/Info.plist 的 CFBundleName;通用二进制 arm64 + x86_64,ad-hoc 签名)。
 # 前置:editor/dist 已构建;helper/dist/typoza-helper-darwin-{arm64,amd64} 已交叉编译;
 #       app-icon/AppIcon.iconset 已由 editor/scripts/render-icon.mjs 从 design/assets/app-icon.svg 渲染。
 set -euo pipefail
@@ -16,7 +16,7 @@ cd "$root/app"
 swift build -c release --arch arm64 --arch x86_64
 bin_dir="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)"
 
-app="$out/Typoza.app"
+app="$out/$(plutil -extract CFBundleName raw "$root/app/Support/Info.plist").app"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$bin_dir/Typoza" "$app/Contents/MacOS/Typoza"

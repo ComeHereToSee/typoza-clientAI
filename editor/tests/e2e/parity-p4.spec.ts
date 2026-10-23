@@ -329,6 +329,20 @@ test('X-23 导出 PDF:页眉页脚里的 ${title}、${currentFileName}、${today
   expect(options.footer).toBe('第 ${pageNo}/${pageCount} 页 · 页码测试')
 })
 
+test('导出 HTML:离视口远的代码块、几百行的长代码块完整导出,没画过的图表预览先画齐', async ({ page }) => {
+  // 代码块离视口远时还是静态占位,CodeMirror 也只画视口附近的行:导出不能从界面读代码
+  const long = Array.from({ length: 400 }, (_, i) => `line ${i + 1}`).join('\n')
+  const filler = Array.from({ length: 150 }, (_, i) => `段落 ${i + 1}`).join('\n\n')
+  await loadDoc(page, `\`\`\`text\n${long}\n\`\`\`\n\n${filler}\n\n\`\`\`js\nconst far = 1\n\`\`\`\n\n\`\`\`mermaid\ngraph TD\n  A-->B\n\`\`\`\n`, '/demo/导出代码.md')
+  await expect(page.locator('.tz-editor .tz-code-block')).toHaveCount(3)
+  await runMenuCommand(page, 'file.export.html')
+  await expect(page.locator('.tz-toast')).toHaveText('导出成功', { timeout: 30_000 })
+  const html = (await fileText(page, '/demo/导出代码.html')) ?? ''
+  const codes = [...html.matchAll(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g)].map((m) => m[1])
+  expect(codes).toEqual([long, 'const far = 1'])
+  expect(html).toMatch(/<div class="tz-diagram">[\s\S]*?<svg/)
+})
+
 // ---------- 代码块与公式 ----------
 
 test('X-27 代码语言补全:``` 与 ~~~ 建出的代码块,语言框都接上语言清单;选定语言写进围栏', async ({ page }) => {
@@ -338,8 +352,10 @@ test('X-27 代码语言补全:``` 与 ~~~ 建出的代码块,语言框都接上�
   const lang = page.locator('.tz-editor .tz-code-lang')
   // 下拉提示是浏览器原生的 <datalist>:断言输入框接上了清单、清单里有常用语言
   expect(await lang.evaluate((el: HTMLInputElement) => el.list?.id ?? null)).toBe('tz-code-languages')
-  const names = await page.locator('datalist#tz-code-languages option').evaluateAll((els) => els.map((e) => (e as HTMLOptionElement).value))
-  expect(names).toEqual(expect.arrayContaining(['python', 'javascript', 'typescript', 'shell', 'mermaid', 'math']))
+  // 高亮语言随 CodeMirror 按需载入后补进清单
+  await expect
+    .poll(() => page.locator('datalist#tz-code-languages option').evaluateAll((els) => els.map((e) => (e as HTMLOptionElement).value)))
+    .toEqual(expect.arrayContaining(['python', 'javascript', 'typescript', 'shell', 'mermaid', 'math']))
   await lang.fill('python')
   await lang.press('Enter')
   await expect.poll(async () => (await markdown(page)).trim()).toBe('```python\n```')

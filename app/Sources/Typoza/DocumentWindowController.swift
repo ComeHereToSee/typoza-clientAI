@@ -299,7 +299,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
         case "window.setState":
             let path = params.optionalString("path")
             currentPath = path
-            window?.title = params.optionalString("title") ?? "Typoza"
+            window?.title = params.optionalString("title") ?? AppPaths.name
             window?.representedURL = path.map { URL(fileURLWithPath: $0) }
             window?.isDocumentEdited = params.bool("edited")
             hasLastExport = params.bool("hasLastExport")
@@ -744,6 +744,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             // 查重复项只看平时显示的项
             report["menuKeysPrimary"] = Self.menuKeys(NSApp.mainMenu, alternates: false)
             if let preMain = self.app.preMainSeconds { report["preMainSeconds"] = preMain }
+            // 同机并装的版本各用各的数据目录与钥匙串(CI 按 Info.plist 核对)
+            report["identity"] = ["name": AppPaths.name, "bundleID": AppPaths.bundleID, "support": AppPaths.support.path, "logs": AppPaths.logsDir.path, "syncKeychain": AppPaths.syncKeychainService]
             switch result {
             case .success(let value): report["result"] = value
             case .failure(let error): report["error"] = "页面自检失败:\(error)"

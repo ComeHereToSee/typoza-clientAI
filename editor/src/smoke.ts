@@ -1,7 +1,7 @@
 // 打包产物冒烟自检(macOS CI 上以 --smoke-out 启动应用时由外壳调用):
 // 在临时目录写一篇带图片 / 表格 / 动图的文档 → 打开 → 双击表格里的图片 → 确认灯箱打开且图片真的加载出来;
 // 再走一遍真实的导出 / 导入(外壳离屏渲染与 Pandoc)、指定编码重新打开、拷贝图片。
-import { NodeSelection, TextSelection } from 'prosemirror-state'
+import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
 import type { App } from './app/app'
 import { createEditorState } from './core/editor'
 import { parseMarkdown, parseTimings } from './core/markdown/parse'
@@ -54,6 +54,7 @@ function percentile(values: number[], p: number): number {
 export async function runSmoke(app: App, bootTimings: Record<string, number> = {}): Promise<SmokeResult> {
   const checks: Record<string, boolean> = {}
   const timings: Record<string, number> = { ...bootTimings, bootMs: Math.round(performance.now()) }
+  for (const m of performance.getEntriesByType('mark')) if (m.name.startsWith('tz:')) timings[`mark_${m.name.slice(3)}Ms`] = Math.round(m.startTime)
   try {
     const host = app.host
     const dir = `${host.homeDir()}/Library/Caches/app.typoza.mac/smoke`
@@ -102,6 +103,7 @@ export async function runSmoke(app: App, bootTimings: Record<string, number> = {
     timings.bigInputDispatchP95Ms = Math.round(percentile(dispatchSamples, 95) * 10) / 10
     timings.bigInputP95Ms = Math.round(percentile(samples, 95) * 10) / 10
     timings.bigInputMaxMs = Math.round(Math.max(...samples) * 10) / 10
+    inputBreakdown(app, timings)
     t = performance.now()
     checks.bigSaved = await app.save()
     timings.bigSaveMs = Math.round(performance.now() - t)
@@ -231,4 +233,81 @@ async function encodingCheck(app: App, dir: string, checks: Record<string, boole
   await app.save()
   const back = await host.readText(path, 'big5')
   checks.encodingSaved = back.text.includes('資料內容追加')
+}
+
+/**
+ * 诊断:大文档里每次输入花在哪,连续 30 次累计,取最大的 16 项写进 timings(input · 开头):
+ * 各插件的状态 apply、appendTransaction、装饰,插件视图更新,视图里的 DOM 更新与紧随其后的排版,应用回调。
+ * 不重建编辑器状态(重建会换掉插件视图,大文档视口裁剪随之重来,量出来的不是平时的样子):状态字段的 apply 在 config 里换。
+ */
+function inputBreakdown(app: App, timings: Record<string, number>): void {
+  const view = app.view
+  const totals = new Map<string, number>()
+  const add = (k: string, ms: number) => totals.set(k, (totals.get(k) ?? 0) + ms)
+  function timed<A extends unknown[], R>(label: string, fn: (...a: A) => R): (...a: A) => R {
+    return function (this: unknown, ...a: A): R {
+      const t = performance.now()
+      try {
+        return fn.apply(this, a)
+      } finally {
+        add(label, performance.now() - t)
+      }
+    }
+  }
+  const restore: (() => void)[] = []
+  function wrap(obj: object, key: string, label: string): void {
+    const o = obj as Record<string, unknown>
+    const orig = o[key]
+    if (typeof orig !== 'function') return
+    const own = Object.hasOwn(o, key)
+    o[key] = timed(label, orig as (...a: unknown[]) => unknown)
+    restore.push(() => {
+      if (own) o[key] = orig
+      else delete o[key]
+    })
+  }
+  const keyOf = (p: unknown) => (p as { key: string }).key.replace(/\$\d*$/, '')
+  const plugins = view.state.plugins
+  plugins.forEach((p, i) => {
+    wrap(p.spec, 'appendTransaction', `append ${i} ${keyOf(p)}`)
+    wrap(p.props, 'decorations', `deco ${i} ${keyOf(p)}`)
+  })
+  const config = (view.state as unknown as { config: { fields: { name: string; apply: unknown }[] } }).config
+  config.fields.forEach((f) => wrap(f, 'apply', `apply ${f.name.replace(/\$\d*$/, '')}`))
+  const withViews = plugins.filter((p) => p.spec.view)
+  const pluginViews = (view as unknown as { pluginViews: object[] }).pluginViews
+  pluginViews.forEach((pv, i) => wrap(pv, 'update', `插件视图 ${withViews[i] ? keyOf(withViews[i]) : i}`))
+  // DOM 更新之后立刻强制排版并单独计时:否则排版落在随后放 DOM 选区时(WebKit 放选区要先排版),分不出来
+  const docView = (view as unknown as { docView: Record<string, unknown> }).docView
+  const origDocUpdate = docView.update as (...a: unknown[]) => unknown
+  docView.update = function (this: unknown, ...a: unknown[]) {
+    const t = performance.now()
+    const r = origDocUpdate.apply(this, a)
+    const t1 = performance.now()
+    void view.dom.getBoundingClientRect().height
+    add('视图 DOM 更新', t1 - t)
+    add('视图 DOM 更新后的排版', performance.now() - t1)
+    return r
+  }
+  restore.push(() => delete docView.update)
+  wrap(view, 'updateState', '视图 updateState(合计)')
+  wrap(EditorState.prototype, 'apply', 'state.apply(合计)')
+  let total = 0
+  try {
+    for (let i = 0; i < 30; i++) {
+      const t = performance.now()
+      view.dispatch(view.state.tr.insertText('诊'))
+      total += performance.now() - t
+    }
+  } finally {
+    restore.reverse().forEach((r) => r())
+  }
+  timings['input · 合计 30 次'] = Math.round(total * 10) / 10
+  // dispatchTransaction 里 apply 与 updateState 之外的部分 = 应用回调(onDocChange / onUpdate)
+  const inState = (totals.get('state.apply(合计)') ?? 0) + (totals.get('视图 updateState(合计)') ?? 0)
+  totals.set('应用回调(onDocChange 与 onUpdate)', total - inState)
+  ;[...totals.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 16)
+    .forEach(([k, v]) => (timings[`input · ${k}`] = Math.round(v * 10) / 10))
 }

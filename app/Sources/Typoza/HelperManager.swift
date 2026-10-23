@@ -9,7 +9,7 @@ final class HelperManager {
     var broadcast: ((String, [String: Any]) -> Void)?
     private let aiSecrets = AISecretStore()
 
-    private let keychain = KeychainItem(service: "app.typoza.mac.sync", account: "session")
+    private let keychain = KeychainItem(service: AppPaths.syncKeychainService, account: "session")
     // 钥匙串读写走串行队列,保证「写入新令牌」与「退出时删除」按发生顺序执行
     private let keychainQueue = DispatchQueue(label: "app.typoza.keychain")
     private var process: Process?
@@ -91,7 +91,7 @@ final class HelperManager {
         ensureStarted()
         guard let conn = connection else {
             let part = method.hasPrefix("ai.") ? "AI 组件" : "同步组件"
-            reply(["ok": false, "error": ["code": "unavailable", "message": "\(part)没能启动,详见 ~/Library/Logs/Typoza/helper.log"]])
+            reply(["ok": false, "error": ["code": "unavailable", "message": "\(part)没能启动,详见 \((AppPaths.logsDir.appendingPathComponent("helper.log").path as NSString).abbreviatingWithTildeInPath)"]])
             return
         }
         conn.call(method, params: params) { result in
@@ -255,7 +255,7 @@ final class HelperManager {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.ensureStarted() }
     }
 
-    /// 辅助进程的标准错误追加到 ~/Library/Logs/Typoza/helper.log,超过 5 MB 先清空。
+    /// 辅助进程的标准错误追加到 ~/Library/Logs/<应用名>/helper.log,超过 5 MB 先清空。
     private func openLog() -> FileHandle {
         let dir = AppPaths.logsDir
         let url = dir.appendingPathComponent("helper.log")

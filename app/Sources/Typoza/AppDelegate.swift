@@ -1,6 +1,7 @@
 import AppKit
 import PDFKit
 import TypozaKit
+import UniformTypeIdentifiers
 import WebKit
 
 /// 应用主控:窗口(一个窗口一个文档)、菜单、最近文件、退出确认。
@@ -13,6 +14,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let drafts = DraftStore()
     let helper = HelperManager()
     private(set) var windows: [DocumentWindowController] = []
+    /// 冒烟只在第一个窗口里跑(自检里关光窗口后再新开的窗口不再跑)
+    private var smokeWindowCreated = false
     private var closedPaths: [String] = []
     private let recentMenu = NSMenu(title: "打开最近文件")
     private let recentFoldersMenu = NSMenu(title: "最近使用的目录")
@@ -184,7 +187,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @discardableResult
     func newWindow(open: (String, Bool)?, asTabOf parent: NSWindow? = nil) -> DocumentWindowController {
-        let controller = DocumentWindowController(app: self, open: open, smokeOut: windows.isEmpty ? smokeOut : nil)
+        let runsSmoke = smokeOut != nil && !smokeWindowCreated
+        smokeWindowCreated = smokeWindowCreated || runsSmoke
+        let controller = DocumentWindowController(app: self, open: open, smokeOut: runsSmoke ? smokeOut : nil)
         windows.append(controller)
         if let parent, let window = controller.window {
             parent.addTabbedWindow(window, ordered: .above)
@@ -616,13 +621,13 @@ extension AppDelegate {
         }
     }
 
-    /// 外壳自检第二段(对照表 A-01、A-05、A-06、C-05、E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
+    /// 外壳自检第二段(对照表 A-01、A-05、A-06、C-05、E-03、E-09、E-15、E-17、E-18、F-01 ~ F-04、F-05、F-06、H-01、H-03、H-04、H-06、H-07、P-18、PE-08、PF-06、PG-01、PX-04、PX-06、S-14、S-20、X-55),逐项按顺序跑。
     /// 网页侧冒烟(smoke.ts)已导出好 PDF / PNG、把动图拷进剪贴板,这里读回核对。
     private func moreNativeSmoke(_ main: DocumentWindowController, _ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
         var checks = checks
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("typoza-native2-\(UUID().uuidString)", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let exports = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches/app.typoza.mac/smoke/out")
+        let exports = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches/\(AppPaths.bundleID)/smoke/out")
         let real = { (path: String) in URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
         let command = { (id: String) in
             let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -896,6 +901,186 @@ extension AppDelegate {
             }
         }
 
+        // F-04 ⌘O:真按键弹出外壳的打开面板,文件和文件夹都能选。面板是模态的:检查排进模态循环里跑,看完点取消
+        steps.append { done in
+            guard let window = main.window else { return done(["openPanel": false]) }
+            self.bringToFront(window) { _ in
+                var result: Bool?
+                var tries = 0
+                func check() {
+                    tries += 1
+                    let panel = (NSApp.modalWindow ?? window.attachedSheet) as? NSOpenPanel
+                    if let panel {
+                        result = panel.canChooseFiles && panel.canChooseDirectories
+                        panel.cancel(nil)
+                    } else if tries >= 60 {
+                        // 没弹出面板(或弹的是别的模态窗口):记失败,别让模态窗口卡住后面的自检
+                        result = false
+                        if let modal = NSApp.modalWindow { FileHandle.standardError.write(Data("冒烟 ⌘O 弹出的不是打开面板:\(type(of: modal))\n".utf8)); NSApp.abortModal() }
+                    } else {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: check)
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: check)
+                self.sendKey(window, code: 31, chars: "o", ignoring: "o", mods: [.command])
+                self.waitUntil(10, { result != nil }) { _ in done(["openPanel": result == true]) }
+            }
+        }
+
+        // P-18 从菜单栏执行「段落 ▸ 表格 ▸ 复制表格」:命令由外壳转发给网页,系统拷贝照样可用,剪贴板有 Markdown 与 HTML
+        steps.append { done in
+            let file = dir.appendingPathComponent("复制表格.md").path
+            do { try "| 甲 | 乙 |\n| --- | --- |\n| 1 | 2 |\n\n末段\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return done(["menuCopyTable": false]) }
+            self.open(path: file, isDir: false, newWindow: true)
+            self.waitUntil(15, { self.windows.contains { $0.isShowing(file) && $0.isLoaded } }) { opened in
+                guard opened, let w = self.windows.first(where: { $0.isShowing(file) }), let window = w.window else { return done(["menuCopyTable": false]) }
+                self.bringToFront(window) { _ in
+                    _ = window.makeFirstResponder(w.webView)
+                    let focus = "(() => { const pm = document.querySelector('.ProseMirror'); if (!pm || !pm.querySelector('td')) return false; pm.focus(); return true })()"
+                    self.waitForScript(w, focus, 15) { focused in
+                        guard focused else { return done(["menuCopyTable": false]) }
+                        // ⌘↑ 到文首 = 表格第一格(光标用真按键移动)
+                        let up = String(Character(UnicodeScalar(UInt32(NSUpArrowFunctionKey))!))
+                        self.sendKey(window, code: 126, chars: up, ignoring: up, mods: [.command, .numericPad, .function])
+                        self.waitForScript(w, "getSelection().anchorNode?.parentElement?.closest('th, td') != null", 5) { inTable in
+                            guard inTable, let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return done(["menuCopyTable": false]) }
+                            let pb = NSPasteboard.general
+                            pb.clearContents()
+                            found.menu.performActionForItem(at: found.index)
+                            self.waitUntil(5, {
+                                let text = pb.string(forType: .string) ?? ""
+                                return text.contains("甲") && text.contains("|") && (pb.string(forType: .html) ?? "").contains("<table")
+                            }) { done(["menuCopyTable": $0]) }
+                        }
+                    }
+                }
+            }
+        }
+
+        // S-14 快速查看:系统 Quick Look 的预览窗口出现在 Typoza 窗口前面;测完关掉
+        steps.append { done in
+            let file = dir.appendingPathComponent("快速查看.md").path
+            do { try "# 快速查看\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return done(["quickLookFront": false]) }
+            self.bringToFront(main.window) { _ in
+                let preview: Process
+                do { preview = try QuickLookPreview.show(file) } catch { return done(["quickLookFront": false]) }
+                let isPreview = { (owner: Self.WindowOwner) in owner.pid == preview.processIdentifier || ["qlmanage", "QuickLookUIService"].contains(owner.name) }
+                self.waitUntil(10, {
+                    let owners = Self.windowOwnersFrontToBack()
+                    guard let ql = owners.firstIndex(where: isPreview) else { return false }
+                    return ql < (owners.firstIndex { $0.pid == getpid() } ?? Int.max)
+                }) { front in
+                    if !front { FileHandle.standardError.write(Data("冒烟 快速查看窗口不在前面,从前到后:\(Self.windowOwnersFrontToBack().prefix(8).map(\.name))\n".utf8)) }
+                    preview.terminate()
+                    done(["quickLookFront": front])
+                }
+            }
+        }
+
+        // S-20 焦点在侧栏时 ⌘Z 撤销上一次文件操作:文件树里创建副本,点侧栏后按真 ⌘Z,副本没了
+        steps.append { done in
+            let folder = dir.appendingPathComponent("侧栏撤销", isDirectory: true)
+            let file = folder.appendingPathComponent("原文件.md").path
+            let copy = folder.appendingPathComponent("原文件 副本.md").path
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                try "# 原文件\n".write(toFile: file, atomically: true, encoding: .utf8)
+            } catch { return done(["sidebarUndo": false]) }
+            self.open(path: folder.path, isDir: true, newWindow: true)
+            self.waitUntil(15, { self.windows.last?.isLoaded == true && self.windows.count > 1 }) { opened in
+                guard opened, let w = self.windows.last, let window = w.window else { return done(["sidebarUndo": false]) }
+                w.sendCommand("view.fileTree")
+                let item = ".tz-tree-item[data-path=\"\(real(file))\"], .tz-tree-item[data-path=\"\(file)\"]"
+                let menu = "(() => { const el = document.querySelector('\(item)'); if (!el) return false; const r = el.getBoundingClientRect(); el.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + 10, clientY: r.top + 5 })); return true })()"
+                let duplicate = "(() => { const it = document.querySelector('.tz-context-menu .tz-menu-item[data-id=\"duplicate\"]'); if (!it) return false; it.click(); return true })()"
+                self.waitForScript(w, menu, 15) { shown in
+                    self.waitForScript(w, duplicate, 5) { clicked in
+                        self.waitUntil(10, { FileManager.default.fileExists(atPath: copy) }) { copied in
+                            guard shown, clicked, copied else { return done(["sidebarUndo": false]) }
+                            self.bringToFront(window) { _ in
+                                _ = window.makeFirstResponder(w.webView)
+                                let focus = "(() => { const side = document.querySelector('.tz-sidebar'); if (!side) return false; side.focus(); return document.activeElement === side })()"
+                                self.waitForScript(w, focus, 5) { focused in
+                                    self.sendKey(window, code: 6, chars: "z", ignoring: "z", mods: [.command])
+                                    self.waitUntil(10, { !FileManager.default.fileExists(atPath: copy) }) { undone in
+                                        window.close()
+                                        done(["sidebarUndo": focused && undone && FileManager.default.fileExists(atPath: file)])
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // PE-08 拼写检查语言:网页经桥接选定语言后,系统词典按这种语言检查(法语句子不再标错,英语词典下标错);测完恢复「自动检测」
+        steps.append { done in
+            let checker = NSSpellChecker.shared
+            guard let other = ["fr", "de", "es", "it"].first(where: { checker.availableLanguages.contains($0) }) else {
+                FileHandle.standardError.write(Data("冒烟 系统没有法 / 德 / 西 / 意语词典:\(checker.availableLanguages)\n".utf8))
+                return done(["spellingLanguage": false])
+            }
+            let sample = ["fr": "bonjour le monde", "de": "guten Morgen", "es": "buenos días", "it": "buongiorno amici"][other]!
+            let flagged = { checker.checkSpelling(of: sample, startingAt: 0).location != NSNotFound }
+            let set = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+            main.webView.evaluateJavaScript(set(other)) { _, _ in
+                self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+                    let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+                    main.webView.evaluateJavaScript(set("en")) { _, _ in
+                        self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+                            let englishOk = english && flagged()
+                            main.webView.evaluateJavaScript(set("auto")) { _, _ in
+                                self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+                                    done(["spellingLanguage": otherOk && englishOk && auto])
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // X-55 设为 .md 默认应用(同 Finder「打开方式 ▸ 全部更改」)后,open <文件>(同 Finder 双击)由本应用打开;测完把默认应用改回去
+        steps.append { done in
+            let file = dir.appendingPathComponent("默认应用打开.md").path
+            guard let type = UTType(filenameExtension: "md"), (try? "# 默认应用打开\n".write(toFile: file, atomically: true, encoding: .utf8)) != nil else { return done(["defaultAppOpen": false]) }
+            let previous = NSWorkspace.shared.urlForApplication(toOpen: type)
+            NSWorkspace.shared.setDefaultApplication(at: Bundle.main.bundleURL, toOpen: type) { error in
+                DispatchQueue.main.async {
+                    if let error {
+                        FileHandle.standardError.write(Data("冒烟 设为默认应用失败:\(error)\n".utf8))
+                        return done(["defaultAppOpen": false])
+                    }
+                    let p = Process()
+                    p.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+                    p.arguments = [file]
+                    do { try p.run() } catch { return done(["defaultAppOpen": false]) }
+                    self.waitUntil(20, { self.windows.contains { $0.currentPath.map(real) == real(file) } }) { opened in
+                        if let previous, previous.standardizedFileURL != Bundle.main.bundleURL.standardizedFileURL {
+                            NSWorkspace.shared.setDefaultApplication(at: previous, toOpen: type) { _ in }
+                        }
+                        done(["defaultAppOpen": opened])
+                    }
+                }
+            }
+        }
+
+        // PG-01 关掉最后一个窗口不退出(偏好默认关)后,点程序坞图标新开窗口。放在最后:要关光所有窗口。
+        // 点程序坞图标 = 系统发来「重新打开」事件;对运行中的应用执行 open -a 发的是同一事件
+        steps.append { done in
+            // 直接关(不走「是否保存」):前面自检留下的窗口里有未保存的内容
+            self.windows.forEach { $0.window?.close() }
+            self.waitUntil(10, { self.windows.isEmpty }) { closed in
+                guard closed else { return done(["dockReopen": false]) }
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+                p.arguments = ["-a", Bundle.main.bundlePath]
+                do { try p.run() } catch { return done(["dockReopen": false]) }
+                self.waitUntil(20, { self.windows.count == 1 && self.windows[0].isLoaded && self.windows[0].window?.isVisible == true }) { done(["dockReopen": $0]) }
+            }
+        }
+
         func next(_ i: Int) {
             guard i < steps.count else { return completion(checks) }
             FileHandle.standardError.write(Data("冒烟 外壳第 \(i + 1) / \(steps.count) 项\n".utf8))
@@ -920,6 +1105,30 @@ extension AppDelegate {
             FileHandle.standardError.write(Data("冒烟 调到前台第 \(attempt) 次没成功:应用在前台 \(NSApp.isActive),当前窗口 \(key),窗口数 \(NSApp.windows.count)\n".utf8))
             if attempt >= 3 { return then(false) }
             self.bringToFront(window, attempt: attempt + 1, then: then)
+        }
+    }
+
+    /// 菜单里执行某个命令的项(及所在菜单与位置),用来像在菜单栏里点一下那样执行
+    private static func menuItem(_ menu: NSMenu?, command: String) -> (menu: NSMenu, index: Int)? {
+        guard let menu else { return nil }
+        for (i, item) in menu.items.enumerated() {
+            if item.representedObject as? String == command { return (menu, i) }
+            if let found = menuItem(item.submenu, command: command) { return found }
+        }
+        return nil
+    }
+
+    struct WindowOwner {
+        let pid: pid_t
+        let name: String
+    }
+
+    /// 屏幕上的普通窗口(层级 0)从前到后各属于哪个进程(读进程号与名称不需要录屏权限)
+    private static func windowOwnersFrontToBack() -> [WindowOwner] {
+        let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
+        return list.compactMap { info in
+            guard (info[kCGWindowLayer as String] as? Int) == 0, let pid = info[kCGWindowOwnerPID as String] as? Int else { return nil }
+            return WindowOwner(pid: pid_t(pid), name: info[kCGWindowOwnerName as String] as? String ?? "")
         }
     }
 

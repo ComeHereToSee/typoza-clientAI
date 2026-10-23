@@ -5,6 +5,13 @@ set -euo pipefail
 app="${1:?需要 .app 路径}"
 out="${2:?需要输出目录}"
 mkdir -p "$out"
+# 同机并装(基础版「Typoza」与 AI 版「Typoza AI」):先给另一版本放一份数据,全部跑完核对没被动过
+name=$(plutil -extract CFBundleName raw "$app/Contents/Info.plist")
+if [ "$name" = "Typoza" ]; then other="Typoza AI"; else other="Typoza"; fi
+other_dir="$HOME/Library/Application Support/$other"
+mkdir -p "$other_dir"
+[ -f "$other_dir/settings.json" ] || printf '{"theme":"night"}\n' > "$other_dir/settings.json"
+other_before=$(find "$other_dir" -type f -exec shasum {} + | sort)
 start=$(python3 -c 'import time; print(time.time())')
 status=0
 perl -e 'alarm shift; exec @ARGV' 300 "$app/Contents/MacOS/Typoza" --smoke-out "$out" || status=$?
@@ -55,9 +62,9 @@ PY
 
 # 启动选项(对照表 PF-01):四种选项各冷启动一次,核对打开的文档与侧栏目录
 python3 - "$app" "$out" <<'PY'
-import json, os, subprocess, sys, tempfile
+import json, os, plistlib, subprocess, sys, tempfile
 app, out = sys.argv[1], sys.argv[2]
-support = os.path.expanduser('~/Library/Application Support/Typoza')
+support = os.path.expanduser('~/Library/Application Support/' + plistlib.load(open(f'{app}/Contents/Info.plist', 'rb'))['CFBundleName'])
 settings_path = os.path.join(support, 'settings.json')
 drafts = os.path.join(support, 'drafts')
 base = tempfile.mkdtemp(prefix='typoza-startup-')
@@ -93,3 +100,26 @@ if not all(results.values()):
     sys.exit('启动选项冷启动核对失败')
 print('启动选项冷启动核对通过:' + '、'.join(results))
 PY
+
+# 同机并装:数据目录、日志、钥匙串服务名按本版本的 Info.plist,另一版本的数据原样不动
+python3 - "$app" "$out/smoke.json" <<'PY'
+import json, os, plistlib, sys
+app, path = sys.argv[1], sys.argv[2]
+info = plistlib.load(open(f'{app}/Contents/Info.plist', 'rb'))
+name, bundle_id = info['CFBundleName'], info['CFBundleIdentifier']
+ident = json.load(open(path)).get('identity', {})
+want = {'name': name, 'bundleID': bundle_id, 'support': os.path.expanduser(f'~/Library/Application Support/{name}'), 'logs': os.path.expanduser(f'~/Library/Logs/{name}')}
+bad = [k for k, v in want.items() if ident.get(k) != v]
+bad += [k for k, v in ident.items() if k.endswith('Keychain') and not str(v).startswith(bundle_id + '.')]
+# 欢迎文档由应用首次启动时写进自己的数据目录(冒烟 firstLaunchWelcome)
+if bad or not os.path.isfile(os.path.join(want['support'], 'welcome', '快速上手.md')):
+    sys.exit(f"应用标识与数据目录不符:{'、'.join(bad) or '本版本数据目录里没有欢迎文档'} {json.dumps(ident, ensure_ascii=False)}")
+print(f"应用标识核对通过:{json.dumps(ident, ensure_ascii=False)}")
+PY
+other_after=$(find "$other_dir" -type f -exec shasum {} + | sort)
+if [ "$other_before" != "$other_after" ]; then
+  echo "另一版本($other)的数据目录被改动:" >&2
+  diff <(echo "$other_before") <(echo "$other_after") >&2 || true
+  exit 1
+fi
+echo "同机并装核对通过:$other 的数据目录未被改动"

@@ -7,6 +7,7 @@ import { basename, dirname } from '../core/paths'
 import { registerCommand } from '../core/registry'
 import type { ExportFormat, Host } from '../host/types'
 import { h } from '../ui/dom'
+import { renderCodePreviews } from '../views/codeblock'
 import { effectiveTheme, isBuiltinTheme, isDarkTheme } from './appearance'
 import { type ExportHtmlOptions, buildExportHtml } from './exporter'
 import { modal } from './panels'
@@ -270,7 +271,11 @@ export async function runExport(ctx: ExportContext, formatId: string, mode: Expo
   const vars = exportVariables(ctx, yaml, target)
   try {
     if (item?.template === 'command') await runCommandExport(ctx, item, vars)
-    else await ctx.host.exportDocument(exportRequest(ctx, id, item, target, yaml, vars))
+    else {
+      // 内置格式用渲染结果生成 HTML:离视口远的图表、公式预览先画齐
+      if (!item) await renderCodePreviews(ctx.view)
+      await ctx.host.exportDocument(exportRequest(ctx, id, item, target, yaml, vars))
+    }
   } catch (err) {
     await reportPandocOrError(ctx.host, ctx.toast, err, '导出失败:')
     return

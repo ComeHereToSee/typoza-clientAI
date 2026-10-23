@@ -2,6 +2,7 @@
 // PDF、图像也用这份 HTML 由外壳离屏渲染;选项对应偏好「导出」页(对照表 PX-04 ~ PX-06)与「Markdown」页的 PM-23、PM-24。
 import { dirname, relativePath } from '../core/paths'
 import { escapeAttr, escapeHtml } from '../core/markdown/html'
+import { codeBlockText } from '../views/codeblock'
 
 export interface ExportHtmlOptions {
   title: string
@@ -149,6 +150,10 @@ body.has-outline #write { margin-left: 280px; }
 export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportHtmlOptions> & Pick<ExportHtmlOptions, 'title' | 'targetPath' | 'withStyles'>): string {
   const o: ExportHtmlOptions = { ...DEFAULTS, ...partial }
   const clone = editorDom.cloneNode(true) as HTMLElement
+  // 代码块的代码从文档取(codeBlockText);克隆前后的代码块一一对应,先记下再删改克隆
+  const originals = editorDom.querySelectorAll('.tz-code-block')
+  const codeText = new Map<Element, string | null>()
+  clone.querySelectorAll('.tz-code-block').forEach((block, i) => codeText.set(block, codeBlockText(originals[i])))
   clone.removeAttribute('contenteditable')
   clone.querySelectorAll('[contenteditable]').forEach((el) => el.removeAttribute('contenteditable'))
   convertMath(clone, o.withStyles ? 'keep' : o.mathOutput)
@@ -170,7 +175,7 @@ export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportH
   // 代码块:CodeMirror → 普通 <pre><code>
   clone.querySelectorAll<HTMLElement>('.tz-code-block').forEach((block) => {
     const lang = block.dataset.language ?? ''
-    const lines = Array.from(block.querySelectorAll('.cm-line')).map((l) => l.textContent ?? '')
+    const text = codeText.get(block) ?? Array.from(block.querySelectorAll('.cm-line'), (l) => l.textContent ?? '').join('\n')
     const diagram = block.querySelector('.tz-diagram-preview')
     if (diagram && block.classList.contains('is-diagram')) {
       block.replaceWith(Object.assign(document.createElement('div'), { className: 'tz-diagram', innerHTML: diagram.innerHTML }))
@@ -179,7 +184,7 @@ export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportH
     const pre = document.createElement('pre')
     const code = document.createElement('code')
     if (lang) code.className = `language-${lang}`
-    code.textContent = lines.join('\n')
+    code.textContent = text
     pre.append(code)
     block.replaceWith(pre)
   })

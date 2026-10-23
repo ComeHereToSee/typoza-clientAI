@@ -2,12 +2,10 @@
 // 语言按需加载;mermaid / sequence / flow 图表与 ```math 公式在代码下方渲染预览,光标不在块内时只显示渲染结果(Typora 行为)。
 // 缩进宽度按偏好(PM-18);「调整缩进」命令按语言规则重排所选行或整个代码块(P-24)。
 // 大文档里有上千个代码块:CodeMirror 等块接近视口或要编辑时才建,之前用静态 <pre> 占位(建 / 拆实例与逐个测量是打开和关闭大文档的主要耗时)。
-import { defaultKeymap, indentSelection, indentWithTab } from '@codemirror/commands'
-import { LanguageDescription, bracketMatching, indentOnInput, indentUnit, syntaxHighlighting } from '@codemirror/language'
-import { languages } from '@codemirror/language-data'
-import { Compartment, EditorState as CMState } from '@codemirror/state'
-import { EditorView as CMView, type KeyBinding, type ViewUpdate, drawSelection, keymap as cmKeymap, lineNumbers } from '@codemirror/view'
-import { classHighlighter } from '@lezer/highlight'
+// CodeMirror 本身也按需载入(./cm,不进启动主包):第一个代码块接近视口或要编辑时才取;取到之前的操作(点击、方向键进入)排到载入之后执行。
+import type { LanguageDescription } from '@codemirror/language'
+import type { Compartment } from '@codemirror/state'
+import type { EditorView as CMView, KeyBinding, ViewUpdate } from '@codemirror/view'
 import { chainCommands, exitCode, setBlockType } from 'prosemirror-commands'
 import { redo, undo } from 'prosemirror-history'
 import { undoInputRule } from 'prosemirror-inputrules'
@@ -18,9 +16,23 @@ import { EDITOR_OPTION_DEFAULTS, type EditorEnv } from '../core/env'
 import { registerCommand } from '../core/registry'
 import { schema } from '../core/schema'
 import { ICONS, h, svgIcon } from '../ui/dom'
+import type * as CMLib from './cm'
 import { renderDiagram, isDiagramLanguage } from './diagram'
 import { renderTex, trackMath, untrackMath } from './katex'
 import { mathFenceEnabled, mathOptions } from './math'
+
+type CM = typeof CMLib
+let lib: CM | null = null
+let loading: Promise<CM> | null = null
+
+function loadCodeMirror(): Promise<CM> {
+  loading ??= import('./cm').then((m) => {
+    lib = m
+    fillLanguageList(m)
+    return m
+  })
+  return loading
+}
 
 /** 渲染预览的类型:图表、公式;偏好关掉时按普通代码显示。 */
 function previewKind(language: string, env: EditorEnv): 'diagram' | 'math' | null {
@@ -30,9 +42,9 @@ function previewKind(language: string, env: EditorEnv): 'diagram' | 'math' | nul
   return null
 }
 
-function indentExtensions(env: EditorEnv) {
+function indentExtensions(cm: CM, env: EditorEnv) {
   const width = env.settings.codeIndentWidth ?? EDITOR_OPTION_DEFAULTS.codeIndentWidth
-  return [indentUnit.of(' '.repeat(width)), CMState.tabSize.of(width)]
+  return [cm.indentUnit.of(' '.repeat(width)), cm.EditorState.tabSize.of(width)]
 }
 
 /** 正在显示的代码块(「调整缩进」命令找光标所在的那一个)。 */
@@ -44,7 +56,7 @@ const lazyViews = new WeakMap<Element, CodeBlockView>()
 
 function observeLazy(el: HTMLElement, view: CodeBlockView): void {
   if (typeof IntersectionObserver === 'undefined') {
-    view.ensureEditor()
+    view.withEditor()
     return
   }
   lazyObserver ??= new IntersectionObserver(
@@ -52,7 +64,7 @@ function observeLazy(el: HTMLElement, view: CodeBlockView): void {
       for (const e of entries) {
         if (!e.isIntersecting) continue
         lazyObserver?.unobserve(e.target)
-        lazyViews.get(e.target)?.ensureEditor()
+        lazyViews.get(e.target)?.withEditor()
       }
     },
     { rootMargin: '800px 0px' },
@@ -68,6 +80,22 @@ function unobserveLazy(el: HTMLElement): void {
 
 function activeCodeView(view: EditorView): CodeBlockView | undefined {
   return [...codeViews].find((v) => v.owns(view))
+}
+
+/** 代码块 DOM → 视图(导出时按 DOM 找回完整代码) */
+const viewsByDom = new WeakMap<Element, CodeBlockView>()
+
+/**
+ * 代码块的完整代码(导出用)。不能从界面读:CodeMirror 只画视口附近的行,离视口远的块还是静态占位。
+ * 不是代码块时为 null。
+ */
+export function codeBlockText(el: Element): string | null {
+  return viewsByDom.get(el)?.text ?? null
+}
+
+/** 导出、打印前把图表与公式预览画齐:离视口远、还没建编辑器的块平时不画,刚改过的块可能还在等刷新。 */
+export async function renderCodePreviews(view: EditorView): Promise<void> {
+  await Promise.all([...codeViews].filter((v) => v.inView(view)).map((v) => v.flushPreview()))
 }
 
 /** 偏好变化后让已显示的代码块按新设置重新配置(行号、换行、缩进宽度、预览开关)。 */
@@ -106,22 +134,21 @@ const ALIASES: Record<string, string> = {
   objc: 'objective-c',
 }
 
-function findLanguage(name: string): LanguageDescription | null {
+function findLanguage(cm: CM, name: string): LanguageDescription | null {
   if (!name) return null
   const key = ALIASES[name.toLowerCase()] ?? name
-  return LanguageDescription.matchLanguageName(languages, key, true)
+  return cm.LanguageDescription.matchLanguageName(cm.languages, key, true)
 }
 
 export class CodeBlockView implements NodeView {
   dom: HTMLElement
   /** 还没建 CodeMirror 时为 null,此时正文显示在 placeholder 里 */
   private cm: CMView | null = null
+  /** 建 CodeMirror 时一并建的可重配部分:语言、行号、换行、缩进 */
+  private parts: Record<'language' | 'gutter' | 'wrap' | 'indent', Compartment> | null = null
   private placeholder: HTMLPreElement | null
   private updating = false
-  private readonly language = new Compartment()
-  private readonly gutter = new Compartment()
-  private readonly wrap = new Compartment()
-  private readonly indent = new Compartment()
+  private destroyed = false
   private readonly langInput: HTMLInputElement
   private readonly preview: HTMLDivElement
   private loadedLanguage = ''
@@ -147,7 +174,7 @@ export class CodeBlockView implements NodeView {
       if (e.key === 'Enter') {
         e.preventDefault()
         this.setLanguageAttr(this.langInput.value.trim())
-        this.ensureEditor().focus()
+        this.withEditor((cm) => cm.focus())
       }
     })
     const copy = h(
@@ -171,56 +198,91 @@ export class CodeBlockView implements NodeView {
     this.preview.addEventListener('mousedown', (e) => {
       // 点图表进入编辑
       e.preventDefault()
-      this.ensureEditor().focus()
-      const pos = this.getPos()
-      if (pos !== undefined) this.view.dispatch(this.view.state.tr.setSelection(TextSelection.create(this.view.state.doc, pos + 1)))
+      this.withEditor((cm) => {
+        cm.focus()
+        const pos = this.getPos()
+        if (pos !== undefined) this.view.dispatch(this.view.state.tr.setSelection(TextSelection.create(this.view.state.doc, pos + 1)))
+      })
     })
     this.placeholder = h('pre', { class: 'tz-code-static', spellcheck: 'false' }, node.textContent)
     // 点占位:建编辑器并把光标放到点击处附近的行首
     this.placeholder.addEventListener('mousedown', (e) => {
       e.preventDefault()
-      const cm = this.ensureEditor()
-      const at = cm.posAtCoords({ x: e.clientX, y: e.clientY }) ?? 0
-      cm.focus()
-      cm.dispatch({ selection: { anchor: at } })
+      const coords = { x: e.clientX, y: e.clientY }
+      this.withEditor((cm) => {
+        const at = cm.posAtCoords(coords) ?? 0
+        cm.focus()
+        cm.dispatch({ selection: { anchor: at } })
+      })
     })
     if (!env.settings.codeLineWrap) this.placeholder.classList.add('is-nowrap')
     this.dom = h('div', { class: 'tz-code-block' }, header, this.placeholder, this.preview)
-    ensureLanguageList()
+    languageList()
+    viewsByDom.set(this.dom, this)
     codeViews.add(this)
     trackMath(this)
     this.applyLanguage()
     observeLazy(this.dom, this)
   }
 
-  /** 建 CodeMirror 并换下占位(已建时直接返回)。 */
-  ensureEditor(): CMView {
-    if (this.cm) return this.cm
+  /** 建 CodeMirror 并换下占位(已建时直接执行 then);CodeMirror 还没载入时先载入,载入后再建、再执行。 */
+  withEditor(then?: (cm: CMView) => void): void {
+    if (this.destroyed) return
+    if (this.cm) {
+      then?.(this.cm)
+      return
+    }
+    if (!lib) {
+      loadCodeMirror().then(
+        () => this.withEditor(then),
+        (err: unknown) => this.env.actions.notify(`代码编辑器载入失败:${err instanceof Error ? err.message : String(err)}`, true),
+      )
+      return
+    }
     unobserveLazy(this.dom)
-    const cm = new CMView({
-      state: CMState.create({
+    const c = lib
+    const parts = { language: new c.Compartment(), gutter: new c.Compartment(), wrap: new c.Compartment(), indent: new c.Compartment() }
+    const cm = new c.EditorView({
+      state: c.EditorState.create({
         doc: this.node.textContent,
         extensions: [
-          cmKeymap.of([...this.escapeKeys(), indentWithTab, ...defaultKeymap]),
-          drawSelection(),
-          indentOnInput(),
-          bracketMatching(),
-          syntaxHighlighting(classHighlighter),
-          this.language.of([]),
-          this.indent.of(indentExtensions(this.env)),
-          this.gutter.of(this.env.settings.codeLineNumbers ? lineNumbers() : []),
-          this.wrap.of(this.env.settings.codeLineWrap ? CMView.lineWrapping : []),
-          CMView.updateListener.of((update) => this.forwardUpdate(update)),
-          CMView.contentAttributes.of({ spellcheck: 'false', autocorrect: 'off', autocapitalize: 'off' }),
+          c.keymap.of([...this.escapeKeys(), c.indentWithTab, ...c.defaultKeymap]),
+          c.drawSelection(),
+          c.indentOnInput(),
+          c.bracketMatching(),
+          c.syntaxHighlighting(c.classHighlighter),
+          parts.language.of([]),
+          parts.indent.of(indentExtensions(c, this.env)),
+          parts.gutter.of(this.env.settings.codeLineNumbers ? c.lineNumbers() : []),
+          parts.wrap.of(this.env.settings.codeLineWrap ? c.EditorView.lineWrapping : []),
+          c.EditorView.updateListener.of((update) => this.forwardUpdate(update)),
+          c.EditorView.contentAttributes.of({ spellcheck: 'false', autocorrect: 'off', autocapitalize: 'off' }),
         ],
       }),
     })
     this.cm = cm
+    this.parts = parts
     this.placeholder?.replaceWith(cm.dom)
     this.placeholder = null
     this.loadLanguage()
     if (this.previewing) this.schedulePreview()
-    return cm
+    then?.(cm)
+  }
+
+  get text(): string {
+    return this.node.textContent
+  }
+
+  inView(view: EditorView): boolean {
+    return view === this.view
+  }
+
+  /** 立即画预览(导出前用);已画好且没有待刷新的不重画。 */
+  flushPreview(): Promise<void> {
+    if (!this.previewing || (this.cm && !this.renderTimer)) return Promise.resolve()
+    clearTimeout(this.renderTimer)
+    this.renderTimer = 0
+    return this.drawPreview()
   }
 
   /** 光标(ProseMirror 选区或 CodeMirror 焦点)在这个代码块里。 */
@@ -241,15 +303,20 @@ export class CodeBlockView implements NodeView {
 
   /** 按语言的缩进规则重排所选行(whole 为整个代码块)。 */
   reindent(whole: boolean): boolean {
-    const cm = this.ensureEditor()
-    // 改动经 CodeMirror 的更新回调同步回文档,回调只在 CodeMirror 有焦点时转发
-    cm.focus()
-    if (!whole) return indentSelection(cm)
-    const head = cm.state.selection.main.head
-    cm.dispatch({ selection: { anchor: 0, head: cm.state.doc.length } })
-    const ok = indentSelection(cm)
-    cm.dispatch({ selection: { anchor: Math.min(head, cm.state.doc.length) } })
-    return ok
+    this.withEditor((cm) => {
+      const indentSelection = (lib as CM).indentSelection
+      // 改动经 CodeMirror 的更新回调同步回文档,回调只在 CodeMirror 有焦点时转发
+      cm.focus()
+      if (!whole) {
+        indentSelection(cm)
+        return
+      }
+      const head = cm.state.selection.main.head
+      cm.dispatch({ selection: { anchor: 0, head: cm.state.doc.length } })
+      indentSelection(cm)
+      cm.dispatch({ selection: { anchor: Math.min(head, cm.state.doc.length) } })
+    })
+    return true
   }
 
   /** 「刷新所有数学公式」:```math 预览重新渲染。 */
@@ -275,17 +342,17 @@ export class CodeBlockView implements NodeView {
 
   /** 按语言加载语法高亮(编辑器建好后才需要)。 */
   private loadLanguage(): void {
-    const cm = this.cm
+    const { cm, parts } = this
     const name = this.node.attrs.language ?? ''
-    if (!cm || name === this.loadedLanguage) return
+    if (!cm || !parts || !lib || name === this.loadedLanguage) return
     this.loadedLanguage = name
-    const desc = findLanguage(name)
+    const desc = findLanguage(lib, name)
     if (!desc) {
-      cm.dispatch({ effects: this.language.reconfigure([]) })
+      cm.dispatch({ effects: parts.language.reconfigure([]) })
       return
     }
     void desc.load().then((support) => {
-      if (this.loadedLanguage === name) cm.dispatch({ effects: this.language.reconfigure(support) })
+      if (this.loadedLanguage === name) cm.dispatch({ effects: parts.language.reconfigure(support) })
     })
   }
 
@@ -294,15 +361,20 @@ export class CodeBlockView implements NodeView {
     if (!this.cm) return
     clearTimeout(this.renderTimer)
     this.renderTimer = window.setTimeout(() => {
-      const code = this.node.textContent
-      if (this.previewing === 'math') {
-        this.preview.classList.toggle('is-empty', !code.trim())
-        if (!code.trim()) this.preview.textContent = '空公式'
-        else void renderTex(code, this.preview, true, mathOptions(this.env, this.view.state.doc))
-      } else if (this.previewing === 'diagram') {
-        void renderDiagram(this.node.attrs.language, code, this.preview)
-      }
+      this.renderTimer = 0
+      void this.drawPreview()
     }, 250)
+  }
+
+  private async drawPreview(): Promise<void> {
+    const code = this.node.textContent
+    if (this.previewing === 'math') {
+      this.preview.classList.toggle('is-empty', !code.trim())
+      if (!code.trim()) this.preview.textContent = '空公式'
+      else await renderTex(code, this.preview, true, mathOptions(this.env, this.view.state.doc))
+    } else if (this.previewing === 'diagram') {
+      await renderDiagram(this.node.attrs.language, code, this.preview)
+    }
   }
 
   // ---------- CodeMirror ↔ ProseMirror 同步 ----------
@@ -329,11 +401,14 @@ export class CodeBlockView implements NodeView {
   }
 
   setSelection(anchor: number, head: number): void {
-    const cm = this.ensureEditor()
-    cm.focus()
-    this.updating = true
-    cm.dispatch({ selection: { anchor, head } })
-    this.updating = false
+    this.withEditor((cm) => {
+      // CodeMirror 晚于选区到达时(先载入)内容可能已变,夹到范围内
+      const len = cm.state.doc.length
+      cm.focus()
+      this.updating = true
+      cm.dispatch({ selection: { anchor: Math.min(anchor, len), head: Math.min(head, len) } })
+      this.updating = false
+    })
   }
 
   private escapeKeys(): KeyBinding[] {
@@ -420,19 +495,22 @@ export class CodeBlockView implements NodeView {
 
   /** 设置变化(行号、自动换行、缩进宽度)时由编辑器调用。 */
   reconfigure(): void {
-    this.cm?.dispatch({
-      effects: [
-        this.gutter.reconfigure(this.env.settings.codeLineNumbers ? lineNumbers() : []),
-        this.wrap.reconfigure(this.env.settings.codeLineWrap ? CMView.lineWrapping : []),
-        this.indent.reconfigure(indentExtensions(this.env)),
-      ],
-    })
+    const { cm, parts } = this
+    if (cm && parts && lib) {
+      cm.dispatch({
+        effects: [
+          parts.gutter.reconfigure(this.env.settings.codeLineNumbers ? lib.lineNumbers() : []),
+          parts.wrap.reconfigure(this.env.settings.codeLineWrap ? lib.EditorView.lineWrapping : []),
+          parts.indent.reconfigure(indentExtensions(lib, this.env)),
+        ],
+      })
+    }
     // 图表 / 公式预览开关也可能变了
     this.applyLanguage()
   }
 
   selectNode(): void {
-    this.ensureEditor().focus()
+    this.withEditor((cm) => cm.focus())
   }
 
   stopEvent(): boolean {
@@ -444,6 +522,7 @@ export class CodeBlockView implements NodeView {
   }
 
   destroy(): void {
+    this.destroyed = true
     clearTimeout(this.renderTimer)
     codeViews.delete(this)
     untrackMath(this)
@@ -452,14 +531,21 @@ export class CodeBlockView implements NodeView {
   }
 }
 
-/** 语言输入框的候选列表(全局一份)。 */
-function ensureLanguageList(): void {
-  if (document.getElementById('tz-code-languages')) return
-  const list = h('datalist', { id: 'tz-code-languages' })
-  const names = new Set<string>(['mermaid', 'sequence', 'flow', 'math'])
-  for (const l of languages) names.add(l.name.toLowerCase())
-  for (const name of [...names].sort()) list.append(h('option', { value: name }))
+const PREVIEW_LANGUAGES = ['mermaid', 'sequence', 'flow', 'math']
+
+/** 语言输入框的候选列表(全局一份):先放图表与公式,CodeMirror 载入后换成连同全部高亮语言的清单。 */
+function languageList(): HTMLDataListElement {
+  const found = document.getElementById('tz-code-languages')
+  if (found instanceof HTMLDataListElement) return found
+  const list = h('datalist', { id: 'tz-code-languages' }, ...PREVIEW_LANGUAGES.map((value) => h('option', { value })))
   document.body.append(list)
+  return list
+}
+
+function fillLanguageList(cm: CM): void {
+  const names = new Set<string>(PREVIEW_LANGUAGES)
+  for (const l of cm.languages) names.add(l.name.toLowerCase())
+  languageList().replaceChildren(...[...names].sort().map((value) => h('option', { value })))
 }
 
 /** 方向键从普通文本块进入代码块时,把光标交给 CodeMirror(官方示例的 arrowHandler)。 */

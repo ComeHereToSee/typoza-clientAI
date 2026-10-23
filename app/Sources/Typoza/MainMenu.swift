@@ -1,4 +1,5 @@
 import AppKit
+import TypozaKit
 
 /// 菜单栏(结构对照 Typora,快捷键按 docs/prd/notion-input.md 第五节定稿)。
 /// 绝大多数菜单项把命令 ID 发给当前窗口的网页(编辑器命令注册表同名);少数由原生直接处理(native.*)。
@@ -55,8 +56,8 @@ enum MainMenu {
 
         let services = NSMenuItem(title: "服务", action: nil, keyEquivalent: "")
         services.submenu = servicesMenu
-        let appMenu = submenu("Typoza", [
-            std("关于 Typoza", #selector(NSApplication.orderFrontStandardAboutPanel(_:))),
+        let appMenu = submenu(AppPaths.name, [
+            std("关于 \(AppPaths.name)", #selector(NSApplication.orderFrontStandardAboutPanel(_:))),
             cmd("检查更新…", "native.checkUpdates"),
             sep,
             cmd("偏好设置…", "app.preferences", ","),
@@ -64,11 +65,11 @@ enum MainMenu {
             sep,
             services,
             sep,
-            std("隐藏 Typoza", #selector(NSApplication.hide(_:)), "h"),
+            std("隐藏 \(AppPaths.name)", #selector(NSApplication.hide(_:)), "h"),
             std("隐藏其他", #selector(NSApplication.hideOtherApplications(_:)), "h", [.command, .option]),
             std("全部显示", #selector(NSApplication.unhideAllApplications(_:))),
             sep,
-            std("退出 Typoza", #selector(NSApplication.terminate(_:)), "q"),
+            std("退出 \(AppPaths.name)", #selector(NSApplication.terminate(_:)), "q"),
         ])
 
         let recent = NSMenuItem(title: "打开最近文件", action: nil, keyEquivalent: "")
