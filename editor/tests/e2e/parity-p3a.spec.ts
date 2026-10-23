@@ -25,17 +25,12 @@ const savedSetting = (page: Page, key: string) => page.evaluate((k) => window.ty
 
 const sidebarRoot = (page: Page) => page.evaluate(() => window.typozaTest!.app['sidebar'].rootFolder)
 
-/** 复制为纯文本 / Markdown / HTML、复制公式直接写 navigator.clipboard:换成记录,免得受系统剪贴板权限影响 */
+/** 复制为纯文本 / Markdown / HTML、复制公式经宿主写剪贴板:返回从现在起写入的纯文本 */
 async function recordClipboard(page: Page): Promise<() => Promise<string[]>> {
-  await page.evaluate(() => {
-    const copied: string[] = []
-    ;(window as unknown as { __copied: string[] }).__copied = copied
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: { writeText: async (text: string) => void copied.push(text) },
-    })
-  })
-  return () => page.evaluate(() => (window as unknown as { __copied: string[] }).__copied)
+  const texts = () =>
+    page.evaluate(() => window.typozaTest!.host.calls.filter((c) => c.method === 'clipboardWrite').map((c) => (c.args[0] as { text: string }).text))
+  const before = (await texts()).length
+  return async () => (await texts()).slice(before)
 }
 
 /** 示例目录里再放一个子文件夹和一篇文档(文件树要有文件夹条目才列得出来,所以两项都写) */

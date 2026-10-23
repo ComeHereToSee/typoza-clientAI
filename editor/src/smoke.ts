@@ -104,6 +104,8 @@ export async function runSmoke(app: App, bootTimings: Record<string, number> = {
     timings.bigInputP95Ms = Math.round(percentile(samples, 95) * 10) / 10
     timings.bigInputMaxMs = Math.round(Math.max(...samples) * 10) / 10
     inputBreakdown(app, timings)
+    // 打的字真画到了界面上(视图快速更新的依赖补丁不能漏画):首块的 DOM 文字以文档里的为结尾(标题前可能有 ## 标记)
+    checks.bigInputRendered = (view.dom.firstElementChild?.textContent ?? '').endsWith(view.state.doc.child(0).textContent)
     t = performance.now()
     checks.bigSaved = await app.save()
     timings.bigSaveMs = Math.round(performance.now() - t)

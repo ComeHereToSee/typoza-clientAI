@@ -126,7 +126,7 @@ function copyBlocksMarkdown(view: EditorView, env: EditorEnv): boolean {
   const blocks = selectedBlocks(view.state)
   if (blocks.length === 0) return false
   const markdown = blocksToMarkdown(view.state.doc, blocks, env.settings.inlineMath)
-  navigator.clipboard.writeText(markdown).then(
+  env.host.clipboardWrite({ text: markdown }).then(
     () => env.actions.notify('已复制为 Markdown'),
     (err: unknown) => env.actions.notify(`复制失败:${err instanceof Error ? err.message : String(err)}`, true),
   )
@@ -145,7 +145,7 @@ function copyBlockLink(view: EditorView, env: EditorEnv): boolean {
     return false
   }
   const link = `${env.ctx.path ? markdownHref(basename(env.ctx.path)) : ''}#${item.id}`
-  navigator.clipboard.writeText(link).then(
+  env.host.clipboardWrite({ text: link }).then(
     () => env.actions.notify(`已复制块链接:${link}`),
     (err: unknown) => env.actions.notify(`复制失败:${err instanceof Error ? err.message : String(err)}`, true),
   )

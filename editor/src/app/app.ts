@@ -1294,6 +1294,11 @@ export class App {
     runCommand(this.view, id)
   }
 
+  /** 写纯文本进系统剪贴板。走宿主:菜单栏转来的命令不算一次用户操作,网页自己的拷贝(navigator.clipboard、execCommand)在 WebKit 里可能写不进去 */
+  private copyText(text: string): void {
+    this.host.clipboardWrite({ text }).catch((err: unknown) => this.toast(`复制失败:${errText(err)}`, true))
+  }
+
   private registerCommands(): void {
     const cmd = (id: string, label: string, run: () => void) => registerCommand({ id, label, run: () => (run(), true) })
     cmd('file.save', '保存', () => void this.save())
@@ -1326,7 +1331,7 @@ export class App {
     })
     cmd('file.copyPath', '复制当前文档路径', () => {
       if (this.session.path) {
-        void navigator.clipboard.writeText(this.session.path)
+        this.copyText(this.session.path)
         this.toast('已复制文档路径')
       }
     })
@@ -1443,15 +1448,15 @@ export class App {
     cmd('app.exportSettings', '导出设置…', () => this.openPreferences('导出'))
     cmd('edit.copyMarkdown', '复制为 Markdown', () => {
       const { from, to } = this.view.state.selection
-      void navigator.clipboard.writeText(sliceToMarkdown(this.view.state.doc.slice(from, to).content, this.env))
+      this.copyText(sliceToMarkdown(this.view.state.doc.slice(from, to).content, this.env))
     })
     cmd('edit.copyPlain', '复制为纯文本', () => {
       const { from, to } = this.view.state.selection
-      void navigator.clipboard.writeText(this.view.state.doc.textBetween(from, to, '\n\n', ' '))
+      this.copyText(this.view.state.doc.textBetween(from, to, '\n\n', ' '))
     })
     cmd('edit.copyHtml', '复制为 HTML 代码', () => {
       const { dom } = this.view.serializeForClipboard(this.view.state.selection.content())
-      void navigator.clipboard.writeText(dom.innerHTML)
+      this.copyText(dom.innerHTML)
     })
     cmd('block.toDocument', '转为新文档', () => void this.blockToDocument())
     // 「格式 ▸ 图像」(含 insert.image)与「编辑」菜单补齐的命令

@@ -19,4 +19,10 @@ describe('依赖性能补丁', () => {
       expect(code).not.toContain('vecs.push(events.slice())')
     }
   })
+
+  it('ProseMirror 视图更新子节点很多的块级容器时先走快速路径(prosemirror-view)', () => {
+    const code = readFileSync(resolve(process.cwd(), 'node_modules/prosemirror-view/dist/index.js'), 'utf8')
+    expect(code).toContain('[typoza 补丁] 子节点很多的块级容器')
+    expect(code).toContain('function tzFastBlockUpdate(desc, view)')
+  })
 })

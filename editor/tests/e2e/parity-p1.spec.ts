@@ -379,22 +379,15 @@ test('E-02 粘贴 HTML:优先取 HTML 并转成 Markdown,不用同时给的纯�
 // ---------- E-04 ~ E-06 复制为纯文本 / Markdown / HTML 代码 ----------
 
 test.describe('复制为纯文本 / Markdown / HTML 代码', () => {
-  const copied = (page: Page) => page.evaluate(() => (window as unknown as { __copied: string[] }).__copied)
+  // 这三个命令经宿主写剪贴板(app/app.ts copyText):读内存宿主记下的写入
+  const copied = (page: Page) =>
+    page.evaluate(() => window.typozaTest!.host.calls.filter((c) => c.method === 'clipboardWrite').map((c) => (c.args[0] as { text: string }).text))
 
   test.beforeEach(async ({ page }) => {
     await openApp(page)
     await loadDoc(page, '**粗**文字')
     await page.keyboard.press('Shift+Home')
     await expect.poll(() => selection(page)).toEqual({ from: 1, text: '粗文字' })
-    await page.evaluate(() => {
-      // 这三个命令直接写 navigator.clipboard(app/app.ts edit.copy*),测试环境换成记录,免得受系统剪贴板权限影响
-      const list: string[] = []
-      ;(window as unknown as { __copied: string[] }).__copied = list
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        value: { writeText: async (text: string) => void list.push(text) },
-      })
-    })
   })
 
   test('E-04 复制为纯文本:只写文字,不带格式与 Markdown 符号', async ({ page }) => {

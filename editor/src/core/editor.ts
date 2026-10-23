@@ -159,7 +159,7 @@ export function buildPlugins(env: EditorEnv): Plugin[] {
     blockHandlePlugin(env),
     // 大文档只排版视口附近的块(顶层块少时不启用)
     viewportPlugin(),
-    tableToolbarPlugin(),
+    tableToolbarPlugin(env),
     mathPlugin(env),
   ]
 }

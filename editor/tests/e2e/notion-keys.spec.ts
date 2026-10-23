@@ -174,21 +174,13 @@ test.describe('5.1 应用级键位', () => {
   test('#3 ⌘L 复制当前文档路径', async ({ page }) => {
     const mod = await modKey(page)
     await loadDoc(page, '文字\n')
-    await page.evaluate(() => {
-      // 命令直接写 navigator.clipboard(app/app.ts file.copyPath),测试环境换成记录,免得受系统剪贴板权限影响
-      const copied: string[] = []
-      ;(window as unknown as { __copied: string[] }).__copied = copied
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        value: { writeText: async (text: string) => void copied.push(text) },
-      })
-    })
     // Linux 上正文里的 Ctrl-L 是「选中当前行或句」(⌃⌘L 在非 macOS 上与 ⌘L 重合),焦点移出正文才轮到 ⌘L;macOS 上是两个键
     await blurEditor(page)
     await page.keyboard.press(`${mod}+l`)
     await expect(page.locator('.tz-toast')).toHaveText('已复制文档路径')
     const path = await currentPath(page)
-    expect(await page.evaluate(() => (window as unknown as { __copied: string[] }).__copied)).toEqual([path])
+    // 经宿主写剪贴板(app/app.ts copyText)
+    expect(await page.evaluate(() => window.typozaTest!.host.calls.filter((c) => c.method === 'clipboardWrite').map((c) => (c.args[0] as { text: string }).text))).toEqual([path])
   })
 
   test('#4 ⌘[ 回到上一个查看位置,#5 ⌘] 前进', async ({ page }) => {

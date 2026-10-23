@@ -66,13 +66,22 @@ function isSingleUrl(text: string): boolean {
  */
 function copyWithRichText(view: EditorView, env: EditorEnv): void {
   if (view.state.selection.empty) return
-  const { dom, text } = view.serializeForClipboard(view.state.selection.content())
-  const html = dom.innerHTML
+  const write = clipboardWriter(view, env, view.state.selection.content())
   window.setTimeout(() => {
-    env.host.clipboardWrite({ text, html, rtf: true }).catch((err: unknown) =>
-      env.actions.notify(`写入剪贴板失败:${err instanceof Error ? err.message : String(err)}`, true),
-    )
+    write().catch((err: unknown) => env.actions.notify(`写入剪贴板失败:${err instanceof Error ? err.message : String(err)}`, true))
   }, 0)
+}
+
+/**
+ * 一段内容经宿主写进系统剪贴板:纯文本(按偏好为 Markdown 源码)、HTML 与 RTF 一起写。
+ * 不依赖网页的系统拷贝:从菜单栏转来的命令不算一次用户操作,WebKit 里 document.execCommand('copy') 可能不生效
+ * (对照表 P-18:真应用冒烟从菜单栏执行「复制表格」,剪贴板没拿到内容)。
+ * 内容在调用时就取好,返回的函数负责写。
+ */
+export function clipboardWriter(view: EditorView, env: EditorEnv, slice: Slice): () => Promise<void> {
+  const { dom, text } = view.serializeForClipboard(slice)
+  const html = dom.innerHTML
+  return () => env.host.clipboardWrite({ text, html, rtf: true })
 }
 
 export function pastePlugin(env: EditorEnv): Plugin {

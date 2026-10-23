@@ -25,10 +25,12 @@ import {
 import type { Command, Transaction } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { fillCells } from '../core/commands'
+import type { EditorEnv } from '../core/env'
 import { registerCommand, runCommand } from '../core/registry'
 import { h } from '../ui/dom'
 import { FloatingMenu } from '../ui/menu'
 import { pickTableSize } from '../ui/table-size'
+import { clipboardWriter } from './paste'
 
 type Align = 'left' | 'center' | 'right' | null
 
@@ -117,15 +119,13 @@ const formatTableSource: Command = (state, dispatch) => {
   return true
 }
 
-/** 复制表格:选中整张表后走系统拷贝,剪贴板同时有 HTML 与 Markdown(对照表 P-18)。 */
-function copyTable(view: EditorView): boolean {
+/** 复制表格:整张表经宿主写进剪贴板,同时有 Markdown、HTML 与 RTF(对照表 P-18;菜单栏、工具条、右键同一做法)。 */
+function copyTable(view: EditorView, env: EditorEnv): boolean {
   const found = findTable(view.state.selection.$from)
   if (!found) return false
-  const before = view.state.selection
-  view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, found.pos)))
-  const ok = document.execCommand('copy')
-  view.dispatch(view.state.tr.setSelection(before.map(view.state.doc, view.state.tr.mapping)))
-  if (!ok) throw new Error('复制表格失败:系统拷贝不可用')
+  clipboardWriter(view, env, NodeSelection.create(view.state.doc, found.pos).content())().catch((err: unknown) =>
+    env.actions.notify(`复制表格失败:${err instanceof Error ? err.message : String(err)}`, true),
+  )
   return true
 }
 
@@ -161,7 +161,6 @@ for (const def of [
   { id: 'table.fillDown', label: '向下填充', run: st(fillCells('down')) },
   { id: 'table.fillRight', label: '向右填充', run: st(fillCells('right')) },
   { id: 'table.resize', label: '调整行列数', run: (view: EditorView) => askResize(view) },
-  { id: 'table.copy', label: '复制表格', run: copyTable },
   { id: 'table.formatSource', label: '格式化表格源码', run: st(formatTableSource) },
 ]) {
   registerCommand(def)
@@ -177,7 +176,9 @@ export const TABLE_KEYS: Record<string, string> = {
   'Mod-r': 'table.fillRight',
 }
 
-export function tableToolbarPlugin(): Plugin {
+export function tableToolbarPlugin(env: EditorEnv): Plugin {
+  // 复制表格要经宿主写剪贴板,命令在这里注册(要用 env)
+  registerCommand({ id: 'table.copy', label: '复制表格', run: (view) => copyTable(view, env) })
   return new Plugin({ view: (view) => new TableToolbar(view) })
 }
 

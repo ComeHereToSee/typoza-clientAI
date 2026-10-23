@@ -243,7 +243,7 @@ export function mathPlugin(env: EditorEnv): Plugin {
     }
     const text = kind === 'tex' ? Promise.resolve(found.tex) : texToMathML(found.tex, found.display, mathOptions(env, view.state.doc))
     text
-      .then((value) => navigator.clipboard.writeText(value))
+      .then((value) => env.host.clipboardWrite({ text: value }))
       .then(
         () => env.actions.notify(kind === 'tex' ? '已复制 Tex 代码' : '已复制 MathML'),
         (err: unknown) => env.actions.notify(`复制失败:${err instanceof Error ? err.message : String(err)}`, true),
