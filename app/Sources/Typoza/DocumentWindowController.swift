@@ -199,7 +199,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             app.mark("bridgeAppInfo")
             let open = openRequest
             openRequest = nil
-"            sync { ["home": NSHomeDirectory(), "dataDir": AppPaths.support.path, "cacheDir": AppPaths.cachesDir.path, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev", "openPath": open?.0 as Any, "openIsDir": open?.1 ?? false, "dark": app.isDark, "launch": isLaunchWindow] }
+            sync { ["home": NSHomeDirectory(), "dataDir": AppPaths.support.path, "cacheDir": AppPaths.cachesDir.path, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev", "openPath": open?.0 as Any, "openIsDir": open?.1 ?? false, "dark": app.isDark, "launch": isLaunchWindow] }
         case "app.ready":
             app.mark("appReady")
             ready = true

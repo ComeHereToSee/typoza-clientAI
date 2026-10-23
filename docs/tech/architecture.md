@@ -64,7 +64,11 @@ flowchart LR
 
 ### 3.3 按需加载
 
-主包约 1 MB(含 ProseMirror、CodeMirror、remark)。Mermaid(及其布局引擎)、KaTeX、表情数据(约 240 KB,构建期从 emojibase 裁剪生成 `virtual:tz-emoji`)、二维码库都在首次用到时才加载,不影响冷启动。
+主包约 1 MB(含 ProseMirror、remark、YAML)。CodeMirror 及语言包(代码块 `views/cm.ts`、源代码模式 `app/source.ts`)、Mermaid(及其布局引擎)、KaTeX、表情数据(约 240 KB,构建期从 emojibase 裁剪生成 `virtual:tz-emoji`)、二维码库都在首次用到时才加载,不影响冷启动。
+
+- CodeMirror 在第一个代码块接近视口、或第一次切到源代码模式时载入;载入前新建代码块马上打字,字先进代码块里的隐藏输入框,建好编辑器后交给它。
+- YAML 库留在主包:启动时只执行约 34 KB,拆出去要把页眉、图片根路径、图标封面、导出设置等 6 处同步读取改成异步,收益(估计不到 10 毫秒)抵不上改动面。
+- 启动分段打点:`App.init` 里 `performance.mark('tz:settings' / 'tz:ui' / 'tz:draft' / 'tz:open')`,冒烟报告的 timings 里是 `mark_*Ms`(相对页面导航起点)。
 
 ### 3.4 大文档
 
@@ -80,6 +84,8 @@ flowchart LR
 - **来源校验**:WKWebView 的消息处理器对所有框架可见,文档里嵌入的网页也能调用;外壳只接受主框架且来源为 `typoza://app` 的调用(`BridgeOrigin`)。HTML 块经 DOMPurify 净化(去掉 script / style / object / embed / form,预览去掉 class / id),iframe 加沙箱:只有远程网页给同源,本地网页与相对地址不给。PDF 框不加沙箱(要用系统的 PDF 显示),只按路径判断 `.pdf`(`x.html#.pdf` 不算)。
 - **本机文件隔离**:`typoza://local` 下所有文件同源,带着它跑脚本就能读走本机任意文件。外壳对其中的网页类文件(html / xhtml / svg / xml)加 `Content-Security-Policy: sandbox` 响应头(不透明源),所有本机文件 `nosniff`;资源地址只认 http(s) / data / blob / file / typoza。编辑器页面自身有 CSP,只执行应用自带脚本;文档里的 HTML 片段一律在 `<template>` 或 DOMParser 里解析(游离 div 里的 `<img onerror>` 会执行)。
 - 导航:主框架只允许 `typoza://`;点到本机 Markdown 在 Typoza 打开,其余网址交给系统浏览器。
+- **方法对照测试**:`editor/tests/unit/bridge-contract.test.ts` 读 `host/native.ts` 调用的方法名与外壳 `DocumentWindowController*.swift` 的分支,要求一一对应(Swift 的 switch 遇到同名分支只走第一个,曾让「复制网络图片到文件夹」必失败)。
+- **应用标识与数据目录**:外壳的数据目录、日志、缓存、钥匙串服务名都由 `AppPaths` 按应用包 Info.plist 的 `CFBundleName` / `CFBundleIdentifier` 推出(基础版 `Typoza` / `app.typoza.mac`);网页侧的数据目录与缓存目录由 `app.info` 给出(`Host.dataDir()` / `cacheDir()`),不自己拼路径。派生版本改 Info.plist 即可与基础版同机并装、数据互不影响;冒烟核对标识与 Info.plist 一致,并检查另一版本的数据目录没被动过。
 
 ## 5. 云同步客户端
 
@@ -135,3 +141,8 @@ flowchart LR
 - 文件树「同步中 / 待上传」按事件与修改时间推断,同步进行中被再次修改的文件可能短暂显示为已同步,下一轮同步后纠正。
 - 段落里行内 HTML 标签的样式:只去掉定位与层级(`position`、`z-index`,交给浏览器解析后删除),transform、负外边距、大阴影等写法仍能在编辑区里画出大块遮盖;编辑区滚动容器会把它们裁在正文区域内,盖不到侧栏与状态栏,效果相当于插一张大图。这类写法挡不完,不逐个封堵。HTML 块的预览整体关在自己的框里(`contain: paint`)。
 - 辅助进程按库各开一条 WebSocket;macOS 上文件监听走 kqueue,每个目录占一个文件描述符(Go 运行时已把软上限提到硬上限)。
+- 外部修改只靠文件监视发现,保存前不再核对磁盘上的修改时间:网络卷上被别的机器改、或监视重建的空档里发生的修改可能收不到,随后的保存会覆盖它(写前快照会把被覆盖的版本留在历史里,可找回)。
+- 导出(PDF / 图像 / 带样式 HTML)里样式表的 `url()` 资源(KaTeX 字体、自定义主题里的字体与背景图)指向 `typoza://`,在导出结果与离屏渲染里加载不到,公式退回系统字体显示。
+- 导出 PDF / 图像时临时 HTML 写在目标文件夹(`.typoza-export-*.html`,几秒后删除):图片与链接的相对路径按导出位置算;目标在同步盘里时同步程序可能先传上去再删。
+- `typoza://local` 不看请求来自哪个框架:允许同源的在线嵌入能用图片地址探测本机某个路径是否存在(读不到内容)。【待确认:WebKit 是否允许 https 子框架加载自定义协议的子资源】
+- 云同步:钥匙串读取很慢时(如应用更新后弹授权框),用户先手动登录、随后到达的恢复会话请求可能顶掉新登录。【待确认:依赖时序,未复现】
