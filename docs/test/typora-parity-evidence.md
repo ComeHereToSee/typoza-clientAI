@@ -6,20 +6,20 @@
 
 ## 一、怎么读
 
-- **范围**:对照表里「Typoza 处理」为「实现」的行(A 至 X 各节与 Z 节,共 313 行)。「替代实现」「不做」的行不在本表;M-15、M-30、PM-24、PX-07、PX-08 已改为「替代实现」,不再列出。
+- **范围**:对照表里「Typoza 处理」为「实现」的行(A 至 X 各节与 Z 节,共 312 行)。「替代实现」「不做」的行不在本表;M-15、M-30、PM-24、PX-07、PX-08 已改为「替代实现」,不再列出;AI 版另把 E-16 改为替代实现(⌥⌘J)。
 - **证据写法**:`文件 › 用例标题`,多条用「;」分开;用例标题超过 40 个字只写前 40 个字并以「…」结尾,在文件里按这段文字搜索即可找到。
   - 网页端 E2E:`editor/tests/e2e/*.spec.ts`;网页端单测:`editor/tests/unit/*.test.ts`;外壳单测:`app/Tests/TypozaKitTests/*.swift`;辅助进程单测:`helper/…_test.go`;后端仓库的测试写成 `typoza-backend/…_test.go`;Swift 与 Go 的测试写函数名,不截短。
   - 少数用例在分组里,标题写成 `分组 › 用例`。
   - `冒烟 › checks.<名字>`:macOS CI 启动真应用后,网页一侧的自检项(`editor/src/smoke.ts`)。
   - `冒烟 › nativeChecks.<名字>`:同一次启动里外壳一侧的自检项(`app/Sources/Typoza/AppDelegate.swift`)。
-  - `冒烟 › 菜单键位「<菜单项>」`:CI 逐项核对菜单键位(`ci/menu-keys.json`,99 项),只证明键位对。
+  - `冒烟 › 菜单键位「<菜单项>」`:CI 逐项核对菜单键位(`ci/menu-keys.json`,100 项,比基础版多「打开对话 ⌘J」),只证明键位对。
 - **判定**(四选一):
   - 「有」:用例断言了这一行的主要行为。说明列里个别次要细节(某条提示文案、某个边界)没断言时,在判定后括注,不降级。
   - 「部分」:主要行为只覆盖了一部分,或剩下的部分要在真机上确认(写「真机待确认:…」);判定格写明缺什么。
   - 「无」:找不到用例。
   - 「系统」:macOS 自带的能力,应用只放了标准菜单项;证据格写明依据。
-- **运行情况**(2026-10-23 CI,dev 9daa0b9):网页端 E2E 476 条通过(只在 macOS 上有意义的 ⌘E 用例在 Linux 上跳过 1 条)、单测全过;macOS 真应用冒烟:网页侧自检全过(含 13 种导出格式、docx 导入、Big5 重开保存、拷贝图片),外壳侧自检全过(含系统标准菜单项、关于面板),菜单键位期望的 99 项全对且无重复项,启动选项四种冷启动全对。
-- **统计**:「实现」313 行:有 288、部分 13、无 0、系统 12。「系统」行另有外壳自检核对标准菜单项的动作与系统菜单接线(`nativeChecks.standardMenus`)。
+- **运行情况**(2026-10-23 CI,AI 版 dev 1981f46):网页端 E2E 503 条通过(基础版全部用例加 AI 用例;⌘E 用例在 Linux 上跳过 1 条)、单测全过;macOS 真应用冒烟:网页侧与外壳侧自检全过,菜单键位期望的 100 项全对且无重复项,启动选项四种冷启动全对。
+- **统计**:「实现」312 行:有 287、部分 13、无 0、系统 12。「系统」行另有外壳自检核对标准菜单项的动作与系统菜单接线(`nativeChecks.standardMenus`)。
 
 ## 二、逐行证据
 
@@ -89,7 +89,6 @@
 | E-09 | 粘贴并匹配样式 ⌥⇧⌘V | `冒烟 › nativeChecks.pasteMatchStyle`;`冒烟 › 菜单键位「粘贴并匹配样式」`;`editor/tests/e2e/parity-p3a.spec.ts › C-04 右键 ▸ 复制 / 粘贴为:复制为纯文本、复制为 Markdown、复…`;`editor/tests/e2e/context-edit.spec.ts › 右键粘贴为纯文本:Markdown 符号按字面保留` | 有 |
 | E-11 | 选择段落或块 Esc;⌥⌘P | `editor/tests/unit/selection-commands.test.ts › Esc 选中当前块,再按 Esc 回到块末尾编辑`;`editor/tests/e2e/blocks.spec.ts › 块选中态直接输入文字:不改内容,退出选中态`;`冒烟 › 菜单键位「选中当前块」` | 有 |
 | E-15 | 跳转到文首 ⌘↑ | `冒烟 › nativeChecks.keyDocStart` | 有 |
-| E-16 | 跳转到所选内容 ⌘J | `editor/tests/e2e/parity-extra.spec.ts › E-16 ⌘J 跳转到所选内容:滚回光标所在处`;`冒烟 › 菜单键位「跳转到所选内容」` | 有 |
 | E-17 | 跳转到文末 ⌘↓ | `冒烟 › nativeChecks.keyDocEnd` | 有 |
 | E-18 | 跳转到行首 ⌃A / 行尾 ⌃E | `冒烟 › nativeChecks.keyLineStart`;`冒烟 › nativeChecks.keyLineEnd` | 有 |
 | E-19 | 删除 / 删除所选范围 | `editor/tests/e2e/notion-keys.spec.ts › #42 ⌘A:第 1 次选中当前块文字,第 2 次全选`;`editor/tests/e2e/notion-keys.spec.ts › #48 Delete 删除所选块`;`editor/tests/e2e/blocks.spec.ts › ⇧↑ 扩选多块后 ⌘D 复制、⌫ 删除` | 有 |
