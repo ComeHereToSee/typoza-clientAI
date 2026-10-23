@@ -4,20 +4,20 @@
 
 ## 一、怎么读
 
-- **范围**:对照表里「Typoza 处理」为「实现」的行(A 至 X 各节与 Z 节,共 314 行)。「替代实现」「不做」的行不在本表;M-15、PM-24、PX-07、PX-08 已改为「替代实现」,不再列出。
+- **范围**:对照表里「Typoza 处理」为「实现」的行(A 至 X 各节与 Z 节,共 313 行)。「替代实现」「不做」的行不在本表;M-15、M-30、PM-24、PX-07、PX-08 已改为「替代实现」,不再列出。
 - **证据写法**:`文件 › 用例标题`,多条用「;」分开;用例标题超过 40 个字只写前 40 个字并以「…」结尾,在文件里按这段文字搜索即可找到。
   - 网页端 E2E:`editor/tests/e2e/*.spec.ts`;网页端单测:`editor/tests/unit/*.test.ts`;外壳单测:`app/Tests/TypozaKitTests/*.swift`;辅助进程单测:`helper/…_test.go`;后端仓库的测试写成 `typoza-backend/…_test.go`;Swift 与 Go 的测试写函数名,不截短。
   - 少数用例在分组里,标题写成 `分组 › 用例`。
   - `冒烟 › checks.<名字>`:macOS CI 启动真应用后,网页一侧的自检项(`editor/src/smoke.ts`)。
   - `冒烟 › nativeChecks.<名字>`:同一次启动里外壳一侧的自检项(`app/Sources/Typoza/AppDelegate.swift`)。
-  - `冒烟 › 菜单键位「<菜单项>」`:CI 逐项核对菜单键位(`ci/menu-keys.json`,94 项),只证明键位对。
+  - `冒烟 › 菜单键位「<菜单项>」`:CI 逐项核对菜单键位(`ci/menu-keys.json`,99 项),只证明键位对。
 - **判定**(四选一):
   - 「有」:用例断言了这一行的主要行为。说明列里个别次要细节(某条提示文案、某个边界)没断言时,在判定后括注,不降级。
   - 「部分」:主要行为只覆盖了一部分,或剩下的部分要在真机上确认(写「真机待确认:…」);判定格写明缺什么。
   - 「无」:找不到用例。
   - 「系统」:macOS 自带的能力,应用只放了标准菜单项;证据格写明依据。
-- **运行情况**(2026-10-23 CI):网页端 E2E 470 条(只在 macOS 上有意义的 ⌘E 用例在 Linux 上跳过 1 条);macOS 真应用冒烟:网页侧自检全过(含 13 种导出格式、docx 导入、Big5 重开保存、拷贝图片),外壳侧自检 35 项全过,菜单键位 94 项全对。
-- **统计**:「实现」314 行:有 286、部分 14、无 2、系统 12。
+- **运行情况**(2026-10-23 CI,dev 6f0724b):网页端 E2E 474 条通过(只在 macOS 上有意义的 ⌘E 用例在 Linux 上跳过 1 条)、单测全过;macOS 真应用冒烟:网页侧自检全过(含 13 种导出格式、docx 导入、Big5 重开保存、拷贝图片),外壳侧自检全过(含系统标准菜单项、关于面板),菜单键位期望的 99 项全对且无重复项,启动选项四种冷启动全对。
+- **统计**:「实现」313 行:有 288、部分 13、无 0、系统 12。「系统」行另有外壳自检核对标准菜单项的动作与系统菜单接线(`nativeChecks.standardMenus`)。
 
 ## 二、逐行证据
 
@@ -25,12 +25,12 @@
 
 | 编号 | 功能 | 证据 | 判定 |
 |---|---|---|---|
-| A-01 | 关于 Typoza | 无用例。依据:`app/Sources/Typoza/MainMenu.swift` 应用菜单「关于 Typoza」用 macOS 标准关于面板(显示应用版本号);说明列的鸣谢入口在帮助菜单,见 H-07 | 系统 |
-| A-03 | 偏好设置 ⌘, | `editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示` | 有(⌘, 不在菜单键位清单里,键位没核对) |
-| A-04 | 检查更新 | `app/Tests/TypozaKitTests/FilesTests.swift › testVersionComparison`;`app/Tests/TypozaKitTests/FilesTests.swift › testParseUpdateFeed` | 部分:只测了版本比较与更新源解析;菜单「检查更新」的三种结果(当前已是最新、有新版本时【下载】【以后再说】、更新服务未配置时「无法检查更新」)没测 |
-| A-05 | 服务 | 无用例。依据:应用菜单「服务」子菜单交给系统填充(`MainMenu.swift` 放菜单项,`AppDelegate.swift` 设为系统服务菜单) | 系统 |
-| A-06 | 隐藏 Typoza / 隐藏其他 / 全部显示 | 无用例。依据:`MainMenu.swift` 应用菜单三项用 macOS 标准动作,键位 ⌘H、⌥⌘H | 系统 |
-| A-07 | 退出 ⌘Q | `editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存开:已命名文档退出时直接写盘,不询问`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存关:已命名文档退出时询问「是否保存更改?」,取消则不退出,选「…`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存开:未命名文档退出时不询问,内容留在草稿里,重启后恢复`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存关:未命名文档退出时也询问,选「不保存」删掉草稿`;`editor/tests/e2e/files.spec.ts › 关闭自动保存后关窗:询问「是否保存更改?」,选「不保存」不写盘` | 部分:单个窗口的四种组合(自动保存开 / 关 × 已命名 / 未命名)已测;真机待确认:多个窗口都有未保存修改时逐个询问 |
+| A-01 | 关于 Typoza | 依据:`app/Sources/Typoza/MainMenu.swift` 应用菜单「关于 Typoza」用 macOS 标准关于面板(显示应用版本号);说明列的鸣谢入口在帮助菜单,见 H-07;`冒烟 › nativeChecks.standardMenus`;`冒烟 › nativeChecks.aboutPanel` | 系统 |
+| A-03 | 偏好设置 ⌘, | `editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示`;`冒烟 › 菜单键位「设置…」`(系统把「偏好设置…」改名为「设置…」) | 有 |
+| A-04 | 检查更新 | `app/Tests/TypozaKitTests/FilesTests.swift › testVersionComparison`;`app/Tests/TypozaKitTests/FilesTests.swift › testParseUpdateFeed`;`app/Tests/TypozaKitTests/FilesTests.swift › testUpdateCheckOutcomes`(未配置、已是最新、有新版本、服务出错四种结果与按钮) | 有(弹窗本身未自动化;接入更新服务后用真实更新源再看一次) |
+| A-05 | 服务 | 依据:应用菜单「服务」子菜单交给系统填充(`MainMenu.swift` 放菜单项,`AppDelegate.swift` 设为系统服务菜单);`冒烟 › nativeChecks.standardMenus` | 系统 |
+| A-06 | 隐藏 Typoza / 隐藏其他 / 全部显示 | 依据:`MainMenu.swift` 应用菜单三项用 macOS 标准动作,键位 ⌘H、⌥⌘H;`冒烟 › nativeChecks.standardMenus`;`冒烟 › 菜单键位「隐藏 Typoza」`;`冒烟 › 菜单键位「隐藏其他」` | 系统 |
+| A-07 | 退出 ⌘Q | `editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存开:已命名文档退出时直接写盘,不询问`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存关:已命名文档退出时询问「是否保存更改?」,取消则不退出,选「…`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存开:未命名文档退出时不询问,内容留在草稿里,重启后恢复`;`editor/tests/e2e/parity-p1.spec.ts › A-07 自动保存关:未命名文档退出时也询问,选「不保存」删掉草稿`;`editor/tests/e2e/files.spec.ts › 关闭自动保存后关窗:询问「是否保存更改?」,选「不保存」不写盘`;`冒烟 › 菜单键位「退出 Typoza」` | 部分:单个窗口的四种组合(自动保存开 / 关 × 已命名 / 未命名)已测;真机待确认:多个窗口都有未保存修改时逐个询问 |
 
 ### F 文件
 
@@ -114,8 +114,8 @@
 | E-42 | 查找下一个 ⌘G / 查找上一个 ⇧⌘G | `editor/tests/e2e/parity-p1.spec.ts › E-42 查找下一个 / 上一个:在匹配项间循环跳转、选中匹配;查找框内 ↩ /…`;`冒烟 › 菜单键位「查找下一个」`;`冒烟 › 菜单键位「查找上一个」` | 有 |
 | E-43 | 查找和替换… ⌥⌘F | `editor/tests/e2e/context-edit.spec.ts › 限「选中部分」全部替换`;`editor/tests/e2e/links-history.spec.ts › 全部替换后一次 ⌘Z 撤回`;`editor/tests/unit/media-tools.test.ts › 限「选中部分」:只保留完全落在范围内的匹配`;`冒烟 › 菜单键位「查找和替换…」` | 有(没选中时的提示「先在正文里选中范围」没测) |
 | E-44 | 替换下一个 ⌥⌘E | `editor/tests/e2e/parity-p1.spec.ts › E-44 替换下一个:只替换当前一处并选中剩下的下一处(两处匹配);全部换完提示…`;`editor/tests/e2e/parity-gaps.spec.ts › E-44 替换下一个(三处匹配):替换第一处后选中第二处,不跳过`;`冒烟 › 菜单键位「替换下一个」` | 有 |
-| E-45 | 语音 ▸ 开始 / 停止朗读 | 无用例。依据:`MainMenu.swift` 编辑 ▸「语音」两项用 macOS 标准朗读动作 | 系统 |
-| E-46 | 表情与符号 ⌃⌘空格 | 无用例。依据:`MainMenu.swift` 编辑 ▸「表情与符号」用 macOS 标准字符面板,键位 ⌃⌘空格(不在菜单键位清单里) | 系统 |
+| E-45 | 语音 ▸ 开始 / 停止朗读 | 依据:`MainMenu.swift` 编辑 ▸「语音」两项用 macOS 标准朗读动作;`冒烟 › nativeChecks.standardMenus` | 系统 |
+| E-46 | 表情与符号 ⌃⌘空格 | 依据:`MainMenu.swift` 编辑 ▸「表情与符号」用 macOS 标准字符面板,键位 ⌃⌘空格;`冒烟 › nativeChecks.standardMenus`(「表情与符号」只此一项,系统自动插入的已关掉);`冒烟 › 菜单键位「表情与符号」` | 系统 |
 
 ### P 段落
 
@@ -183,7 +183,6 @@
 | M-26 | 图像 ▸ 当插入本地图片时 ▸ 复制图片到文件夹 / 上传图片 | `editor/tests/e2e/parity-p2.spec.ts › M-26 当插入本地图片时 ▸ 复制图片到文件夹…:选的文件夹写进 YAML,之…`;`editor/tests/e2e/image-tools.spec.ts › 设置图片根目录与插入规则写进 YAML`;`editor/tests/unit/assets.test.ts › YAML 的 typora-copy-images-to 优先;值为 uploa…` | 有 |
 | M-27 | 图像 ▸ 设置图片根目录 | `editor/tests/e2e/parity-p2.spec.ts › M-27 设置图片根目录…:以 / 开头的图片路径立即按新根目录显示`;`editor/tests/e2e/image-tools.spec.ts › 设置图片根目录与插入规则写进 YAML` | 有 |
 | M-28 | 图像 ▸ 全局图像设置… | `editor/tests/e2e/parity-p2.spec.ts › M-28 全局图像设置…:打开偏好设置并停在「图像」页` | 有 |
-| M-30 | 拍照(从 iPhone 拍照或扫描) | 无用例;代码里也没有专门入口,靠按住 ⌥ 右键让出的系统菜单 | 无 |
 | M-31 | 清除样式 `⌘\` | `editor/tests/e2e/parity-p2.spec.ts › M-31 清除样式:去掉加粗、斜体、下划线与文字颜色 / 背景色,只剩文字`;`冒烟 › 菜单键位「清除样式」` | 有 |
 
 ### V 显示
@@ -203,7 +202,7 @@
 | V-15 | 保持窗口在最前端 | `冒烟 › nativeChecks.alwaysOnTop`;`冒烟 › nativeChecks.alwaysOnTopOff` | 有 |
 | V-16 | 全屏 ⌃⌘F | 依据:`MainMenu.swift`「显示」菜单「切换全屏」用 macOS 标准全屏动作;`冒烟 › 菜单键位「切换全屏」` | 系统 |
 | V-17 | 显示状态栏 | `editor/tests/e2e/parity-p2.spec.ts › V-17 显示状态栏:默认显示字数与源码模式开关;菜单开关与偏好外观页是同一个设…`;`editor/tests/e2e/blocks.spec.ts › ⇧+点击选连续多块,⇧⌘+点击增减单块`;`editor/tests/e2e/files.spec.ts › 只读文件可以浏览,输入时提示不能保存并给【另存为】` | 有 |
-| V-19 | 应用内窗口切换 ⌘` | 无用例。依据:⌘` 是 macOS 的「将焦点移到下一个窗口」,应用把「窗口」菜单设为系统窗口菜单(`AppDelegate.swift`),菜单里不另设此项 | 系统 |
+| V-19 | 应用内窗口切换 ⌘` | 依据:⌘` 是 macOS 的「将焦点移到下一个窗口」,应用把「窗口」菜单设为系统窗口菜单(`AppDelegate.swift`),菜单里不另设此项;`冒烟 › nativeChecks.standardMenus`(「窗口」菜单交给系统) | 系统 |
 | V-20 | 高亮当前标题 | `editor/tests/e2e/parity-p2.spec.ts › V-20 高亮当前标题:大纲里高亮光标所在的章节,光标移动后跟着换` | 有 |
 
 ### T 主题
@@ -219,9 +218,9 @@
 | 编号 | 功能 | 证据 | 判定 |
 |---|---|---|---|
 | W-01 | 最小化 ⌘M | 依据:`MainMenu.swift`「窗口」菜单「最小化」用 macOS 标准动作;`冒烟 › 菜单键位「最小化」` | 系统 |
-| W-02 | 缩放 | 无用例。依据:`MainMenu.swift`「窗口」菜单「缩放」用 macOS 标准动作 | 系统 |
-| W-03 | 前置全部窗口 | 无用例。依据:`MainMenu.swift`「窗口」菜单「前置全部窗口」用 macOS 标准动作 | 系统 |
-| W-04 | 标签页系统项(显示标签页栏、合并所有窗口等) | 无用例。依据:由 macOS 原生标签页自动附加到「窗口」菜单(`AppDelegate.swift` 打开自动标签页,`DocumentWindowController.swift` 设自动标签模式) | 系统 |
+| W-02 | 缩放 | 依据:`MainMenu.swift`「窗口」菜单「缩放」用 macOS 标准动作;`冒烟 › nativeChecks.standardMenus` | 系统 |
+| W-03 | 前置全部窗口 | 依据:`MainMenu.swift`「窗口」菜单「前置全部窗口」用 macOS 标准动作;`冒烟 › nativeChecks.standardMenus` | 系统 |
+| W-04 | 标签页系统项(显示标签页栏、合并所有窗口等) | 依据:由 macOS 原生标签页自动附加到「窗口」菜单(`AppDelegate.swift` 打开自动标签页,`DocumentWindowController.swift` 设自动标签模式);`冒烟 › nativeChecks.standardMenus`(允许系统标签页) | 系统 |
 
 ### H 帮助
 
@@ -233,7 +232,7 @@
 | H-04 | 安装与使用 Pandoc | `冒烟 › nativeChecks.help_pandoc` | 有 |
 | H-06 | 欢迎向导 | `冒烟 › nativeChecks.firstLaunchWelcome`;`冒烟 › nativeChecks.welcome` | 有 |
 | H-07 | 鸣谢 / 隐私条款 / 官方网站 / 反馈 | `冒烟 › nativeChecks.help_acknowledgements`;`冒烟 › nativeChecks.help_privacy`;`冒烟 › nativeChecks.linksGreyed` | 有(隐私条款正文内容没核对) |
-| H-08 | 帮助菜单搜索 | 无用例。依据:应用把「帮助」菜单设为系统帮助菜单(`AppDelegate.swift`),搜索栏由 macOS 附加 | 系统 |
+| H-08 | 帮助菜单搜索 | 依据:应用把「帮助」菜单设为系统帮助菜单(`AppDelegate.swift`),搜索栏由 macOS 附加;`冒烟 › nativeChecks.standardMenus`(「帮助」菜单交给系统) | 系统 |
 
 ### C 右键菜单与上下文工具
 
@@ -280,7 +279,7 @@
 
 | 编号 | 功能 | 证据 | 判定 |
 |---|---|---|---|
-| PF-01 | 启动选项(打开新文件 / 上次目录 / 上次文件和目录 / 指定目录) | `editor/tests/e2e/parity-p3a.spec.ts › PF-01 启动选项:打开新文件 / 上次目录 / 上次文件和目录 / 指定目录` | 部分:四种选项下的启动恢复逻辑已测(用例直接调用应用的启动恢复);真机待确认:真实冷启动时接上这段逻辑,「打开新文件」时出现空白新文档 |
+| PF-01 | 启动选项(打开新文件 / 上次目录 / 上次文件和目录 / 指定目录) | `editor/tests/e2e/parity-p3a.spec.ts › PF-01 启动选项:打开新文件 / 上次目录 / 上次文件和目录 / 指定目录`;`冒烟 › 启动选项冷启动`(`ci/smoke-macos.sh`:四种选项各冷启动一次,核对打开的文档与侧栏目录) | 有 |
 | PF-02 | 允许折叠和展开侧边栏的大纲视图 | `editor/tests/unit/parity-p3a.test.ts › 默认可折叠:有下级的标题带折叠箭头,有「全部折叠 / 全部展开」;点箭头收起下级`;`editor/tests/unit/parity-p3a.test.ts › 关掉「允许折叠和展开侧边栏的大纲视图」:没有箭头和折叠按钮,标题全部显示,点击照…`;`editor/tests/e2e/parity-gaps.spec.ts › S-01 / PF-02 关掉「允许折叠和展开侧边栏的大纲视图」当场生效:箭头与…` | 有 |
 | PF-03 | 默认文件扩展名 .md / .markdown / .text / 自定义 | `editor/tests/e2e/parity-p3a.spec.ts › PF-03 默认扩展名选 .markdown:新文件保存框默认「未命名.mark…`;`editor/tests/e2e/parity-p3a.spec.ts › PF-03 默认扩展名选自定义 .mdx:新文件保存框默认「未命名.mdx」` | 有 |
 | PF-04 | 自动保存 | `editor/tests/e2e/files.spec.ts › 自动保存:停止输入约 1 秒后写盘`;`editor/tests/e2e/files.spec.ts › 关闭自动保存后关窗:询问「是否保存更改?」,选「不保存」不写盘` | 有 |
@@ -392,8 +391,8 @@
 | X-21 | typora-copy-images-to | `editor/tests/unit/parity-p4.test.ts › X-21 从文档 YAML 读出插图目录并决定落盘位置:相对、${filenam…`;`editor/tests/e2e/parity-p4.spec.ts › X-21 YAML 写了 typora-copy-images-to:粘贴的图片…`;`editor/tests/unit/assets.test.ts › YAML 的 typora-copy-images-to 优先;值为 uploa…` | 有 |
 | X-23 | 导出变量 | `editor/tests/unit/parity-p4.test.ts › X-23 ${today} 为年-月-日;${outputFolder}、${c…`;`editor/tests/unit/parity-p4.test.ts › X-23 未保存的文档:标题取首个标题,文档位置相关的变量为空;YAML 的 t…`;`editor/tests/e2e/parity-p4.spec.ts › X-23 导出 PDF:页眉页脚里的 ${title}、${currentFil…`;`editor/tests/unit/export-flow.test.ts › 替换 ${变量},不认识的原样保留`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testExpandsVariablesAndKeepsUnknown`;`冒烟 › nativeChecks.exportPdf`(读回 PDF 第 1 页页首为「页首 1」) | 有 |
 | X-25 | 智能粘贴 | `editor/tests/e2e/parity-p4.spec.ts › X-25 智能粘贴:粘贴网页 HTML 保留标题、无序 / 有序列表、加粗与链接…`;`editor/tests/e2e/parity-p1.spec.ts › E-02 粘贴 HTML:优先取 HTML 并转成 Markdown,不用同时给…` | 有 |
-| X-26 | 粘贴 Apple 备忘录列表 | 无用例 | 无 |
-| X-27 | 代码语言补全 | `` editor/tests/e2e/parity-p4.spec.ts › X-27 代码语言补全:``` 与 ~~~ 建出的代码块,语言框都接上语言清单;… `` | 部分:三个反引号与 `~~~` 两种围栏的语言框都接上语言清单、选定语言写进围栏已测;真机待确认:输入语言名时下拉提示在 macOS 上弹出(下拉框由网页视图自己绘制,用例断言不到) |
+| X-26 | 粘贴 Apple 备忘录列表 | `editor/tests/e2e/parity-p4.spec.ts › X-25 智能粘贴:粘贴网页 HTML 保留标题、无序 / 有序列表、加粗与链接,存成 Markdown`(备忘录不单独处理,走同一条 HTML 粘贴) | 部分:通用 HTML 列表粘贴已测;真机待确认:备忘录的剪贴板样本 |
+| X-27 | 代码语言补全 | `` editor/tests/e2e/parity-p4.spec.ts › X-27 代码语言补全:``` 与 ~~~ 建出的代码块,语言框都接上语言清单;… `` | 部分:三个反引号与 `~~~` 两种围栏的语言框都接上语言清单、选定语言写进围栏已测;真机待确认:输入语言名时下拉提示在 macOS 上弹出(下拉提示是 HTML datalist 交给系统原生的输入建议列表,用例断言不到) |
 | X-28 | 输入三个反引号后回车建代码块 | `` editor/tests/e2e/code-math.spec.ts › ``` 后回车建代码块,~~~ 同效 ``;`` editor/tests/e2e/notion-input.spec.ts › 分割线 --- 与代码块 ``` `` | 有 |
 | X-29 | 输入 `$$` 后回车建公式块 | `editor/tests/e2e/notion-keys.spec.ts › #15 $$ 后回车成公式块` | 有 |
 | X-30 | 输入 `\| 列1 \| 列2 \|` 后回车建表格 | `editor/tests/e2e/table.spec.ts › \|a\|b\| 回车建表,Tab 跳格,末格 Tab 新增一行` | 有 |
@@ -405,8 +404,8 @@
 | X-39 | 表格单元格换行 | `editor/tests/e2e/parity-p4.spec.ts › X-39 单元格里 ⇧↩ 换行,保存为 <br>`;`editor/tests/unit/markdown.test.ts › 表格对齐与单元格换行` | 有 |
 | X-40 | 代码块语法高亮 | `editor/tests/e2e/parity-p4.spec.ts › X-40 代码块高亮:语言名不区分大小写(PYTHON、Python、py 都高…`;`editor/tests/e2e/code-math.spec.ts › 代码工具:为整个代码块调整缩进(缩进宽度默认 2)` | 有(语言清单实为 143 种,用例按「不少于 140 种」断言,对照表写的是「约 150 种」) |
 | X-41 | 数学公式渲染 | `editor/tests/e2e/parity-p4.spec.ts › X-41 公式:mhchem \ce{} 能渲染;\newcommand 与 \…`;`` editor/tests/e2e/code-math.spec.ts › ```math 显示为公式,源码原样保存 ``;`editor/tests/e2e/code-math.spec.ts › 公式语法错误显示错误提示,源码不清空`;`editor/tests/e2e/code-math.spec.ts › \tag 与 \label / \eqref:引用显示编号;刷新所有数学公式`;`editor/tests/unit/diagram-math.test.ts › \ref 与 \eqref 换成编号,找不到显示 ??;\label 去掉` | 有 |
-| X-43 | HTML 渲染 | `editor/tests/e2e/parity-p4.spec.ts › X-43 HTML 渲染:sup、kbd、ruby、带 style 的 span…`;`editor/tests/e2e/parity-gaps.spec.ts › X-43 段落里成对的 kbd、ruby、font 照样渲染,保存不改原文`;`editor/tests/unit/inline-html-tags.test.ts › kbd:渲染成 <kbd>,编辑后原样写回`;`editor/tests/unit/inline-html-tags.test.ts › ruby 里套 rt:两层都渲染,写回不变`;`editor/tests/unit/inline-html-tags.test.ts › font color 与带字号的 span:保留属性渲染,开标签原文写回`;`editor/tests/unit/inline-html-tags.test.ts › 只认白名单属性:事件处理、class、id 不进渲染结果,但写回原文不变`;`editor/tests/e2e/security.spec.ts › 本地网页嵌入不给同源;远程网页照常给;x.html#.pdf 不当 PDF`;`editor/tests/e2e/media.spec.ts › 视频文件丢失:显示「找不到媒体文件」与原路径`;`editor/tests/unit/markdown.test.ts › front matter、目录、提示框、折叠块`;`editor/tests/unit/exporter.test.ts › 去掉编辑器界面元素、注释、占位与编辑标记;本机图片改成相对导出文件的路径` | 有 |
-| X-44 | HTML 安全 | `editor/tests/e2e/parity-p4.spec.ts › X-44 HTML 安全:文档里的 <script> 不执行,onload 属性…`;`editor/tests/e2e/security.spec.ts › 折叠块标题里的 <img onerror> 不在编辑器页面执行`;`editor/tests/e2e/security.spec.ts › 嵌入框不认 javascript: 地址(未保存的文档也一样)`;`editor/tests/e2e/security.spec.ts › HTML 预览去掉 class、id(防借应用样式仿冒界面),源码保留`;`editor/tests/e2e/context-edit.spec.ts › style 只显示源码`;`editor/tests/unit/media-tools.test.ts › 换成 <code> 显示原文,其余 HTML 不动`;`editor/tests/unit/exporter.test.ts › 预览里去掉,导出时还原` | 有 |
+| X-43 | HTML 渲染 | `editor/tests/e2e/parity-p4.spec.ts › X-43 HTML 渲染:sup、kbd、ruby、带 style 的 span…`;`editor/tests/e2e/parity-gaps.spec.ts › X-43 段落里成对的 kbd、ruby、font 照样渲染,保存不改原文`;`editor/tests/unit/inline-html-tags.test.ts › kbd:渲染成 <kbd>,编辑后原样写回`;`editor/tests/unit/inline-html-tags.test.ts › ruby 里套 rt:两层都渲染,写回不变`;`editor/tests/unit/inline-html-tags.test.ts › font color 与带字号的 span:保留属性渲染,开标签原文写回`;`editor/tests/unit/inline-html-tags.test.ts › 只认白名单属性:事件处理、class、id 不进渲染结果,但写回原文不变`;`editor/tests/e2e/security.spec.ts › 本地网页嵌入不给同源;远程网页照常给;x.html#.pdf 不当 PDF`;`editor/tests/e2e/media.spec.ts › 视频文件丢失:显示「找不到媒体文件」与原路径`;`editor/tests/unit/markdown.test.ts › front matter、目录、提示框、折叠块`;`editor/tests/unit/exporter.test.ts › 去掉编辑器界面元素、注释、占位与编辑标记;本机图片改成相对导出文件的路径`;`editor/tests/e2e/parity-gaps.spec.ts › X-43 段落里成对的 kbd、ruby、font 照样渲染,保存不改原文`;`editor/tests/unit/inline-html-tags.test.ts › 段落里的成对行内 HTML 标签` | 有 |
+| X-44 | HTML 安全 | `editor/tests/e2e/parity-p4.spec.ts › X-44 HTML 安全:文档里的 <script> 不执行,onload 属性…`;`editor/tests/e2e/security.spec.ts › 折叠块标题里的 <img onerror> 不在编辑器页面执行`;`editor/tests/e2e/security.spec.ts › 嵌入框不认 javascript: 地址(未保存的文档也一样)`;`editor/tests/e2e/security.spec.ts › HTML 预览去掉 class、id(防借应用样式仿冒界面),源码保留`;`editor/tests/e2e/context-edit.spec.ts › style 只显示源码`;`editor/tests/unit/media-tools.test.ts › 换成 <code> 显示原文,其余 HTML 不动`;`editor/tests/unit/exporter.test.ts › 预览里去掉,导出时还原`;`editor/tests/e2e/parity-gaps.spec.ts › X-44 HTML 块里的 position:fixed 只铺满预览框,盖不住编辑器界面`;`editor/tests/unit/inline-html-tags.test.ts › 段落里的成对行内 HTML 标签 › style 里的定位与层级不进渲染结果…` | 有 |
 | X-45 | HTML 块编辑 | `editor/tests/e2e/parity-p4.spec.ts › X-45 HTML 块:点预览的空白处展开源码;⌘+点击块内链接只展开源码,不跳…`;`editor/tests/e2e/context-edit.spec.ts › 点内容不展开源码,⌘+点击展开`;`editor/tests/e2e/security.spec.ts › HTML 块里的相对链接按文档链接打开,不把编辑器页面换掉` | 有 |
 | X-46 | 脚注交互 | `editor/tests/e2e/notion-links.spec.ts › 脚注:单击不跳转,⌘+点击跳到定义;未定义时提示语法`;`editor/tests/e2e/parity-p4.spec.ts › X-06 / X-46 悬停预览:悬停脚注号显示脚注内容,悬停网址链接显示地址;…` | 有 |
 | X-47 | 字数统计 | `editor/tests/e2e/parity-p4.spec.ts › X-47 字数统计:状态栏显示全文字数,选中文字时显示选区;字数弹窗列出词、字符…`;`editor/tests/e2e/parity-p2.spec.ts › V-09 字数统计窗口:列出全文与选中部分的字数、段落、行数、阅读时间;状态栏字…`;`editor/tests/unit/wordcount.test.ts › 中日韩字符每字算一个词,西文按词`;`editor/tests/e2e/blocks.spec.ts › ⇧+点击选连续多块,⇧⌘+点击增减单块` | 有 |
@@ -437,26 +436,20 @@
 
 ## 三、仍未完全覆盖
 
-共 16 行:部分 14 行、无 2 行。按原因分:
-
-- 要在真机上确认:15 行(A-07、F-04、E-38、E-39、P-18、M-30、V-11、S-14、S-20、PF-01、PE-08、PG-01、X-26、X-27、X-55)。
-- 依赖的外部服务还没接入:1 行(A-04)。
+共 13 行,都是「部分」,剩下的部分都要在真机上确认(A-07、F-04、E-38、E-39、P-18、V-11、S-14、S-20、PE-08、PG-01、X-26、X-27、X-55)。
 
 | 编号 | 功能 | 判定 | 缺什么 | 原因 |
 |---|---|---|---|---|
-| A-04 | 检查更新 | 部分 | 菜单「检查更新」的三种结果:当前已是最新;有新版本时弹【下载】【以后再说】;更新服务未配置时提示「无法检查更新」 | 更新服务地址还没配置(待人工提供);接入后可在冒烟里用本地假更新源测 |
 | A-07 | 退出 ⌘Q | 部分 | 多个窗口都有未保存修改时逐个询问 | 需真机:逐个窗口询问由外壳调度,浏览器里的用例只有一个窗口 |
 | F-04 | 打开… ⌘O | 部分 | 真应用里 ⌘O 弹出外壳的打开面板(可同时选文件和文件夹)这一段 | 需真机:系统打开面板没有自动检查;选中之后的打开逻辑已测 |
 | E-38 | 拼写和语法 | 部分 | 网页视图对「检查拼写和语法」「自动纠正拼写」的响应 | 需真机(对照表本身标了待真机确认) |
 | E-39 | 添加到字典 / 忘记拼写 | 部分 | 按住 ⌥ 右键后,系统菜单里「学习拼写 / 忘记拼写」出现并生效 | 需真机:系统菜单与用户词典在浏览器里测不到 |
 | P-18 | 表格 ▸ 复制表格 | 部分 | 从菜单栏「段落 ▸ 表格 ▸ 复制表格」执行时,系统拷贝能否用 | 需真机:复制走网页的系统拷贝,要求来自一次用户操作;工具条点击已测,菜单栏命令由外壳转发,是否算用户操作要在真机上点一次确认 |
-| M-30 | 拍照(从 iPhone 拍照或扫描) | 无 | 全部:从 iPhone 拍照后图片按插图规则存盘并插入 | 需真机:要配对 iPhone;代码里没有专门入口,靠按住 ⌥ 右键让出的系统菜单 |
 | V-11 | 双指缩放 | 部分 | 触控板捏合能否传到网页视图 | 需真机(对照表本身标了待真机确认);用例用带 ⌃ 的滚轮事件模拟 |
 | S-14 | 在新窗口中打开 / 打开方式… / 快速查看 | 部分 | 快速查看的预览窗口是否前置 | 需真机(对照表本身标了待真机确认) |
 | S-20 | 撤销上一次文件操作 | 部分 | 焦点在侧栏时按 ⌘Z 先撤销文件操作 | 需真机(对照表本身标了待真机确认):⌘Z 在真应用里先经菜单栏的标准「撤销」 |
-| PF-01 | 启动选项 | 部分 | 真实冷启动时按四种选项恢复;「打开新文件」时出现空白新文档 | 需真机:测试用的浏览器环境不会走启动恢复,用例直接调用了恢复逻辑;也可在冒烟里按四种选项各冷启动一次 |
 | PE-08 | 拼写检查语言 | 部分 | 系统词典按所选语言检查 | 需真机:用例只断言设置交给了外壳 |
 | PG-01 | 所有窗口被关闭后自动退出 | 部分 | 开关关闭时关掉最后一个窗口后,点程序坞图标新开窗口 | 需真机:冒烟只核对了外壳的退出判断 |
-| X-26 | 粘贴 Apple 备忘录列表 | 无 | 全部:从备忘录拷出的列表粘贴后保持列表结构 | 需真机:先在真机上从备忘录拷一次,采集剪贴板样本,再据此写网页端用例 |
-| X-27 | 代码语言补全 | 部分 | 输入语言名时下拉提示在 macOS 上弹出 | 需真机:下拉框由网页视图自己绘制,用例只能断言语言框接上了清单 |
+| X-26 | 粘贴 Apple 备忘录列表 | 部分 | 备忘录拷出的列表粘贴后保持列表结构 | 需真机:通用 HTML 列表粘贴已测;要在真机上从备忘录拷一次,采集剪贴板样本核对 |
+| X-27 | 代码语言补全 | 部分 | 输入语言名时下拉提示在 macOS 上弹出 | 需真机:下拉提示是系统原生的输入建议列表,用例只能断言语言框接上了清单 |
 | X-55 | 命令行与默认应用 | 部分 | 在 Finder 里把 Typoza 设为 .md 默认应用后双击打开 | 需真机 |

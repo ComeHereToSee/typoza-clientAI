@@ -516,12 +516,16 @@ function htmlTagAttrs(open: string): Record<string, string> {
   return out
 }
 
-/** 去掉定位与层级:行内标签没法像 HTML 块那样关在预览框里,带 position:fixed 就能盖住整个窗口仿冒界面 */
+/**
+ * 去掉定位与层级:行内标签没法像 HTML 块那样关在预览框里,带 position:fixed 就能盖住整个窗口仿冒界面。
+ * 交给浏览器解析样式再删属性、按解析结果重新写出:注释、转义(posi\74ion)等写法都按浏览器自己的理解,文本匹配挡不全。
+ */
 function withoutPositioning(style: string): string {
-  return style
-    .split(';')
-    .filter((decl) => !/^\s*(position|z-index)\s*:/i.test(decl))
-    .join(';')
+  const probe = document.createElement('span')
+  probe.setAttribute('style', style)
+  probe.style.removeProperty('position')
+  probe.style.removeProperty('z-index')
+  return probe.style.cssText
 }
 
 marks.html_tag = {

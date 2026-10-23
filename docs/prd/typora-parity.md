@@ -455,7 +455,7 @@
 | X-23 | 导出变量 | ${title} ${author} ${today} ${pageNo} ${pageCount} ${outputPath} ${currentFileName} 等 | 实现 | 无 | 不涉及 | 支持 ${title} ${author} ${today} ${pageNo} ${pageCount} ${outputPath} ${outputFolder} ${currentPath} ${currentFolder} ${currentFileName};不认识的变量原样保留 |
 | X-24 | Emoji `:smile:` 语法 | 输入 `:名称:` 显示表情;Esc 弹出补全 | 替代实现 | 输入 `:` 加 2 个字符 | 新输入存 Unicode 表情字符;已有 `:smile:` 照常显示并原样保留 | Notion 规则 |
 | X-25 | 智能粘贴 | 粘贴网页内容保持标题、列表等结构 | 实现 | ⌘V | 转为 Markdown | 与 Typora 一致 |
-| X-26 | 粘贴 Apple 备忘录列表 | 保持列表结构 | 实现 | ⌘V | 列表语法 | 与 Typora 一致 |
+| X-26 | 粘贴 Apple 备忘录列表 | 保持列表结构 | 实现 | ⌘V | 列表语法 | 不单独处理备忘录:按通用的 HTML 粘贴把 `<ul>` / `<ol>` 转成列表【待确认:真机,用备忘录的剪贴板样本核对】 |
 | X-27 | 代码语言补全 | 输入语言名时下拉提示 | 实现 | 无 | `` ```语言 `` | `~~~` 围栏同样支持 |
 | X-28 | 输入 `` ``` `` 后回车建代码块 | 也可用 `~~~` | 实现 | 无 | 围栏代码块 | Notion 未列此规则,保留 Typora 写法 |
 | X-29 | 输入 `$$` 后回车建公式块 | 公式块 | 实现 | 无 | `$$` 块 | 与 Typora 一致 |

@@ -382,3 +382,30 @@ test('自己保存触发的文件监视通知比写盘回执先到时,不误报�
   expect(await hostCalls(page, 'confirm')).toEqual([])
   expect(await markdown(page)).toBe('原文追加\n')
 })
+
+test('X-44 段落里的行内标签换种写法(注释、转义)也定不了位,盖不住窗口', async ({ page }) => {
+  await loadDoc(page, '甲 <span style="/**/position:fixed;inset:0;background:red">盖层一</span> 乙 <span style="posi\\74ion:fixed;inset:0;background:red">盖层二</span>\n')
+  for (const text of ['盖层一', '盖层二']) {
+    const span = page.locator('.tz-editor p span', { hasText: text })
+    await expect(span).toHaveCount(1)
+    expect(await span.evaluate((el) => getComputedStyle(el).position)).toBe('static')
+  }
+})
+
+test('右键菜单靠窗口右缘时,子菜单翻到父菜单左边,不盖住父菜单', async ({ page }) => {
+  await loadDoc(page, '段落\n')
+  // 右键位置给到窗口最右边:菜单贴着右缘打开,右侧放不下子菜单
+  await page.evaluate(() => {
+    const el = document.querySelector('.tz-editor p')!
+    el.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: window.innerWidth - 10, clientY: 200, button: 2 }))
+  })
+  const root = page.locator('.tz-context-menu:not([data-for])')
+  await expect(root).toBeVisible()
+  await page.locator(menuItem('ctx.insert')).hover()
+  const sub = page.locator('.tz-context-menu[data-for="ctx.insert"]')
+  await expect(sub).toBeVisible()
+  const r = (await root.boundingBox())!
+  const s = (await sub.boundingBox())!
+  expect(s.x + s.width).toBeLessThanOrEqual(r.x + 6)
+  expect(s.x).toBeGreaterThanOrEqual(0)
+})

@@ -54,6 +54,12 @@ describe('段落里的成对行内 HTML 标签', () => {
     expect(edited(md)).toBe(md)
   })
 
+  it('换种写法也去得掉定位:注释、大写、转义', () => {
+    for (const style of ['/**/position:fixed;color:red', 'POSITION:FIXED;color:red', 'posi\\74ion:fixed;color:red']) {
+      expect(html(`<span style="${style}">盖层</span>`)).not.toMatch(/position|fixed/i)
+    }
+  })
+
   it('标签里套 Markdown 格式:内层照常识别', () => {
     const { doc } = parseMarkdown('<kbd>**粗**</kbd>', opts)
     const marks = (doc.firstChild as PMNode).firstChild!.marks.map((m) => m.type.name).sort()
