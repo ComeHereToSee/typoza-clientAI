@@ -128,6 +128,8 @@ test.describe('偏好「编辑器」页', () => {
   test('PE-05 复制纯文本时复制 Markdown 源码:默认带标记;关掉后纯文本只有文字,富文本不变', async ({ page }) => {
     await loadDoc(page, '**粗体**文字')
     await page.keyboard.press('Shift+Home')
+    // 复制取的是编辑器自己的选区:等它跟上 ⇧Home(CI 上偶尔慢一拍)
+    await expect.poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.empty)).toBe(false)
     expect((await clipboardOn(page, 'copy')).text).toBe('**粗体**文字')
 
     await openPreferences(page, '编辑器')
@@ -159,6 +161,8 @@ test.describe('偏好「编辑器」页', () => {
     await closeModal(page)
 
     await second.click()
+    // 无选区时复制的是编辑器选区所在的那段:等它跟上这次点击
+    await expect.poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.$from.parent.textContent)).toBe('第二行')
     const copied = await clipboardOn(page, 'copy')
     expect(copied.text).toBe('第二行')
     expect(copied.html).toContain('第二行')

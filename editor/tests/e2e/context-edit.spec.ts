@@ -83,6 +83,8 @@ test.describe('拷贝与粘贴', () => {
   test('拷贝时由外壳重写剪贴板并带上 RTF', async ({ page }) => {
     await loadDoc(page, '**粗体**文字')
     await page.keyboard.press('Shift+Home')
+    // 复制取的是编辑器自己的选区:等它跟上 ⇧Home(CI 上偶尔慢一拍,复制时还是空选区)
+    await expect.poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.empty)).toBe(false)
     const written = await clipboardEvent(page, 'copy')
     expect(written.html).toContain('<strong>粗体</strong>')
     await expect.poll(() => page.evaluate(() => window.typozaTest!.host.clipboard)).toEqual({
