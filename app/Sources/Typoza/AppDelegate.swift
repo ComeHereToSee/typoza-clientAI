@@ -575,9 +575,7 @@ extension AppDelegate {
 
         // V-15 保持窗口在最前端:菜单命令切换当前窗口的层级,再切回
         // 菜单命令作用于当前窗口:先把应用调到前台、等主窗口真成为当前窗口(导出等步骤之后系统可能把焦点给了别处)
-        NSApp.activate(ignoringOtherApps: true)
-        main.window?.makeKeyAndOrderFront(nil)
-        waitUntil(5, { NSApp.keyWindow === main.window }) { _ in
+        bringToFront(main.window) { _ in
             command("native.alwaysOnTop")
             checks["alwaysOnTop"] = main.window?.level == .floating
             command("native.alwaysOnTop")
@@ -688,9 +686,7 @@ extension AppDelegate {
         // F-02 新建标签页:当前窗口的标签多一个空白文档;测完关掉
         steps.append { done in
             guard let parent = main.window else { return done(["newTab": false]) }
-            NSApp.activate(ignoringOtherApps: true)
-            parent.makeKeyAndOrderFront(nil)
-            self.waitUntil(5, { NSApp.keyWindow === parent }) { _ in
+            self.bringToFront(parent) { _ in
                 let before = parent.tabbedWindows?.count ?? 1
                 command("native.newTab")
                 guard let created = self.windows.last, created !== main else { return done(["newTab": false]) }
@@ -889,6 +885,21 @@ extension AppDelegate {
             }
         }
         next(0)
+    }
+
+    /// 把应用与窗口调到前台,直到它成为当前窗口(最多试 3 次,每次等 2 秒);没成功时把当时的状态记到标准错误
+    private func bringToFront(_ window: NSWindow?, attempt: Int = 1, then: @escaping (Bool) -> Void) {
+        guard let window else { return then(false) }
+        _ = NSRunningApplication.current.activate(options: [.activateAllWindows])
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        waitUntil(2, { NSApp.keyWindow === window }) { ok in
+            if ok { return then(true) }
+            let key = NSApp.keyWindow.map { "\($0.title)(\(type(of: $0)))" } ?? "无"
+            FileHandle.standardError.write(Data("冒烟 调到前台第 \(attempt) 次没成功:应用在前台 \(NSApp.isActive),当前窗口 \(key),窗口数 \(NSApp.windows.count)\n".utf8))
+            if attempt >= 3 { return then(false) }
+            self.bringToFront(window, attempt: attempt + 1, then: then)
+        }
     }
 
     /// 光标所在块的文字与光标在块内的字符偏移,如「末段|2」
