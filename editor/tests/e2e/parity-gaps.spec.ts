@@ -383,7 +383,7 @@ test('自己保存触发的文件监视通知比写盘回执先到时,不误报�
   expect(await markdown(page)).toBe('原文追加\n')
 })
 
-test('X-44 段落里的行内标签换种写法(注释、转义)也定不了位,盖不住窗口', async ({ page }) => {
+test('X-44 段落里的行内标签换种写法(注释、转义)也定不了位', async ({ page }) => {
   await loadDoc(page, '甲 <span style="/**/position:fixed;inset:0;background:red">盖层一</span> 乙 <span style="posi\\74ion:fixed;inset:0;background:red">盖层二</span>\n')
   for (const text of ['盖层一', '盖层二']) {
     const span = page.locator('.tz-editor p span', { hasText: text })
