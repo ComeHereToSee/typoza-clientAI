@@ -12,6 +12,8 @@ const schema = new Schema({
     doc: { content: 'block+' },
     paragraph: { group: 'block', content: 'inline*', toDOM: () => ['p', 0] },
     heading: { group: 'block', content: 'inline*', toDOM: () => ['h2', 0] },
+    bullet_list: { group: 'block', content: 'list_item+', toDOM: () => ['ul', 0] },
+    list_item: { content: 'paragraph', toDOM: () => ['li', 0] },
     text: { group: 'inline' },
   },
 })
@@ -73,6 +75,64 @@ describe('大文档顶层的快速更新(依赖补丁)', () => {
         expect(changed).toBeLessThanOrEqual(1)
       }
     }
+  })
+})
+
+describe('快速路径不适用或在内层容器里时(依赖补丁)', () => {
+  const paras = (n: number, word = '段') => Array.from({ length: n }, (_, i) => schema.node('paragraph', null, schema.text(`第 ${i} ${word}`)))
+  // 标题用自定义节点视图(编辑器里代码块、列表项等都是)
+  const nodeViews = {
+    heading: () => {
+      const dom = document.createElement('h3')
+      return { dom, contentDOM: dom }
+    },
+  }
+  function run(state: EditorState, steps: ((s: EditorState) => Transaction)[]): void {
+    const make = (s: EditorState) => {
+      const view = new EditorView(document.body.appendChild(document.createElement('div')), { state: s, nodeViews })
+      views.push(view)
+      return view
+    }
+    const view = make(state)
+    for (const step of steps) {
+      state = state.apply(step(state))
+      view.updateState(state)
+      expect(view.dom.innerHTML).toBe(make(state).dom.innerHTML)
+    }
+  }
+
+  it('顶层有小部件、有跨块的行内装饰、有自定义节点视图时,界面照样与重新渲染的一致', () => {
+    const widgetAndSpan = new Plugin({
+      props: {
+        decorations(state) {
+          return DecorationSet.create(state.doc, [
+            // 块与块之间的小部件:容器层有小部件,快速路径不适用,走原逻辑
+            Decoration.widget(posOf(state.doc, 100), () => Object.assign(document.createElement('hr'), { className: 'w' })),
+            // 从第 250 段中间到第 252 段中间的行内装饰:分到三个子节点里
+            Decoration.inline(posOf(state.doc, 250) + 2, posOf(state.doc, 252) + 2, { class: 'span' }),
+          ])
+        },
+      },
+    })
+    run(EditorState.create({ doc: schema.node('doc', null, paras(500)), plugins: [widgetAndSpan] }), [
+      (s) => s.tr.insertText('前', posOf(s.doc, 10) + 1),
+      (s) => s.tr.insertText('中', posOf(s.doc, 251) + 1),
+      (s) => s.tr.setBlockType(posOf(s.doc, 300) + 1, posOf(s.doc, 300) + 1, schema.nodes.heading),
+      (s) => s.tr.insertText('题', posOf(s.doc, 300) + 1),
+      (s) => s.tr.delete(posOf(s.doc, 400), posOf(s.doc, 401)),
+    ])
+  })
+
+  it('超过 200 项的列表里打字、增删列表项:列表这一层也走快速路径,界面一致', () => {
+    const items = Array.from({ length: 300 }, (_, i) => schema.node('list_item', null, schema.node('paragraph', null, schema.text(`项 ${i}`))))
+    const doc = schema.node('doc', null, [...paras(5), schema.node('bullet_list', null, items), ...paras(5, '尾')])
+    const inItem = (d: EditorState['doc'], i: number) => posOf(d, 5) + 1 + Array.from({ length: i }, (_, k) => d.child(5).child(k).nodeSize).reduce((a, b) => a + b, 0)
+    run(EditorState.create({ doc }), [
+      (s) => s.tr.insertText('字', inItem(s.doc, 150) + 2),
+      (s) => s.tr.insertText('又', inItem(s.doc, 299) + 2),
+      (s) => s.tr.delete(inItem(s.doc, 10), inItem(s.doc, 11)),
+      (s) => s.tr.insert(inItem(s.doc, 20), schema.node('list_item', null, schema.node('paragraph', null, schema.text('新项')))),
+    ])
   })
 })
 

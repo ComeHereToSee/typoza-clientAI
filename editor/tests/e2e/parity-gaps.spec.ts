@@ -446,6 +446,82 @@ test('写盘途中又打的字仍算未保存;连续两次保存按先后落盘'
   expect(await diskText(page, '/demo/途中.md')).toBe('原文一二三四\n')
 })
 
+test('没改动的文档不自动保存:前一篇排着的自动保存不会把刚打开的文档重新生成一遍写回去', async ({ page }) => {
+  await loadDoc(page, '甲\n', '/demo/前一篇.md')
+  await page.evaluate(() => window.typozaTest!.app.updateSettings({ autoSave: true }))
+  // 改一下前一篇:排上 1 秒后的自动保存
+  await page.keyboard.type('改')
+  await page.evaluate(() => {
+    const t = window.typozaTest!
+    const w = window as unknown as { writes: string[] }
+    w.writes = []
+    const write = t.host.writeText.bind(t.host)
+    t.host.writeText = async (path, text, encoding) => {
+      w.writes.push(path)
+      return write(path, text, encoding)
+    }
+  })
+  await loadDoc(page, '刚打开\n', '/demo/刚打开.md')
+  await page.waitForTimeout(1500)
+  // 再直接要一次自动保存:没改动就跳过,不写盘
+  expect(await page.evaluate(() => window.typozaTest!.app.save({ auto: true }))).toBe(true)
+  expect(await page.evaluate(() => (window as unknown as { writes: string[] }).writes)).not.toContain('/demo/刚打开.md')
+  expect(await diskText(page, '/demo/刚打开.md')).toBe('刚打开\n')
+  expect(await page.evaluate(() => window.typozaTest!.app.session.dirty)).toBe(false)
+})
+
+test('后半部分解析失败、只载入了前半部分:保存不写盘;另存为选回原文件也不覆盖,换个文件可以存', async ({ page }) => {
+  await loadDoc(page, '前半部分\n', '/demo/半截.md')
+  await page.evaluate(() => {
+    // 走真实的分段载入出错路径:下一段解析时抛错
+    const app = window.typozaTest!.app as unknown as { continueLoading(chunks: unknown): void }
+    app.continueLoading({
+      done: false,
+      parsed: 0,
+      total: 1,
+      nextBlocks() {
+        throw new Error('坏段')
+      },
+    })
+  })
+  await expect(page.locator('.tz-toast')).toContainText('文档后半部分解析失败')
+  expect(await page.evaluate(() => window.typozaTest!.app.session.readOnly)).toBe('partial')
+  await page.evaluate(() => {
+    const { view } = window.typozaTest!.app
+    view.dispatch(view.state.tr.insertText('改', 1))
+  })
+  await runMenuCommand(page, 'file.save')
+  await expect(page.locator('.tz-toast')).toContainText('不能保存,以免原文件被截断')
+  expect(await diskText(page, '/demo/半截.md')).toBe('前半部分\n')
+
+  await page.evaluate(() => {
+    window.typozaTest!.host.saveDialog = async () => '/demo/半截.md'
+  })
+  await runMenuCommand(page, 'file.saveAs')
+  await expect(page.locator('.tz-toast')).toContainText('不能覆盖原文件')
+  expect(await diskText(page, '/demo/半截.md')).toBe('前半部分\n')
+
+  await page.evaluate(() => {
+    window.typozaTest!.host.saveDialog = async () => '/demo/半截-另存.md'
+  })
+  await runMenuCommand(page, 'file.saveAs')
+  await expect.poll(() => diskText(page, '/demo/半截-另存.md')).toBe('改前半部分\n')
+  expect(await diskText(page, '/demo/半截.md')).toBe('前半部分\n')
+})
+
+test('叠了两层面板时 Esc 只关最上面一层', async ({ page }) => {
+  await loadDoc(page, '你好\n')
+  await runMenuCommand(page, 'app.preferences')
+  await expect(page.locator('.tz-modal')).toHaveCount(1)
+  await runMenuCommand(page, 'view.wordCount')
+  await expect(page.locator('.tz-modal')).toHaveCount(2)
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.tz-modal')).toHaveCount(1)
+  await expect(page.locator('.tz-modal .tz-modal-head h2')).toHaveText('偏好设置')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.tz-modal')).toHaveCount(0)
+})
+
 test('X-44 段落里的行内标签换种写法(注释、转义)也定不了位', async ({ page }) => {
   await loadDoc(page, '甲 <span style="/**/position:fixed;inset:0;background:red">盖层一</span> 乙 <span style="posi\\74ion:fixed;inset:0;background:red">盖层二</span>\n')
   for (const text of ['盖层一', '盖层二']) {

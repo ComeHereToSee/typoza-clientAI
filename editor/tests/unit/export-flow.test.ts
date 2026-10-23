@@ -1,4 +1,8 @@
 // 导出流程(PRD 3.12;对照表 F-37、F-38、PX-01 ~ PX-11、X-22、X-23):变量、YAML 覆盖、重复导出、Pandoc 缺失提示、自定义命令。
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdtempSync, readdirSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import type { EditorView } from 'prosemirror-view'
 import { describe, expect, it } from 'vitest'
 import { type ExportContext, PANDOC_INSTALL_URL, expandCommandVariables, expandVariables, newExportItem, readExportYaml, runExport } from '../../src/app/export-flow'
@@ -42,6 +46,36 @@ describe('变量与 YAML', () => {
     expect(expandCommandVariables("echo '${author}'", vars)).toBe(`echo 'it'\\''s \`who\`'`)
     // 不认识的变量、转义过的引号与普通文字不动
     expect(expandCommandVariables('open "${outputPath}" \\" ${pageNo}', { outputPath: '/n/周报.docx' })).toBe('open "/n/周报.docx" \\" ${pageNo}')
+  })
+
+  it('变量放在双引号里的 $( )、反引号、单引号与嵌套里也只当文字:交给真 shell 执行,输出就是原值,没执行任何命令', () => {
+    // 外壳用 zsh -lc 执行;CI 的 Linux 上没有 zsh 时用 bash(这几种写法两者规则一致)
+    const shells = ['/bin/zsh', '/bin/bash'].filter((sh) => existsSync(sh))
+    expect(shells.length).toBeGreaterThan(0)
+    // 不含空格(引号外的命令替换结果会被按空格拆开);${IFS} 在被当成命令时会变成空格,让 touch 生效
+    const values = ['x\'"\\$(touch${IFS}P1)`touch${IFS}P2`;touch${IFS}P3;\\\\\\`$HOME', 'a;touch${IFS}P4', '/n/$(touch${IFS}P5).md', 'it\'s`touch${IFS}P6`"q"']
+    const templates = [
+      'printf %s ${v}',
+      'printf %s "${v}"',
+      "printf %s '${v}'",
+      'printf %s "$(printf %s ${v})"',
+      'printf %s "$(printf %s "${v}")"',
+      "printf %s $(printf %s '${v}')",
+      'printf %s `printf %s ${v}`',
+      'printf %s "`printf %s ${v}`"',
+      'printf %s `printf %s "${v}"`',
+      "printf %s `printf %s '${v}'`",
+      'printf %s "$(printf %s $(printf %s ${v}))"',
+      'printf %s "$((1+1))${v}"',
+    ]
+    for (const sh of shells)
+      for (const t of templates)
+        for (const v of values) {
+          const dir = mkdtempSync(join(tmpdir(), 'tz-cmd-'))
+          const out = execFileSync(sh, ['-c', expandCommandVariables(t, { v })], { cwd: dir, encoding: 'utf8' })
+          expect(out, `${sh}:${t}`).toBe(t.includes('$((1+1))') ? `2${v}` : v)
+          expect(readdirSync(dir), `${sh}:${t}`).toEqual([])
+        }
   })
 
   it('读文档 YAML 里的导出键;YAML 写错按没有处理', () => {

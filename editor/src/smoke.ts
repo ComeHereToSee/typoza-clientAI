@@ -294,9 +294,17 @@ function inputBreakdown(app: App, timings: Record<string, number>): void {
   restore.push(() => delete docView.update)
   wrap(view, 'updateState', '视图 updateState(合计)')
   wrap(EditorState.prototype, 'apply', 'state.apply(合计)')
+  // 视图 DOM 更新再拆:改动的那一块(文首)自己的更新;其余是依赖补丁快速路径逐个比对没变的块
+  const kids = () => docView.children as Record<string, unknown>[]
+  const wrapped = new WeakSet<object>()
   let total = 0
   try {
     for (let i = 0; i < 30; i++) {
+      const first = kids()[0]
+      if (first && !wrapped.has(first)) {
+        wrapped.add(first)
+        wrap(first, 'update', '视图 DOM 更新 · 改动的那一块')
+      }
       const t = performance.now()
       view.dispatch(view.state.tr.insertText('诊'))
       total += performance.now() - t
@@ -305,6 +313,21 @@ function inputBreakdown(app: App, timings: Record<string, number>): void {
     restore.reverse().forEach((r) => r())
   }
   timings['input · 合计 30 次'] = Math.round(total * 10) / 10
+  // 只做补丁里那样的逐个比对(不更新任何东西)30 次:看 5 万块的比对循环本身多久
+  const nodes = (view.state.doc.content as unknown as { content: { nodeSize: number }[] }).content
+  const descs = kids() as unknown as { node: unknown; dirty: number; outerDeco: unknown[] }[]
+  let sink = 0
+  const scan0 = performance.now()
+  for (let r = 0; r < 30; r++) {
+    for (let i = Math.min(descs.length, nodes.length) - 1; i >= 0; i--) {
+      const d = descs[i]
+      if (d.node !== nodes[i] || d.dirty !== 0) break
+      sink += d.outerDeco.length + nodes[i].nodeSize
+    }
+  }
+  timings['input · 诊断:只比对全部顶层块 30 次'] = Math.round((performance.now() - scan0) * 10) / 10
+  timings['input · 诊断:顶层块数'] = descs.length
+  if (sink < 0) timings['input · 诊断:不会出现'] = sink
   // dispatchTransaction 里 apply 与 updateState 之外的部分 = 应用回调(onDocChange / onUpdate)
   const inState = (totals.get('state.apply(合计)') ?? 0) + (totals.get('视图 updateState(合计)') ?? 0)
   totals.set('应用回调(onDocChange 与 onUpdate)', total - inState)

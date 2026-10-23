@@ -122,31 +122,64 @@ export function expandVariables(template: string, vars: Record<string, string>):
 }
 
 /**
- * 自定义命令里的 ${变量}:值来自文件名与文档 YAML,按所在位置转义后再交给 shell,只能当文字,不会被当成命令执行。
- * 双引号里转义 \ " $ `;单引号里把 ' 写成 '\'';引号外整个包进单引号。
+ * 自定义命令里的 ${变量}:值来自文件名与文档 YAML,按所在位置转义后再交给 shell(zsh -lc),只当文字。
+ * 位置会嵌套(双引号里的 $( )、反引号),用栈记:单引号里把 ' 写成 '\'';双引号里转义 \ " $ `;
+ * 引号外与 $( ) 里整个包进单引号;反引号里先包单引号,再为反引号的那一遍反斜杠处理转义 \ ` $(在双引号里另加 ")。
+ * 命令把参数再交给 shell 解析一遍的写法(sh -c "…${变量}…"、eval)防不住,见技术文档已知限制。
  */
 export function expandCommandVariables(template: string, vars: Record<string, string>): string {
-  const single = (v: string) => v.replace(/'/g, `'\\''`)
+  const single = (v: string) => `'${v.replace(/'/g, `'\\''`)}'`
   const variable = /\$\{(\w+)\}/y
-  let quote: '' | "'" | '"' = ''
+  type Ctx = "'" | '"' | '$(' | '`'
+  const stack: Ctx[] = []
+  // 每层 $( 里还没配对的 (:$(( 算术、$( 里的子 shell 括号
+  const parens: number[] = []
   let out = ''
   for (let i = 0; i < template.length; i++) {
+    const top = stack[stack.length - 1]
+    const c = template[i]
     variable.lastIndex = i
     const m = variable.exec(template)
     if (m && Object.hasOwn(vars, m[1])) {
       const v = vars[m[1]]
-      out += quote === '"' ? v.replace(/[\\"$`]/g, '\\$&') : quote === "'" ? single(v) : `'${single(v)}'`
+      let e = top === "'" ? v.replace(/'/g, `'\\''`) : top === '"' ? v.replace(/[\\"$`]/g, '\\$&') : single(v)
+      // 每层反引号先做一遍反斜杠处理(找结尾的反引号时不看引号):由里往外每层各转义一次
+      for (let k = stack.length - 1; k >= 0; k--) if (stack[k] === '`') e = e.replace(stack.slice(0, k).includes('"') ? /[\\`$"]/g : /[\\`$]/g, '\\$&')
+      out += e
       i += m[0].length - 1
       continue
     }
-    const c = template[i]
-    if (c === '\\' && quote !== "'") {
+    if (top === "'") {
+      if (c === "'") stack.pop()
+      out += c
+      continue
+    }
+    if (c === '\\') {
       out += c + (template[i + 1] ?? '')
       i++
       continue
     }
-    if (c === "'" && quote !== '"') quote = quote ? '' : "'"
-    else if (c === '"' && quote !== "'") quote = quote ? '' : '"'
+    if (c === '$' && template[i + 1] === '(') {
+      stack.push('$(')
+      parens.push(0)
+      out += '$('
+      i++
+      continue
+    }
+    if (c === '`') {
+      if (top === '`') stack.pop()
+      else stack.push('`')
+    } else if (top === '"') {
+      if (c === '"') stack.pop()
+    } else if (c === "'") stack.push("'")
+    else if (c === '"') stack.push('"')
+    else if (top === '$(' && c === '(') parens[parens.length - 1]++
+    else if (top === '$(' && c === ')') {
+      if (parens[parens.length - 1] === 0) {
+        stack.pop()
+        parens.pop()
+      } else parens[parens.length - 1]--
+    }
     out += c
   }
   return out

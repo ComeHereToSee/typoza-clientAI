@@ -137,6 +137,7 @@ function writeReport() {
   writeFileSync(join(out, 'perf.json'), JSON.stringify(report, null, 2))
   const lines = [`# 大文档性能剖析(Chromium,不压缩的生产构建)`, '', '## 规模与耗时', '', '```json', JSON.stringify(report.scaling, null, 2), '```', '', `剖析文档 ${report.bytes} 字节,${report.blocks} 个顶层块`, '', '```json', JSON.stringify(report.phases, null, 2), '```']
   lines.push('', '## WebKit 规模与耗时', '', '```json', JSON.stringify(report.scalingWebkit, null, 2), '```')
+  if (report.startup.coldRunsMs) lines.push('', `## 启动 · 不剖析的冷启动 7 次:中位 ${report.startup.coldMedianMs} 毫秒(${report.startup.coldRunsMs.join(' / ')})`)
   if (report.startup.scripts) {
     lines.push('', `## 启动 · 到编辑器就绪 ${report.startup.readyMs} 毫秒`, '', '| 脚本 | KB | 启动时执行过 KB |', '|---|---|---|', ...report.startup.scripts.map((x) => `| ${x.script} | ${x.kb} | ${x.usedKb} |`))
     lines.push('', '## 启动 · 加载了没执行的模块 Top', '', '| 模块 | KB | 没执行 KB |', '|---|---|---|', ...report.startup.modules.map((x) => `| ${x.module} | ${x.kb} | ${x.unusedKb} |`))
@@ -194,6 +195,22 @@ try {
     report.startup.marks = await sp.evaluate(() => performance.getEntriesByType('mark').map((m) => ({ name: m.name, ms: Math.round(m.startTime) })))
     await sp.close()
     log('启动剖析完成', report.startup.readyMs, 'ms')
+  }
+  // 启动(不剖析):每次新开浏览器上下文(没有缓存)量从导航到编辑器就绪,7 次取中位数,比单次稳,可跨版本对比
+  {
+    const runs = []
+    for (let i = 0; i < 7; i++) {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 } })
+      const cp = await ctx.newPage()
+      const t = Date.now()
+      await cp.goto(`http://localhost:${PORT}/`)
+      await cp.waitForSelector('html[data-ready="true"]', { timeout: 120_000 })
+      runs.push(Date.now() - t)
+      await ctx.close()
+    }
+    report.startup.coldRunsMs = runs
+    report.startup.coldMedianMs = [...runs].sort((x, y) => x - y)[3]
+    log('冷启动 7 次', runs.join(' / '), '中位', report.startup.coldMedianMs, 'ms')
   }
   const page = await browser.newPage({ viewport: { width: 1280, height: 860 } })
   page.setDefaultTimeout(600_000)
