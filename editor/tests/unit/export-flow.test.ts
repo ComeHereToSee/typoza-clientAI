@@ -48,12 +48,12 @@ describe('变量与 YAML', () => {
     expect(expandCommandVariables('open "${outputPath}" \\" ${pageNo}', { outputPath: '/n/周报.docx' })).toBe('open "/n/周报.docx" \\" ${pageNo}')
   })
 
-  it('变量放在双引号里的 $( )、反引号、单引号与嵌套里也只当文字:交给真 shell 执行,输出就是原值,没执行任何命令', () => {
+  it('变量放在双引号里的 $( )、反引号、单引号与嵌套里也只当文字、值原样:交给真 shell 执行,输出就是原值,没执行任何命令', () => {
     // 外壳用 zsh -lc 执行;CI 的 Linux 上没有 zsh 时用 bash(这几种写法两者规则一致)
     const shells = ['/bin/zsh', '/bin/bash'].filter((sh) => existsSync(sh))
     expect(shells.length).toBeGreaterThan(0)
     // 不含空格(引号外的命令替换结果会被按空格拆开);${IFS} 在被当成命令时会变成空格,让 touch 生效
-    const values = ['x\'"\\$(touch${IFS}P1)`touch${IFS}P2`;touch${IFS}P3;\\\\\\`$HOME', 'a;touch${IFS}P4', '/n/$(touch${IFS}P5).md', 'it\'s`touch${IFS}P6`"q"']
+    const values = ['x\'"\\$(touch${IFS}P1)`touch${IFS}P2`;touch${IFS}P3;\\\\\\`$HOME', 'a;touch${IFS}P4', '/n/$(touch${IFS}P5).md', 'it\'s`touch${IFS}P6`"q"', 'a"b']
     const templates = [
       'printf %s ${v}',
       'printf %s "${v}"',
@@ -67,6 +67,10 @@ describe('变量与 YAML', () => {
       "printf %s `printf %s '${v}'`",
       'printf %s "$(printf %s $(printf %s ${v}))"',
       'printf %s "$((1+1))${v}"',
+      // 双引号里隔着 $( ) 的反引号:反引号这一遍不处理 \"(原来多转义,值里的 " 会多出反斜杠)
+      'printf %s "$(printf %s `printf %s ${v}`)"',
+      'printf %s "`printf %s "${v}"`"',
+      `printf %s "$(printf %s '\${v}')"`,
     ]
     for (const sh of shells)
       for (const t of templates)

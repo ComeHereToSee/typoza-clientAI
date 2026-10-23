@@ -78,7 +78,7 @@ describe('大文档顶层的快速更新(依赖补丁)', () => {
   })
 })
 
-describe('快速路径不适用或在内层容器里时(依赖补丁)', () => {
+describe('有装饰、自定义节点视图或在内层容器里时(依赖补丁)', () => {
   const paras = (n: number, word = '段') => Array.from({ length: n }, (_, i) => schema.node('paragraph', null, schema.text(`第 ${i} ${word}`)))
   // 标题用自定义节点视图(编辑器里代码块、列表项等都是)
   const nodeViews = {
@@ -101,26 +101,31 @@ describe('快速路径不适用或在内层容器里时(依赖补丁)', () => {
     }
   }
 
-  it('顶层有小部件、有跨块的行内装饰、有自定义节点视图时,界面照样与重新渲染的一致', () => {
-    const widgetAndSpan = new Plugin({
+  const steps: ((s: EditorState) => Transaction)[] = [
+    (s) => s.tr.insertText('前', posOf(s.doc, 10) + 1),
+    (s) => s.tr.insertText('中', posOf(s.doc, 251) + 1),
+    (s) => s.tr.setBlockType(posOf(s.doc, 300) + 1, posOf(s.doc, 300) + 1, schema.nodes.heading),
+    (s) => s.tr.insertText('题', posOf(s.doc, 300) + 1),
+    (s) => s.tr.delete(posOf(s.doc, 400), posOf(s.doc, 401)),
+  ]
+
+  it('跨块的行内装饰、自定义节点视图:走快速路径(容器层没有小部件),界面照样与重新渲染的一致', () => {
+    // 从第 250 段中间到第 252 段中间的行内装饰:分到三个子节点里,这三块做完整比对
+    const span = new Plugin({
       props: {
-        decorations(state) {
-          return DecorationSet.create(state.doc, [
-            // 块与块之间的小部件:容器层有小部件,快速路径不适用,走原逻辑
-            Decoration.widget(posOf(state.doc, 100), () => Object.assign(document.createElement('hr'), { className: 'w' })),
-            // 从第 250 段中间到第 252 段中间的行内装饰:分到三个子节点里
-            Decoration.inline(posOf(state.doc, 250) + 2, posOf(state.doc, 252) + 2, { class: 'span' }),
-          ])
-        },
+        decorations: (state) => DecorationSet.create(state.doc, [Decoration.inline(posOf(state.doc, 250) + 2, posOf(state.doc, 252) + 2, { class: 'span' })]),
       },
     })
-    run(EditorState.create({ doc: schema.node('doc', null, paras(500)), plugins: [widgetAndSpan] }), [
-      (s) => s.tr.insertText('前', posOf(s.doc, 10) + 1),
-      (s) => s.tr.insertText('中', posOf(s.doc, 251) + 1),
-      (s) => s.tr.setBlockType(posOf(s.doc, 300) + 1, posOf(s.doc, 300) + 1, schema.nodes.heading),
-      (s) => s.tr.insertText('题', posOf(s.doc, 300) + 1),
-      (s) => s.tr.delete(posOf(s.doc, 400), posOf(s.doc, 401)),
-    ])
+    run(EditorState.create({ doc: schema.node('doc', null, paras(500)), plugins: [span] }), steps)
+  })
+
+  it('块与块之间有小部件时退回原逻辑,界面照样一致', () => {
+    const widget = new Plugin({
+      props: {
+        decorations: (state) => DecorationSet.create(state.doc, [Decoration.widget(posOf(state.doc, 100), () => Object.assign(document.createElement('hr'), { className: 'w' }))]),
+      },
+    })
+    run(EditorState.create({ doc: schema.node('doc', null, paras(500)), plugins: [widget] }), steps)
   })
 
   it('超过 200 项的列表里打字、增删列表项:列表这一层也走快速路径,界面一致', () => {

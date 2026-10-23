@@ -446,10 +446,10 @@ test('写盘途中又打的字仍算未保存;连续两次保存按先后落盘'
   expect(await diskText(page, '/demo/途中.md')).toBe('原文一二三四\n')
 })
 
-test('没改动的文档不自动保存:前一篇排着的自动保存不会把刚打开的文档重新生成一遍写回去', async ({ page }) => {
+test('没改动的文档不自动保存:换了文档之后、或直接要一次自动保存,都不把没改过的文档重新生成一遍写回去', async ({ page }) => {
   await loadDoc(page, '甲\n', '/demo/前一篇.md')
   await page.evaluate(() => window.typozaTest!.app.updateSettings({ autoSave: true }))
-  // 改一下前一篇:排上 1 秒后的自动保存
+  // 改一下前一篇:排上 1 秒后的自动保存(换文档时离开前的保存会先把它存掉、清掉定时器)
   await page.keyboard.type('改')
   await page.evaluate(() => {
     const t = window.typozaTest!
