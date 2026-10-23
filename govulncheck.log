@@ -1,0 +1,55 @@
+go: downloading golang.org/x/vuln v1.9.0
+go: downloading golang.org/x/telemetry v0.0.0-20261010193011-f71dc92da45e
+go: downloading golang.org/x/mod v0.42.0
+go: downloading golang.org/x/tools v0.52.0
+Fetching vulnerabilities from the database...
+
+Checking the code against the vulnerabilities...
+
+The package pattern matched the following 4 root packages:
+  github.com/ComeHereToSee/typoza-client/helper/internal/rpc
+  github.com/ComeHereToSee/typoza-client/helper/internal/aisvc
+  github.com/ComeHereToSee/typoza-client/helper/internal/syncsvc
+  github.com/ComeHereToSee/typoza-client/helper/cmd/typoza-helper
+Govulncheck scanned the following 18 modules and the go1.27.3 standard library:
+  github.com/ComeHereToSee/typoza-client/helper
+  ./third_party/typoza-sdk
+  ./third_party/typoza-sdk
+  github.com/coder/websocket@v1.8.15
+  github.com/fsnotify/fsnotify@v1.10.1
+  github.com/google/jsonschema-go@v0.4.3
+  github.com/modelcontextprotocol/go-sdk@v1.8.0
+  github.com/segmentio/asm@v1.1.3
+  github.com/segmentio/encoding@v0.5.4
+  github.com/yosida95/uritemplate/v3@v3.0.2
+  go.etcd.io/bbolt@v1.5.0
+  golang.org/x/crypto@v0.58.0
+  golang.org/x/net@v0.60.0
+  golang.org/x/oauth2@v0.37.0
+  golang.org/x/sync@v0.24.0
+  golang.org/x/sys@v0.49.0
+  golang.org/x/text@v0.43.0
+  golang.org/x/time@v0.15.0
+
+=== Symbol Results ===
+
+No vulnerabilities found.
+
+=== Package Results ===
+
+No other vulnerabilities found.
+
+=== Module Results ===
+
+Vulnerability #1: GO-2026-5932
+    The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design,
+    and has known security issues
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+  Module: golang.org/x/crypto
+    Found in: golang.org/x/crypto@v0.58.0
+    Fixed in: N/A
+
+Your code is affected by 0 vulnerabilities.
+This scan also found 0 vulnerabilities in packages you import and 1
+vulnerability in modules you require, but your code doesn't appear to call these
+vulnerabilities.

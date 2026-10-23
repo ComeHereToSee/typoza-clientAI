@@ -1,0 +1,169 @@
+?   	github.com/ComeHereToSee/typoza-client/helper/cmd/typoza-helper	[no test files]
+=== RUN   TestBranchesKeepContextPerRoute
+--- PASS: TestBranchesKeepContextPerRoute (0.06s)
+=== RUN   TestSendValidation
+--- PASS: TestSendValidation (0.01s)
+=== RUN   TestStopKeepsPartialText
+--- PASS: TestStopKeepsPartialText (0.01s)
+=== RUN   TestTitleFromFastModelAndFallback
+--- PASS: TestTitleFromFastModelAndFallback (0.02s)
+=== RUN   TestTitleFallsBackToFirstSentence
+--- PASS: TestTitleFallsBackToFirstSentence (0.01s)
+=== RUN   TestConversationsListRenameDeleteClear
+--- PASS: TestConversationsListRenameDeleteClear (0.02s)
+=== RUN   TestConversationSurvivesRestart
+--- PASS: TestConversationSurvivesRestart (0.02s)
+=== RUN   TestCompleteSendsPromptVerbatim
+--- PASS: TestCompleteSendsPromptVerbatim (0.01s)
+=== RUN   TestCompleteCustomActionUsesItsModel
+--- PASS: TestCompleteCustomActionUsesItsModel (0.01s)
+=== RUN   TestCompleteStopAndErrors
+--- PASS: TestCompleteStopAndErrors (0.01s)
+=== RUN   TestHTMLToMarkdown
+--- PASS: TestHTMLToMarkdown (0.00s)
+=== RUN   TestFetchURLToolInChat
+--- PASS: TestFetchURLToolInChat (0.03s)
+=== RUN   TestFetchURLDefaultsToAsk
+--- PASS: TestFetchURLDefaultsToAsk (0.00s)
+=== RUN   TestMCPInMemoryListsAndCalls
+--- PASS: TestMCPInMemoryListsAndCalls (0.07s)
+=== RUN   TestMCPToolInChat
+--- PASS: TestMCPToolInChat (0.07s)
+=== RUN   TestMCPRestartDisableAndRemove
+--- PASS: TestMCPRestartDisableAndRemove (0.04s)
+=== RUN   TestMCPStreamableHTTP
+--- PASS: TestMCPStreamableHTTP (0.02s)
+=== RUN   TestMCPHTTPHeadersFromKeychain
+--- PASS: TestMCPHTTPHeadersFromKeychain (0.02s)
+=== RUN   TestMCPOAuthTokenFromKeychainSavedAndForgotten
+--- PASS: TestMCPOAuthTokenFromKeychainSavedAndForgotten (0.02s)
+=== RUN   TestMCPStdioSubprocess
+--- PASS: TestMCPStdioSubprocess (1.04s)
+=== RUN   TestMCPStdioMissingCommandFails
+--- PASS: TestMCPStdioMissingCommandFails (0.01s)
+=== RUN   TestMCPImport
+--- PASS: TestMCPImport (0.01s)
+=== RUN   TestProtocolsStreamTextAndToolCalls
+=== RUN   TestProtocolsStreamTextAndToolCalls/anthropic
+=== RUN   TestProtocolsStreamTextAndToolCalls/openai-chat
+=== RUN   TestProtocolsStreamTextAndToolCalls/openai-responses
+=== RUN   TestProtocolsStreamTextAndToolCalls/gemini
+--- PASS: TestProtocolsStreamTextAndToolCalls (0.10s)
+    --- PASS: TestProtocolsStreamTextAndToolCalls/anthropic (0.03s)
+    --- PASS: TestProtocolsStreamTextAndToolCalls/openai-chat (0.03s)
+    --- PASS: TestProtocolsStreamTextAndToolCalls/openai-responses (0.03s)
+    --- PASS: TestProtocolsStreamTextAndToolCalls/gemini (0.02s)
+=== RUN   TestModelListPerProtocol
+=== RUN   TestModelListPerProtocol/anthropic
+=== RUN   TestModelListPerProtocol/openai-chat
+=== RUN   TestModelListPerProtocol/openai-responses
+=== RUN   TestModelListPerProtocol/gemini
+--- PASS: TestModelListPerProtocol (0.02s)
+    --- PASS: TestModelListPerProtocol/anthropic (0.01s)
+    --- PASS: TestModelListPerProtocol/openai-chat (0.00s)
+    --- PASS: TestModelListPerProtocol/openai-responses (0.00s)
+    --- PASS: TestModelListPerProtocol/gemini (0.00s)
+=== RUN   TestProviderTestReportsLatencyAndSendsShortRequest
+=== RUN   TestProviderTestReportsLatencyAndSendsShortRequest/anthropic
+=== RUN   TestProviderTestReportsLatencyAndSendsShortRequest/openai-chat
+=== RUN   TestProviderTestReportsLatencyAndSendsShortRequest/openai-responses
+=== RUN   TestProviderTestReportsLatencyAndSendsShortRequest/gemini
+--- PASS: TestProviderTestReportsLatencyAndSendsShortRequest (0.02s)
+    --- PASS: TestProviderTestReportsLatencyAndSendsShortRequest/anthropic (0.01s)
+    --- PASS: TestProviderTestReportsLatencyAndSendsShortRequest/openai-chat (0.00s)
+    --- PASS: TestProviderTestReportsLatencyAndSendsShortRequest/openai-responses (0.00s)
+    --- PASS: TestProviderTestReportsLatencyAndSendsShortRequest/gemini (0.00s)
+=== RUN   TestErrorCodesFromProvider
+--- PASS: TestErrorCodesFromProvider (0.04s)
+=== RUN   TestChatErrorEndsMessageWithCode
+--- PASS: TestChatErrorEndsMessageWithCode (0.01s)
+=== RUN   TestStreamEndingEarlyIsNetworkError
+--- PASS: TestStreamEndingEarlyIsNetworkError (0.02s)
+=== RUN   TestErrorEventInsideStream
+--- PASS: TestErrorEventInsideStream (0.02s)
+=== RUN   TestKeyRotationOn401And429
+--- PASS: TestKeyRotationOn401And429 (0.02s)
+=== RUN   TestAllKeysRejected
+--- PASS: TestAllKeysRejected (0.02s)
+=== RUN   TestBaseURLHashUsedVerbatim
+--- PASS: TestBaseURLHashUsedVerbatim (0.01s)
+=== RUN   TestAPIURL
+--- PASS: TestAPIURL (0.00s)
+=== RUN   TestReadSSE
+--- PASS: TestReadSSE (0.00s)
+=== RUN   TestWireName
+--- PASS: TestWireName (0.00s)
+=== RUN   TestGeminiSchemaSanitized
+--- PASS: TestGeminiSchemaSanitized (0.00s)
+=== RUN   TestFlattenToolsWhenNoToolsOffered
+--- PASS: TestFlattenToolsWhenNoToolsOffered (0.00s)
+=== RUN   TestDefaultSettings
+--- PASS: TestDefaultSettings (0.00s)
+=== RUN   TestSettingsUpdateReplacesGivenFields
+--- PASS: TestSettingsUpdateReplacesGivenFields (0.01s)
+=== RUN   TestSettingsUpdateValidation
+--- PASS: TestSettingsUpdateValidation (0.01s)
+=== RUN   TestHasKeyComesFromSecretsAndNeverHitsDisk
+--- PASS: TestHasKeyComesFromSecretsAndNeverHitsDisk (0.01s)
+=== RUN   TestCorruptSettingsFileFallsBackToDefaults
+--- PASS: TestCorruptSettingsFileFallsBackToDefaults (0.00s)
+=== RUN   TestDeletedProviderFallsBackToDefaultModel
+--- PASS: TestDeletedProviderFallsBackToDefaultModel (0.01s)
+=== RUN   TestSwitchDefaultModelToAnotherProvider
+--- PASS: TestSwitchDefaultModelToAnotherProvider (0.01s)
+=== RUN   TestSkillsValidation
+--- PASS: TestSkillsValidation (0.00s)
+=== RUN   TestFrontmatterYAMLSubset
+--- PASS: TestFrontmatterYAMLSubset (0.00s)
+=== RUN   TestSkillInstallFromFolderAndZip
+--- PASS: TestSkillInstallFromFolderAndZip (0.01s)
+=== RUN   TestSkillInstallRejectsBadInput
+--- PASS: TestSkillInstallRejectsBadInput (0.00s)
+=== RUN   TestAgentsSkillsDirToggle
+--- PASS: TestAgentsSkillsDirToggle (0.00s)
+=== RUN   TestSkillProgressiveLoadingInChat
+--- PASS: TestSkillProgressiveLoadingInChat (0.02s)
+=== RUN   TestToolAskAllow
+--- PASS: TestToolAskAllow (0.01s)
+=== RUN   TestToolAskDeny
+--- PASS: TestToolAskDeny (0.01s)
+=== RUN   TestToolAskAlwaysAllowsLaterCalls
+--- PASS: TestToolAskAlwaysAllowsLaterCalls (0.02s)
+=== RUN   TestToolDenyPolicy
+--- PASS: TestToolDenyPolicy (0.01s)
+=== RUN   TestToolRoundLimit
+--- PASS: TestToolRoundLimit (0.12s)
+=== RUN   TestToolResultTruncated
+--- PASS: TestToolResultTruncated (0.05s)
+=== RUN   TestFolderToolsStayInsideFolder
+--- PASS: TestFolderToolsStayInsideFolder (0.02s)
+=== RUN   TestEditDocumentGoesThroughWeb
+--- PASS: TestEditDocumentGoesThroughWeb (0.01s)
+=== RUN   TestEditDocumentRejectedAndInvalid
+--- PASS: TestEditDocumentRejectedAndInvalid (0.01s)
+=== RUN   TestStopWhileWaitingForDecision
+--- PASS: TestStopWhileWaitingForDecision (0.01s)
+=== RUN   TestToolsListFollowsConnectors
+--- PASS: TestToolsListFollowsConnectors (0.00s)
+=== RUN   TestNoDocumentNoDocTools
+--- PASS: TestNoDocumentNoDocTools (0.01s)
+=== RUN   TestModelMarkedWithoutToolsGetsNoTools
+--- PASS: TestModelMarkedWithoutToolsGetsNoTools (0.01s)
+=== RUN   TestFolderContextItem
+--- PASS: TestFolderContextItem (0.01s)
+PASS
+ok  	github.com/ComeHereToSee/typoza-client/helper/internal/aisvc	3.168s
+=== RUN   TestServeDispatchesAndReportsUnknownMethod
+--- PASS: TestServeDispatchesAndReportsUnknownMethod (0.00s)
+=== RUN   TestCallWaitsForShellResponse
+--- PASS: TestCallWaitsForShellResponse (0.05s)
+PASS
+ok  	github.com/ComeHereToSee/typoza-client/helper/internal/rpc	1.068s
+=== RUN   TestTwoDevicesThroughRPC
+--- PASS: TestTwoDevicesThroughRPC (0.47s)
+=== RUN   TestLoginErrorsAndSessionLoss
+--- PASS: TestLoginErrorsAndSessionLoss (1.34s)
+=== RUN   TestNormalizeServerAndOverlaps
+--- PASS: TestNormalizeServerAndOverlaps (0.00s)
+PASS
+ok  	github.com/ComeHereToSee/typoza-client/helper/internal/syncsvc	2.844s
