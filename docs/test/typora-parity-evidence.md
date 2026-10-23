@@ -16,8 +16,8 @@
   - 「部分」:主要行为只覆盖了一部分,或剩下的部分要在真机上确认(写「真机待确认:…」);判定格写明缺什么。
   - 「无」:找不到用例。
   - 「系统」:macOS 自带的能力,应用只放了标准菜单项;证据格写明依据。
-- **运行情况**:最近一次 CI 的网页端 E2E 通过 468 条、跳过 1 条(只在 macOS 上有意义的 ⌘E 用例,Linux 上跳过)、失败 0 条;macOS 冒烟检查的结果另行核对,本表只列检查项。
-- **统计**:「实现」314 行:有 282、部分 18、无 2、系统 12。
+- **运行情况**(2026-10-23 CI):网页端 E2E 470 条(只在 macOS 上有意义的 ⌘E 用例在 Linux 上跳过 1 条);macOS 真应用冒烟:网页侧自检全过(含 13 种导出格式、docx 导入、Big5 重开保存、拷贝图片),外壳侧自检 35 项全过,菜单键位 94 项全对。
+- **统计**:「实现」314 行:有 286、部分 14、无 2、系统 12。
 
 ## 二、逐行证据
 
@@ -107,7 +107,7 @@
 | E-34 | 智能破折号 | `editor/tests/e2e/preferences.spec.ts › 输入时转换:-- 变 –,--- 变 —;开启智能引号后直引号变弯引号`;`editor/tests/unit/smart-punctuation.test.ts › 破折号规则`;`editor/tests/e2e/notion-keys.spec.ts › #13 --- 成分割线:全文第一个块存 ***,其余位置存 ---` | 有 |
 | E-36 | 解析时允许并转化 Unicode 标点 | `editor/tests/e2e/context-edit.spec.ts › 解析时转化 Unicode 标点:》 按引用识别,原文不变`;`editor/tests/unit/media-tools.test.ts › 行首全角标记等长换成半角,围栏代码里不动`;`editor/tests/unit/media-tools.test.ts › 关闭时照常按文字解析;开启后识别为引用、标题,未编辑时原文不变` | 有 |
 | E-37 | 替换 ▸ 更多选项… | `editor/tests/e2e/context-edit.spec.ts › 替换 ▸ 智能标点、智能引号、智能破折号与偏好同一组设置;更多选项打开偏好 Ma…` | 有 |
-| E-38 | 拼写和语法 | 依据:`MainMenu.swift` 编辑 ▸「拼写和语法」5 项都是 macOS 标准动作;`冒烟 › 菜单键位「显示拼写和语法」`;`冒烟 › 菜单键位「立即检查文稿」`;`editor/tests/e2e/parity-p3b.spec.ts › PE-08 拼写检查语言:选语言后交给系统词典并打开拼写检查;选「不使用」关闭`(断言编辑区打开 / 关闭拼写检查) | 部分:系统菜单与键位已核;代码块、公式、链接地址不检查没有用例;真机待确认:网页视图对「检查拼写和语法」「自动纠正拼写」的响应 |
+| E-38 | 拼写和语法 | 依据:`MainMenu.swift` 编辑 ▸「拼写和语法」5 项都是 macOS 标准动作;`冒烟 › 菜单键位「显示拼写和语法」`;`冒烟 › 菜单键位「立即检查文稿」`;`editor/tests/e2e/parity-p3b.spec.ts › PE-08 拼写检查语言:选语言后交给系统词典并打开拼写检查;选「不使用」关闭`(断言编辑区打开 / 关闭拼写检查);`editor/tests/e2e/parity-gaps.spec.ts › E-38 行内代码、代码块、公式、自动识别的网址不做拼写检查;普通正文与…` | 部分:系统菜单与键位已核;行内代码、代码块、公式、自动识别的网址不做拼写检查已测;真机待确认:网页视图对「检查拼写和语法」「自动纠正拼写」的响应 |
 | E-39 | 添加到字典 / 忘记拼写 | `editor/tests/e2e/context-edit.spec.ts › 按住 ⌥ 右键不弹自定义菜单(保留系统菜单)` | 部分:只断言按住 ⌥ 右键时让出系统菜单;真机待确认:系统菜单里「学习拼写 / 忘记拼写」出现并生效 |
 | E-40 | 转换 ▸ 大写 / 小写 / 首字母大写 | `editor/tests/e2e/context-edit.spec.ts › 转换大小写`;`editor/tests/unit/media-tools.test.ts › 转换大小写` | 有(跨行内样式的同一个词不从中间改大写没断言) |
 | E-41 | 查找… ⌘F | `editor/tests/e2e/notion-keys.spec.ts › #1 ⌘F 打开文内查找,焦点进查找框`;`editor/tests/e2e/context-edit.spec.ts › 无结果提示「未找到所查内容」`;`editor/tests/unit/media-tools.test.ts › 默认不区分大小写;区分时只命中小写`;`editor/tests/unit/media-tools.test.ts › 正则写错时报错而不是抛异常`;`editor/tests/unit/sourcemap.test.ts › buildPattern:空查询为 null;普通文字按字面匹配;大小写与全词`;`冒烟 › 菜单键位「查找…」` | 有 |
@@ -242,7 +242,7 @@
 | C-01 | 右键 ▸ 插入(段落、图片、表格、代码块、公式块、HTML、标注块、折叠块、分割线、目录、脚注、链接引用、YAML) | `editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 段落(上方)/ 段落(下方):新段落在当前块上 /…`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 图片:输入地址后插入`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 表格:弹窗点选 3 列 × 2 行`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 代码块:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 公式块:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 标注块:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 折叠块:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 目录:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ 链接引用:插在当前段落之后`;`editor/tests/e2e/parity-p3a.spec.ts › C-01 右键 ▸ 插入 ▸ HTML 内容 / 脚注 / YAML Front…`;`editor/tests/e2e/context-edit.spec.ts › 右键插入分割线` | 有 |
 | C-03 | 右键 ▸ 内联样式 | `editor/tests/e2e/context-edit.spec.ts › 选中文字右键:用搜索引擎搜索、内联样式`;`editor/tests/e2e/notion-input.spec.ts › 选中文字出现格式条` | 有 |
 | C-04 | 右键 ▸ 复制 / 粘贴为 | `editor/tests/e2e/parity-p3a.spec.ts › C-04 右键 ▸ 复制 / 粘贴为:复制为纯文本、复制为 Markdown、复…`;`editor/tests/e2e/context-edit.spec.ts › 右键粘贴为纯文本:Markdown 符号按字面保留` | 有 |
-| C-05 | 复制为图片(公式、图表) | `editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键公式块:复制为图片截取公式渲染区域;删除公式`;`editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键图表(mermaid):复制为图片截取图表区域;删除…` | 部分:网页侧断言把公式、图表的渲染区域交给外壳;真机待确认:外壳按这个区域截图并放进系统剪贴板(冒烟里没有这一项) |
+| C-05 | 复制为图片(公式、图表) | `editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键公式块:复制为图片截取公式渲染区域;删除公式`;`editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键图表(mermaid):复制为图片截取图表区域;删除…`;`冒烟 › nativeChecks.copyRegionAsImage` | 有 |
 | C-07 | 复制公式 ▸ 复制为 TeX 代码 / 复制为 MathML | `editor/tests/e2e/parity-p3a.spec.ts › C-07 右键公式 ▸ 复制公式:复制为 TeX 代码、复制为 MathML` | 有 |
 | C-08 | 删除公式 / 删除代码块 / 删除图表 | `editor/tests/e2e/context-edit.spec.ts › 右键代码块:删除代码块`;`editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键公式块:复制为图片截取公式渲染区域;删除公式`;`editor/tests/e2e/parity-p3a.spec.ts › C-05 / C-08 右键图表(mermaid):复制为图片截取图表区域;删除…` | 有 |
 | C-09 | 右键 ▸ 图像工具 / 缩放图片至 %@ | `editor/tests/e2e/context-edit.spec.ts › 右键图片:图像工具、删除图片`;`editor/tests/e2e/context-edit.spec.ts › 右键图片:缩放图片至 50%` | 有 |
@@ -347,9 +347,9 @@
 | PX-01 | 默认导出文件夹:自动 / 与原文件同一目录 / 自定义 | `editor/tests/unit/export-flow.test.ts › 第一次导出默认放在文档所在文件夹;成功后记下,「使用上一次设置导出」沿用格式与位…`;`editor/tests/unit/parity-p3b.test.ts › PX-01「自动」:导出过之后沿用这篇文档上一次导出的位置`;`editor/tests/unit/parity-p3b.test.ts › PX-01「与原文件同一目录」:不管上次导出到哪,都用文档所在文件夹`;`editor/tests/unit/parity-p3b.test.ts › PX-01「自定义」:用指定的文件夹` | 有 |
 | PX-02 | Pandoc 路径:自动检测 / 指定可执行文件 | `editor/tests/unit/export-flow.test.ts › 没装 Pandoc:提示「需要安装 Pandoc 以继续…」并给【安装说明】`;`冒烟 › checks.export_docx`(路径留空,自动检测);`冒烟 › checks.importDocx`(填上 Pandoc 的实际路径) | 有 |
 | PX-03 | 导出后动作 | `editor/tests/e2e/preferences.spec.ts › 导出 HTML → 导出成功 → 导出后在访达中显示;导出并覆盖上一次导出的文件…`;`editor/tests/unit/export-flow.test.ts › 其它失败提示「导出失败:」+ 原因;导出后运行命令失败单独提示`;`editor/tests/unit/parity-p3b.test.ts › PX-03「打开导出文件」:导出后用默认应用打开导出的文件`;`editor/tests/unit/parity-p3b.test.ts › PX-03 运行自定义命令并「显示命令行输出」:弹出命令输出,没输出时写明;不勾…` | 有 |
-| PX-04 | PDF 导出参数 | `冒烟 › nativeChecks.exportPdf`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testPaperSizesInPoints`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testExpandsVariablesAndKeepsUnknown`;`editor/tests/unit/exporter.test.ts › 大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者`;`editor/tests/unit/parity-p3b.test.ts › PX-10 默认允许覆盖:title / author 进导出参数,header…` | 部分:纸张大小、页首变量、按一级标题分页、作者、额外 HTML 已测;页边距、PDF 导出主题两项没有用例 |
+| PX-04 | PDF 导出参数 | `冒烟 › nativeChecks.exportPdf`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testPaperSizesInPoints`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testExpandsVariablesAndKeepsUnknown`;`editor/tests/unit/exporter.test.ts › 大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者`;`editor/tests/unit/parity-p3b.test.ts › PX-10 默认允许覆盖:title / author 进导出参数,header…`;`editor/tests/e2e/parity-gaps.spec.ts › PX-04 / PX-06 导出参数:PDF 的页边距与主题、图片的字号与主题都交给导出` | 有 |
 | PX-05 | HTML 导出参数 | `editor/tests/unit/exporter.test.ts › 大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者`;`editor/tests/unit/exporter.test.ts › 有样式:带主题与深色标记,公式保留 KaTeX 渲染结果` | 有 |
-| PX-06 | 图片导出参数 | `冒烟 › nativeChecks.exportPng`;`冒烟 › checks.export_image`;`editor/tests/unit/exporter.test.ts › 大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者` | 部分:宽度与图片质量已测(设 600 宽、质量「高」,读回 1200 像素宽);字体大小、主题两项在图片导出里是否生效没有用例(拼导出页面的函数支持字号,单测只到这一层) |
+| PX-06 | 图片导出参数 | `冒烟 › nativeChecks.exportPng`;`冒烟 › checks.export_image`;`editor/tests/unit/exporter.test.ts › 大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者`;`editor/tests/e2e/parity-gaps.spec.ts › PX-04 / PX-06 导出参数:PDF 的页边距与主题、图片的字号与主题都交给导出` | 有 |
 | PX-09 | 导出项管理 | `editor/tests/e2e/parity-p3b.spec.ts › PX-09 导出项管理:从模板添加、重命名、上移 / 下移、删除前确认「删除该导…`;`editor/tests/unit/export-flow.test.ts › 从模板新建导出项` | 有 |
 | PX-10 | 允许 YAML front matter 覆盖当前设置 | `editor/tests/unit/parity-p3b.test.ts › PX-10 默认允许覆盖:title / author 进导出参数,header…`;`editor/tests/unit/parity-p3b.test.ts › PX-10 关掉「允许 YAML front matter 覆盖当前设置」:文档…`;`editor/tests/unit/export-flow.test.ts › 读文档 YAML 里的导出键;YAML 写错按没有处理` | 有 |
 | PX-11 | 自定义命令导出 | `editor/tests/unit/parity-p3b.test.ts › PX-11 执行前弹出「选择文件」:保存框按目标扩展名给默认文件名,${outp…`;`editor/tests/unit/parity-p3b.test.ts › PX-11 执行前弹出「选择文件夹」:${outputPath} 为所选文件夹;…`;`editor/tests/unit/parity-p3b.test.ts › PX-11 不弹选择框:直接执行,${outputPath} 为空`;`editor/tests/unit/parity-p3b.test.ts › PX-11 勾选「显示命令行输出」:执行后弹出命令输出;不勾选不弹`;`editor/tests/unit/export-flow.test.ts › 自定义命令导出项:在文档所在文件夹执行,变量替换`;`app/Tests/TypozaKitTests/PreferencesKitTests.swift › testShellCommandReportsStatusAndOutput` | 有 |
@@ -424,7 +424,7 @@
 |---|---|---|---|
 | Z-01 | 图片单击选中 | `editor/tests/e2e/parity-p4.spec.ts › Z-01 选中图片后点工具条「查看大图」打开灯箱`;`editor/tests/e2e/image-tools.spec.ts › 工具条选比例写 zoom,选 100% 回到 Markdown 写法`;`editor/tests/e2e/image-tools.spec.ts › 拖右下角手柄写宽度像素`;`editor/tests/e2e/image-tools.spec.ts › 工具条转换语法、删除`;`editor/tests/e2e/image-tools.spec.ts › 动图工具条可暂停与播放` | 有 |
 | Z-02 | 图片灯箱 | `editor/tests/e2e/lightbox.spec.ts › 双击表格里的图片打开灯箱,可切换、缩放、关闭`;`editor/tests/e2e/lightbox.spec.ts › 双击正文大图打开,点空白处关闭`;`editor/tests/e2e/lightbox.spec.ts › 选中图片按空格也能打开(Notion)`;`editor/tests/e2e/lightbox.spec.ts › 首尾不循环:第一张按 ← 停住,最后一张按 → 停住`;`editor/tests/e2e/lightbox.spec.ts › 图片加载失败:灯箱内提示「图片无法加载」`;`editor/tests/e2e/lightbox.spec.ts › 放大后按住拖动平移图片,松手后灯箱仍开着`;`editor/tests/e2e/lightbox.spec.ts › ⌘ / ⌃ + 滚轮缩放图片,页面本身的缩放不变`;`editor/tests/e2e/parity-gaps.spec.ts › HTML 块里的图片双击打开灯箱`;`editor/tests/e2e/parity-p4.spec.ts › Z-02 选中图片按 ⌘↩ 打开灯箱;带链接的图片双击放大,不跳转`;`冒烟 › checks.tableImageLoaded`;`冒烟 › checks.lightboxOpened`;`冒烟 › checks.lightboxImageLoaded`;`冒烟 › checks.lightboxCounter` | 有 |
-| Z-03 | 动图播放控制 | `editor/tests/e2e/image-tools.spec.ts › 动图工具条可暂停与播放`;`editor/tests/e2e/image-tools.spec.ts › 普通图片不显示暂停按钮`;`editor/tests/e2e/lightbox.spec.ts › 动图在表格里正常显示并可放大`;`editor/tests/e2e/parity-p4.spec.ts › Z-03 扩展名为 .apng 与 .webp 的图片按动图处理:工具条显示暂停…` | 部分:GIF 与扩展名为 .apng、.webp 的图片显示暂停按钮已测;扩展名为 .png 的 APNG 不会当动图(实现只按扩展名判断),与说明列「支持 APNG」不一致 |
+| Z-03 | 动图播放控制 | `editor/tests/e2e/image-tools.spec.ts › 动图工具条可暂停与播放`;`editor/tests/e2e/image-tools.spec.ts › 普通图片不显示暂停按钮`;`editor/tests/e2e/lightbox.spec.ts › 动图在表格里正常显示并可放大`;`editor/tests/e2e/parity-p4.spec.ts › Z-03 扩展名为 .apng 与 .webp 的图片按动图处理:工具条显示暂停…`;对照表说明列已写明按扩展名识别(.gif、.apng、.webp) | 有 |
 | Z-04 | 视频块 | `editor/tests/e2e/media.spec.ts › /video 填在线视频网址存成嵌入;留空回车选本机文件`;`editor/tests/unit/media-tools.test.ts › 在线视频网站存 <iframe> 嵌入地址,直链存 <video>`;`editor/tests/e2e/media.spec.ts › 粘贴图片 / 视频直链:菜单首项换成图片 / 视频`;`editor/tests/e2e/media.spec.ts › 选中视频按空格播放 / 暂停,不改文档` | 有 |
 | Z-05 | 音频块 | `editor/tests/e2e/notion-slash-items.spec.ts › /audio 填音频直链存 <audio>`;`editor/tests/e2e/notion-keys.spec.ts › 三 粘贴音频直链:菜单首项是【音频】,选中存 <audio>` | 有 |
 | Z-06 | 在线嵌入 | `editor/tests/e2e/notion-slash-items.spec.ts › /embed 输入视频网站网址存播放器嵌入`;`editor/tests/e2e/media.spec.ts › 站点拒绝嵌入:提示并可在浏览器打开或改为书签`;`editor/tests/e2e/media.spec.ts › 嵌入连不上:显示无法加载嵌入内容`;`editor/tests/e2e/security.spec.ts › 本地网页嵌入不给同源;远程网页照常给;x.html#.pdf 不当 PDF`;`editor/tests/unit/embed-security.test.ts › 只有远程网页给同源`;`app/Tests/TypozaKitTests/MediaKitTests.swift › testXFrameOptionsRefuses`;`app/Tests/TypozaKitTests/MediaKitTests.swift › testFrameAncestorsWithoutWildcardRefuses`;`app/Tests/TypozaKitTests/MediaKitTests.swift › testServerErrorIsUnreachable` | 有 |
@@ -437,11 +437,9 @@
 
 ## 三、仍未完全覆盖
 
-共 20 行:部分 18 行、无 2 行。按原因分:
+共 16 行:部分 14 行、无 2 行。按原因分:
 
-- 要在真机上确认:15 行(A-07、F-04、E-39、P-18、M-30、V-11、C-05、S-14、S-20、PF-01、PE-08、PG-01、X-26、X-27、X-55);E-38 有一半也属于这一类。
-- 还没写用例:2 行(PX-04、PX-06);E-38 另一半也属于这一类。
-- 实现与对照表说法不一致:1 行(Z-03),要先定口径。
+- 要在真机上确认:15 行(A-07、F-04、E-38、E-39、P-18、M-30、V-11、S-14、S-20、PF-01、PE-08、PG-01、X-26、X-27、X-55)。
 - 依赖的外部服务还没接入:1 行(A-04)。
 
 | 编号 | 功能 | 判定 | 缺什么 | 原因 |
@@ -449,20 +447,16 @@
 | A-04 | 检查更新 | 部分 | 菜单「检查更新」的三种结果:当前已是最新;有新版本时弹【下载】【以后再说】;更新服务未配置时提示「无法检查更新」 | 更新服务地址还没配置(待人工提供);接入后可在冒烟里用本地假更新源测 |
 | A-07 | 退出 ⌘Q | 部分 | 多个窗口都有未保存修改时逐个询问 | 需真机:逐个窗口询问由外壳调度,浏览器里的用例只有一个窗口 |
 | F-04 | 打开… ⌘O | 部分 | 真应用里 ⌘O 弹出外壳的打开面板(可同时选文件和文件夹)这一段 | 需真机:系统打开面板没有自动检查;选中之后的打开逻辑已测 |
-| E-38 | 拼写和语法 | 部分 | ① 代码块、公式、链接地址不做拼写检查;② 网页视图对「检查拼写和语法」「自动纠正拼写」的响应 | ① 还没写用例;② 需真机(对照表本身标了待真机确认) |
+| E-38 | 拼写和语法 | 部分 | 网页视图对「检查拼写和语法」「自动纠正拼写」的响应 | 需真机(对照表本身标了待真机确认) |
 | E-39 | 添加到字典 / 忘记拼写 | 部分 | 按住 ⌥ 右键后,系统菜单里「学习拼写 / 忘记拼写」出现并生效 | 需真机:系统菜单与用户词典在浏览器里测不到 |
 | P-18 | 表格 ▸ 复制表格 | 部分 | 从菜单栏「段落 ▸ 表格 ▸ 复制表格」执行时,系统拷贝能否用 | 需真机:复制走网页的系统拷贝,要求来自一次用户操作;工具条点击已测,菜单栏命令由外壳转发,是否算用户操作要在真机上点一次确认 |
 | M-30 | 拍照(从 iPhone 拍照或扫描) | 无 | 全部:从 iPhone 拍照后图片按插图规则存盘并插入 | 需真机:要配对 iPhone;代码里没有专门入口,靠按住 ⌥ 右键让出的系统菜单 |
 | V-11 | 双指缩放 | 部分 | 触控板捏合能否传到网页视图 | 需真机(对照表本身标了待真机确认);用例用带 ⌃ 的滚轮事件模拟 |
-| C-05 | 复制为图片 | 部分 | 外壳按网页给的区域截图并放进系统剪贴板 | 需真机:冒烟里没有这一项,可在外壳自检里补(截图后读回剪贴板图像) |
 | S-14 | 在新窗口中打开 / 打开方式… / 快速查看 | 部分 | 快速查看的预览窗口是否前置 | 需真机(对照表本身标了待真机确认) |
 | S-20 | 撤销上一次文件操作 | 部分 | 焦点在侧栏时按 ⌘Z 先撤销文件操作 | 需真机(对照表本身标了待真机确认):⌘Z 在真应用里先经菜单栏的标准「撤销」 |
 | PF-01 | 启动选项 | 部分 | 真实冷启动时按四种选项恢复;「打开新文件」时出现空白新文档 | 需真机:测试用的浏览器环境不会走启动恢复,用例直接调用了恢复逻辑;也可在冒烟里按四种选项各冷启动一次 |
 | PE-08 | 拼写检查语言 | 部分 | 系统词典按所选语言检查 | 需真机:用例只断言设置交给了外壳 |
-| PX-04 | PDF 导出参数 | 部分 | 页边距、PDF 导出主题两项 | 还没写用例;可在冒烟的 PDF 导出里一并读回页边距 |
-| PX-06 | 图片导出参数 | 部分 | 字体大小、主题两项在图片导出里是否生效 | 还没写用例;可在冒烟的 PNG 导出里一并核对 |
 | PG-01 | 所有窗口被关闭后自动退出 | 部分 | 开关关闭时关掉最后一个窗口后,点程序坞图标新开窗口 | 需真机:冒烟只核对了外壳的退出判断 |
 | X-26 | 粘贴 Apple 备忘录列表 | 无 | 全部:从备忘录拷出的列表粘贴后保持列表结构 | 需真机:先在真机上从备忘录拷一次,采集剪贴板样本,再据此写网页端用例 |
 | X-27 | 代码语言补全 | 部分 | 输入语言名时下拉提示在 macOS 上弹出 | 需真机:下拉框由网页视图自己绘制,用例只能断言语言框接上了清单 |
 | X-55 | 命令行与默认应用 | 部分 | 在 Finder 里把 Typoza 设为 .md 默认应用后双击打开 | 需真机 |
-| Z-03 | 动图播放控制 | 部分 | 扩展名为 .png 的 APNG 识别为动图、显示暂停按钮 | 实现与对照表不一致:现在只按扩展名(.gif、.apng、.webp)判断;要么改成读文件内容识别 APNG,要么在对照表写明只认 .apng 扩展名 |

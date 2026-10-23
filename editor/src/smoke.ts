@@ -172,8 +172,8 @@ const EXPORTS: [string, string][] = [
   ['textile', 'textile'],
   ['opml', 'opml'],
 ]
-/** 纯文本产物:读回核对正文在里面 */
-const TEXT_EXPORTS = new Set(['html', 'html-plain', 'rtf', 'latex', 'mediawiki', 'rst', 'textile', 'opml'])
+/** 纯文本产物:读回核对正文在里面(RTF 把中文写成 \uNNNN 转义,只核对文件头) */
+const TEXT_EXPORTS = new Set(['html', 'html-plain', 'latex', 'mediawiki', 'rst', 'textile', 'opml'])
 
 /**
  * 导出(对照表 F-22 ~ F-34、PX-02、PX-04、PX-06)与导入(F-21):走真实流程(网页拼 HTML 与参数 → 外壳离屏渲染 / Pandoc),
@@ -198,6 +198,7 @@ async function exportChecks(app: App, dir: string, checks: Record<string, boolea
       const st = await host.stat(target)
       let ok = Boolean(st && st.size > 0)
       if (ok && TEXT_EXPORTS.has(format)) ok = (await host.readText(target)).text.includes('资助项目')
+      if (ok && format === 'rtf') ok = (await host.readText(target)).text.startsWith('{\\rtf')
       checks[`export_${format}`] = ok
     }
   } finally {

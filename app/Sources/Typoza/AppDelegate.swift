@@ -574,8 +574,10 @@ extension AppDelegate {
         try? settings.merge(["recentFolders": savedFolders])
 
         // V-15 保持窗口在最前端:菜单命令切换当前窗口的层级,再切回
+        // 菜单命令作用于当前窗口:先把应用调到前台、等主窗口真成为当前窗口(导出等步骤之后系统可能把焦点给了别处)
+        NSApp.activate(ignoringOtherApps: true)
         main.window?.makeKeyAndOrderFront(nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        waitUntil(5, { NSApp.keyWindow === main.window }) { _ in
             command("native.alwaysOnTop")
             checks["alwaysOnTop"] = main.window?.level == .floating
             command("native.alwaysOnTop")
@@ -686,8 +688,9 @@ extension AppDelegate {
         // F-02 新建标签页:当前窗口的标签多一个空白文档;测完关掉
         steps.append { done in
             guard let parent = main.window else { return done(["newTab": false]) }
+            NSApp.activate(ignoringOtherApps: true)
             parent.makeKeyAndOrderFront(nil)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.waitUntil(5, { NSApp.keyWindow === parent }) { _ in
                 let before = parent.tabbedWindows?.count ?? 1
                 command("native.newTab")
                 guard let created = self.windows.last, created !== main else { return done(["newTab": false]) }
@@ -742,19 +745,29 @@ extension AppDelegate {
             self.open(path: file, isDir: false, newWindow: true)
             self.waitUntil(15, { self.windows.contains { $0.isShowing(file) && $0.isLoaded } }) { opened in
                 guard opened, let w = self.windows.first(where: { $0.isShowing(file) }), let window = w.window else { return fail() }
+                NSApp.activate(ignoringOtherApps: true)
                 window.makeKeyAndOrderFront(nil)
                 _ = window.makeFirstResponder(w.webView)
-                let place = "(() => { const pm = document.querySelector('.ProseMirror'); const p = pm && [...pm.querySelectorAll('p')].find((e) => e.textContent === '第二段文字内容'); if (!p) return false; pm.focus(); const r = document.createRange(); r.setStart(p.firstChild, 3); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); return true })()"
-                self.waitForScript(w, place, 15) { placed in
-                    guard placed else { return fail() }
-                    let up = String(Character(UnicodeScalar(UInt32(NSUpArrowFunctionKey))!))
-                    let down = String(Character(UnicodeScalar(UInt32(NSDownArrowFunctionKey))!))
-                    let arrow: NSEvent.ModifierFlags = [.command, .numericPad, .function]
+                // 只聚焦,光标全用真按键移动(程序里直接设 DOM 选区时编辑器未必跟上)
+                let focus = "(() => { const pm = document.querySelector('.ProseMirror'); if (!pm || !pm.querySelector('p')) return false; pm.focus(); return true })()"
+                self.waitForScript(w, focus, 15) { focused in
+                    guard focused else { return fail() }
+                    let key = { (scalar: Int) in String(Character(UnicodeScalar(UInt32(scalar))!)) }
+                    let up = key(NSUpArrowFunctionKey)
+                    let down = key(NSDownArrowFunctionKey)
+                    let right = key(NSRightArrowFunctionKey)
+                    let arrow: NSEvent.ModifierFlags = [.numericPad, .function]
+                    let cmdArrow: NSEvent.ModifierFlags = [.command, .numericPad, .function]
+                    // ⌘↑ 到文首 → ↓ 到第二段段首 → → 三下 → ⌃E 行尾 → ⌃A 行首 → ⌘↓ 文末
                     let presses: [(String, UInt16, String, String, NSEvent.ModifierFlags, String)] = [
-                        ("keyLineStart", 0, "\u{01}", "a", [.control], "第二段文字内容|0"),
+                        ("keyDocStart", 126, up, up, cmdArrow, "键位自检|0"),
+                        ("keyMoveDown", 125, down, down, arrow, "第二段文字内容|0"),
+                        ("keyMoveRight1", 124, right, right, arrow, "第二段文字内容|1"),
+                        ("keyMoveRight2", 124, right, right, arrow, "第二段文字内容|2"),
+                        ("keyMoveRight3", 124, right, right, arrow, "第二段文字内容|3"),
                         ("keyLineEnd", 14, "\u{05}", "e", [.control], "第二段文字内容|7"),
-                        ("keyDocStart", 126, up, up, arrow, "键位自检|0"),
-                        ("keyDocEnd", 125, down, down, arrow, "末段|2"),
+                        ("keyLineStart", 0, "\u{01}", "a", [.control], "第二段文字内容|0"),
+                        ("keyDocEnd", 125, down, down, cmdArrow, "末段|2"),
                     ]
                     var results: [String: Bool] = [:]
                     func pasteCheck() {

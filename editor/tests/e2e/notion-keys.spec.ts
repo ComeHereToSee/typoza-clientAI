@@ -396,6 +396,8 @@ test.describe('5.1 块选中态键位', () => {
   test('#45 ⇧↓ 向下扩选', async ({ page }) => {
     await loadDoc(page, '一\n\n二\n\n三\n')
     await page.locator('.tz-editor p').first().click()
+    // 等光标真的进了第一段再按 Esc(点击后的选区同步偶尔慢一拍,按早了会选中原来光标所在的末段)
+    await expect.poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.$from.parent.textContent)).toBe('一')
     await page.keyboard.press('Escape')
     await expect(selectedNode(page)).toHaveText('一')
     await page.keyboard.press('Shift+ArrowDown')
