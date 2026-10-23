@@ -1,0 +1,666 @@
+Building for debugging...
+[0/12] /Users/runner/work/typoza-clientAI/typoza-clientAI/app/.build/arm64-apple-macosx/debug/TypozaPackageTests.derived/runner.swift
+[0/12] Write sources
+[5/12] Write Typoza-entitlement.plist
+[6/12] Write swift-version--79AA4F9932D1E87A.txt
+[8/31] Compiling TypozaKit FileWatcher.swift
+[9/31] Compiling TypozaKit HelperConnection.swift
+[10/31] Compiling TypozaKit HelperPolicy.swift
+[11/31] Compiling TypozaKit HistoryStore.swift
+[12/31] Compiling TypozaKit ImageUpload.swift
+[13/31] Compiling TypozaKit Keychain.swift
+[14/31] Compiling TypozaKit LinkPreview.swift
+[15/31] Compiling TypozaKit MenuKey.swift
+[16/31] Compiling TypozaKit MenuKeyLabel.swift
+[17/40] Emitting module TypozaKit
+[18/40] Compiling TypozaKit AISecretStore.swift
+[19/40] Compiling TypozaKit AppPaths.swift
+[20/40] Compiling TypozaKit BridgeError.swift
+[21/40] Compiling TypozaKit BridgeOrigin.swift
+[22/40] Compiling TypozaKit ByteRange.swift
+[23/40] Compiling TypozaKit DraftStore.swift
+[24/40] Compiling TypozaKit EmbedPolicy.swift
+[25/40] Compiling TypozaKit ExportOptions.swift
+[26/40] Compiling TypozaKit FileService.swift
+[27/40] Compiling TypozaKit MimeType.swift
+[28/40] Compiling TypozaKit RichText.swift
+[29/40] Compiling TypozaKit SearchService.swift
+[30/40] Compiling TypozaKit SettingsStore.swift
+[31/40] Compiling TypozaKit SmokeReport.swift
+[32/40] Compiling TypozaKit TextEncoding.swift
+[33/40] Compiling TypozaKit ThemeFolder.swift
+[34/40] Compiling TypozaKit TypozaSchemeHandler.swift
+[35/40] Compiling TypozaKit UpdateCheck.swift
+[36/56] Compiling TypozaKitTests AIKitTests.swift
+[37/56] Compiling TypozaKitTests ByteRangeTests.swift
+[38/56] Compiling TypozaKitTests FilesTests.swift
+[39/56] Emitting module Typoza
+[40/56] Compiling TypozaKitTests HelperConnectionTests.swift
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1043 |             let setLanguage = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+     |                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+     |                                             `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+[41/56] Compiling TypozaKitTests KitTests.swift
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1043 |             let setLanguage = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+     |                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+     |                                             `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+[42/56] Compiling TypozaKitTests MediaKitTests.swift
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1043 |             let setLanguage = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+     |                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+     |                                             `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+[43/56] Compiling TypozaKitTests MenuKeyLabelTests.swift
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1043 |             let setLanguage = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+     |                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1044 |             main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
+1045 |                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+     |                                                `- warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1046 |                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+1047 |                     main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
+1048 |                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+     |                                             `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1049 |                             let englishOk = english && flagged()
+1050 |                             main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
+1051 |                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+     |                                                     `- warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+1052 |                                     done(["spellingLanguage": otherOk && englishOk && auto])
+1053 |                                 }
+
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 42 | */
+ 43 | 
+ 44 | @interface NSSpellChecker : NSObject
+    |            `- note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+ 45 | 
+ 46 | /* Only one per application. */
+[44/59] Compiling Typoza MenuCustomizer.swift
+[45/59] Compiling Typoza QuickLook.swift
+[46/59] Compiling Typoza main.swift
+[46/59] Write Objects.LinkFileList
+[47/59] Linking Typoza
+[48/59] Applying Typoza
+[50/59] Emitting module TypozaKitTests
+[51/62] Compiling TypozaKitTests ParityPandocTests.swift
+[52/62] Compiling TypozaKitTests PreferencesKitTests.swift
+[53/62] Compiling TypozaKitTests SchemeSecurityTests.swift
+[61/64] Emitting module TypozaPackageTests
+[62/64] Compiling TypozaPackageTests runner.swift
+[62/64] Write Objects.LinkFileList
+[63/64] Linking TypozaPackageTests
+Build complete! (33.70s)
+Test Suite 'All tests' started at 2026-10-23 19:57:39.342.
+Test Suite 'TypozaPackageTests.xctest' started at 2026-10-23 19:57:39.344.
+Test Suite 'AIKitTests' started at 2026-10-23 19:57:39.344.
+Test Case '-[TypozaKitTests.AIKitTests testHelperMayStoreOnlyMCPOAuthTokens]' started.
+Test Case '-[TypozaKitTests.AIKitTests testHelperMayStoreOnlyMCPOAuthTokens]' passed (0.003 seconds).
+Test Case '-[TypozaKitTests.AIKitTests testSecretRefsAreLimitedToContractPrefixes]' started.
+Test Case '-[TypozaKitTests.AIKitTests testSecretRefsAreLimitedToContractPrefixes]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.AIKitTests testWebCanCallSyncAndAIButNotSecrets]' started.
+Test Case '-[TypozaKitTests.AIKitTests testWebCanCallSyncAndAIButNotSecrets]' passed (0.000 seconds).
+Test Suite 'AIKitTests' passed at 2026-10-23 19:57:39.347.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'BridgeOriginTests' started at 2026-10-23 19:57:39.347.
+Test Case '-[TypozaKitTests.BridgeOriginTests testOnlyEditorMainFrameIsTrusted]' started.
+Test Case '-[TypozaKitTests.BridgeOriginTests testOnlyEditorMainFrameIsTrusted]' passed (0.000 seconds).
+Test Suite 'BridgeOriginTests' passed at 2026-10-23 19:57:39.347.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'ByteRangeTests' started at 2026-10-23 19:57:39.347.
+Test Case '-[TypozaKitTests.ByteRangeTests testClosedRangeClampedToFileEnd]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testClosedRangeClampedToFileEnd]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testMimeForEditorAssets]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testMimeForEditorAssets]' passed (0.004 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testMultiRangeUsesFirst]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testMultiRangeUsesFirst]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testNoHeaderServesFull]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testNoHeaderServesFull]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testOpenEndedRangeIsCappedToChunk]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testOpenEndedRangeIsCappedToChunk]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testStartBeyondEndIsUnsatisfiable]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testStartBeyondEndIsUnsatisfiable]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ByteRangeTests testSuffixRange]' started.
+Test Case '-[TypozaKitTests.ByteRangeTests testSuffixRange]' passed (0.000 seconds).
+Test Suite 'ByteRangeTests' passed at 2026-10-23 19:57:39.353.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.005 (0.005) seconds
+Test Suite 'EmbedPolicyTests' started at 2026-10-23 19:57:39.353.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testAnyOfMergedPoliciesRestricting]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testAnyOfMergedPoliciesRestricting]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.EmbedPolicyTests testFrameAncestorsWildcardAllows]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testFrameAncestorsWildcardAllows]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.EmbedPolicyTests testFrameAncestorsWithoutWildcardRefuses]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testFrameAncestorsWithoutWildcardRefuses]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.EmbedPolicyTests testNoFramingHeadersAllowsEmbed]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testNoFramingHeadersAllowsEmbed]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.EmbedPolicyTests testServerErrorIsUnreachable]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testServerErrorIsUnreachable]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.EmbedPolicyTests testXFrameOptionsRefuses]' started.
+Test Case '-[TypozaKitTests.EmbedPolicyTests testXFrameOptionsRefuses]' passed (0.000 seconds).
+Test Suite 'EmbedPolicyTests' passed at 2026-10-23 19:57:39.353.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ExportOptionTests' started at 2026-10-23 19:57:39.353.
+Test Case '-[TypozaKitTests.ExportOptionTests testExpandsVariablesAndKeepsUnknown]' started.
+Test Case '-[TypozaKitTests.ExportOptionTests testExpandsVariablesAndKeepsUnknown]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ExportOptionTests testPandocArgumentsForBuiltinAndItems]' started.
+Test Case '-[TypozaKitTests.ExportOptionTests testPandocArgumentsForBuiltinAndItems]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.ExportOptionTests testPaperSizesInPoints]' started.
+Test Case '-[TypozaKitTests.ExportOptionTests testPaperSizesInPoints]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ExportOptionTests testSplitsShellWords]' started.
+Test Case '-[TypozaKitTests.ExportOptionTests testSplitsShellWords]' passed (0.000 seconds).
+Test Suite 'ExportOptionTests' passed at 2026-10-23 19:57:39.355.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'FileServiceTests' started at 2026-10-23 19:57:39.355.
+Test Case '-[TypozaKitTests.FileServiceTests testLegacyEncodingIsDetectedAndWrittenBack]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testLegacyEncodingIsDetectedAndWrittenBack]' passed (0.011 seconds).
+Test Case '-[TypozaKitTests.FileServiceTests testListDirPutsFoldersFirstWithNaturalOrder]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testListDirPutsFoldersFirstWithNaturalOrder]' passed (0.002 seconds).
+Test Case '-[TypozaKitTests.FileServiceTests testListMarkdownSkipsHiddenAndNodeModules]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testListMarkdownSkipsHiddenAndNodeModules]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FileServiceTests testRenameRefusesToOverwrite]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testRenameRefusesToOverwrite]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FileServiceTests testSearchFindsLinesCaseInsensitive]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testSearchFindsLinesCaseInsensitive]' passed (0.002 seconds).
+Test Case '-[TypozaKitTests.FileServiceTests testWriteReadRoundTripAndMtime]' started.
+Test Case '-[TypozaKitTests.FileServiceTests testWriteReadRoundTripAndMtime]' passed (0.002 seconds).
+Test Suite 'FileServiceTests' passed at 2026-10-23 19:57:39.375.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.020 (0.020) seconds
+Test Suite 'FilesTests' started at 2026-10-23 19:57:39.375.
+Test Case '-[TypozaKitTests.FilesTests testAppPathsFollowBundleIdentity]' started.
+Test Case '-[TypozaKitTests.FilesTests testAppPathsFollowBundleIdentity]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FilesTests testDraftIdCannotEscapeDirectory]' started.
+Test Case '-[TypozaKitTests.FilesTests testDraftIdCannotEscapeDirectory]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.FilesTests testDraftsSaveListReadRemove]' started.
+Test Case '-[TypozaKitTests.FilesTests testDraftsSaveListReadRemove]' passed (0.002 seconds).
+Test Case '-[TypozaKitTests.FilesTests testExternalVersionSurvivesNextSave]' started.
+Test Case '-[TypozaKitTests.FilesTests testExternalVersionSurvivesNextSave]' passed (0.008 seconds).
+Test Case '-[TypozaKitTests.FilesTests testFileWatcherReportsOpenedPathForSymlinks]' started.
+Test Case '-[TypozaKitTests.FilesTests testFileWatcherReportsOpenedPathForSymlinks]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FilesTests testFirstHeading]' started.
+Test Case '-[TypozaKitTests.FilesTests testFirstHeading]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.FilesTests testHistoryFollowsRenameAndListsDeletedFiles]' started.
+Test Case '-[TypozaKitTests.FilesTests testHistoryFollowsRenameAndListsDeletedFiles]' passed (0.005 seconds).
+Test Case '-[TypozaKitTests.FilesTests testListOpenableFilesUsesUnifiedExtensionsAndTextBundles]' started.
+Test Case '-[TypozaKitTests.FilesTests testListOpenableFilesUsesUnifiedExtensionsAndTextBundles]' passed (0.003 seconds).
+Test Case '-[TypozaKitTests.FilesTests testParseUpdateFeed]' started.
+Test Case '-[TypozaKitTests.FilesTests testParseUpdateFeed]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FilesTests testPinnedSnapshotSurvivesCoalescing]' started.
+Test Case '-[TypozaKitTests.FilesTests testPinnedSnapshotSurvivesCoalescing]' passed (0.004 seconds).
+Test Case '-[TypozaKitTests.FilesTests testSearchMatchesFileNamesLimitsMatchesAndBatches]' started.
+Test Case '-[TypozaKitTests.FilesTests testSearchMatchesFileNamesLimitsMatchesAndBatches]' passed (0.003 seconds).
+Test Case '-[TypozaKitTests.FilesTests testStatReportsWritableAndCreationTime]' started.
+Test Case '-[TypozaKitTests.FilesTests testStatReportsWritableAndCreationTime]' passed (0.003 seconds).
+Test Case '-[TypozaKitTests.FilesTests testUpdateCheckOutcomes]' started.
+Test Case '-[TypozaKitTests.FilesTests testUpdateCheckOutcomes]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.FilesTests testVersionComparison]' started.
+Test Case '-[TypozaKitTests.FilesTests testVersionComparison]' passed (0.000 seconds).
+Test Suite 'FilesTests' passed at 2026-10-23 19:57:39.410.
+	 Executed 14 tests, with 0 failures (0 unexpected) in 0.034 (0.035) seconds
+Test Suite 'HelperConnectionTests' started at 2026-10-23 19:57:39.410.
+Test Case '-[TypozaKitTests.HelperConnectionTests testCallMatchesResponsesById]' started.
+Test Case '-[TypozaKitTests.HelperConnectionTests testCallMatchesResponsesById]' passed (0.004 seconds).
+Test Case '-[TypozaKitTests.HelperConnectionTests testCloseFailsPendingAndLaterCalls]' started.
+Test Case '-[TypozaKitTests.HelperConnectionTests testCloseFailsPendingAndLaterCalls]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.HelperConnectionTests testIgnoresGarbageAndUnknownResponses]' started.
+2026-10-23 19:57:39.415 xctest[1514:7900] Typoza:辅助进程输出了无法解析的一行:这不是 JSON
+Test Case '-[TypozaKitTests.HelperConnectionTests testIgnoresGarbageAndUnknownResponses]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.HelperConnectionTests testNotificationsAndRequestsFromHelper]' started.
+Test Case '-[TypozaKitTests.HelperConnectionTests testNotificationsAndRequestsFromHelper]' passed (0.001 seconds).
+Test Suite 'HelperConnectionTests' passed at 2026-10-23 19:57:39.417.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.007 (0.007) seconds
+Test Suite 'HistoryStoreTests' started at 2026-10-23 19:57:39.417.
+Test Case '-[TypozaKitTests.HistoryStoreTests testSnapshotsCoalesceAndKeepOriginal]' started.
+Test Case '-[TypozaKitTests.HistoryStoreTests testSnapshotsCoalesceAndKeepOriginal]' passed (0.006 seconds).
+Test Suite 'HistoryStoreTests' passed at 2026-10-23 19:57:39.423.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.006 (0.006) seconds
+Test Suite 'ImageUploadServiceTests' started at 2026-10-23 19:57:39.423.
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testCommandsPerService]' started.
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testCommandsPerService]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testDownloadsFileURL]' started.
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testDownloadsFileURL]' passed (0.011 seconds).
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testParsesServerResponse]' started.
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testParsesServerResponse]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testShellCommandReportsStatusAndOutput]' started.
+Test Case '-[TypozaKitTests.ImageUploadServiceTests testShellCommandReportsStatusAndOutput]' passed (0.150 seconds).
+Test Suite 'ImageUploadServiceTests' passed at 2026-10-23 19:57:39.584.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.161 (0.161) seconds
+Test Suite 'ImageUploadTests' started at 2026-10-23 19:57:39.584.
+Test Case '-[TypozaKitTests.ImageUploadTests testShellQuote]' started.
+Test Case '-[TypozaKitTests.ImageUploadTests testShellQuote]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ImageUploadTests testTakesLastURLs]' started.
+Test Case '-[TypozaKitTests.ImageUploadTests testTakesLastURLs]' passed (0.000 seconds).
+Test Suite 'ImageUploadTests' passed at 2026-10-23 19:57:39.584.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'KeychainTests' started at 2026-10-23 19:57:39.584.
+Test Case '-[TypozaKitTests.KeychainTests testWriteReadOverwriteDelete]' started.
+Test Case '-[TypozaKitTests.KeychainTests testWriteReadOverwriteDelete]' passed (0.049 seconds).
+Test Suite 'KeychainTests' passed at 2026-10-23 19:57:39.634.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.049 (0.049) seconds
+Test Suite 'LinkPreviewTests' started at 2026-10-23 19:57:39.634.
+Test Case '-[TypozaKitTests.LinkPreviewTests testFallsBackToTitleTag]' started.
+Test Case '-[TypozaKitTests.LinkPreviewTests testFallsBackToTitleTag]' passed (0.003 seconds).
+Test Case '-[TypozaKitTests.LinkPreviewTests testParsesOpenGraphAndResolvesRelativeURLs]' started.
+Test Case '-[TypozaKitTests.LinkPreviewTests testParsesOpenGraphAndResolvesRelativeURLs]' passed (0.000 seconds).
+Test Suite 'LinkPreviewTests' passed at 2026-10-23 19:57:39.637.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'MenuKeyLabelTests' started at 2026-10-23 19:57:39.638.
+Test Case '-[TypozaKitTests.MenuKeyLabelTests testFunctionAndArrowKeys]' started.
+Test Case '-[TypozaKitTests.MenuKeyLabelTests testFunctionAndArrowKeys]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.MenuKeyLabelTests testModifierOrderAndLetters]' started.
+Test Case '-[TypozaKitTests.MenuKeyLabelTests testModifierOrderAndLetters]' passed (0.000 seconds).
+Test Suite 'MenuKeyLabelTests' passed at 2026-10-23 19:57:39.639.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'MenuKeyTests' started at 2026-10-23 19:57:39.639.
+Test Case '-[TypozaKitTests.MenuKeyTests testEmptyMeansNoKeyAndUnknownFails]' started.
+Test Case '-[TypozaKitTests.MenuKeyTests testEmptyMeansNoKeyAndUnknownFails]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.MenuKeyTests testFunctionAndNamedKeys]' started.
+Test Case '-[TypozaKitTests.MenuKeyTests testFunctionAndNamedKeys]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.MenuKeyTests testParsesModifiersAndKeys]' started.
+Test Case '-[TypozaKitTests.MenuKeyTests testParsesModifiersAndKeys]' passed (0.000 seconds).
+Test Suite 'MenuKeyTests' passed at 2026-10-23 19:57:39.641.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ParamsTests' started at 2026-10-23 19:57:39.641.
+Test Case '-[TypozaKitTests.ParamsTests testMissingStringThrowsWithFieldName]' started.
+Test Case '-[TypozaKitTests.ParamsTests testMissingStringThrowsWithFieldName]' passed (0.000 seconds).
+Test Suite 'ParamsTests' passed at 2026-10-23 19:57:39.641.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'ParityPandocTests' started at 2026-10-23 19:57:39.641.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07EpubCssTocDepthAndTitle]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07EpubCssTocDepthAndTitle]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07LatexPdfEngine]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07LatexPdfEngine]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07TemplateThroughExtraArgs]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07TemplateThroughExtraArgs]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07WordReferenceDocAndExtraArgs]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX07WordReferenceDocAndExtraArgs]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08AllVariantsGetDialectOptions]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08AllVariantsGetDialectOptions]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08ColumnsLimit]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08ColumnsLimit]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08DialectOptionsOnlyForMarkdownTargets]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08DialectOptionsOnlyForMarkdownTargets]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08LineEndingAsciiAndReferenceLinks]' started.
+Test Case '-[TypozaKitTests.ParityPandocTests testPX08LineEndingAsciiAndReferenceLinks]' passed (0.001 seconds).
+Test Suite 'ParityPandocTests' passed at 2026-10-23 19:57:39.643.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'RichTextTests' started at 2026-10-23 19:57:39.643.
+Test Case '-[TypozaKitTests.RichTextTests testHTMLToRTFKeepsTextAndBold]' started.
+Test Case '-[TypozaKitTests.RichTextTests testHTMLToRTFKeepsTextAndBold]' passed (2.244 seconds).
+Test Suite 'RichTextTests' passed at 2026-10-23 19:57:41.887.
+	 Executed 1 test, with 0 failures (0 unexpected) in 2.244 (2.244) seconds
+Test Suite 'SchemeSecurityTests' started at 2026-10-23 19:57:41.887.
+Test Case '-[TypozaKitTests.SchemeSecurityTests testHtmlLikeTypesAreSandboxedWithoutSameOrigin]' started.
+Test Case '-[TypozaKitTests.SchemeSecurityTests testHtmlLikeTypesAreSandboxedWithoutSameOrigin]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.SchemeSecurityTests testLocalReadAddsHeadersAppReadDoesNot]' started.
+Test Case '-[TypozaKitTests.SchemeSecurityTests testLocalReadAddsHeadersAppReadDoesNot]' passed (0.001 seconds).
+Test Case '-[TypozaKitTests.SchemeSecurityTests testMediaTypesAreNotSandboxedButNoSniff]' started.
+Test Case '-[TypozaKitTests.SchemeSecurityTests testMediaTypesAreNotSandboxedButNoSniff]' passed (0.000 seconds).
+Test Suite 'SchemeSecurityTests' passed at 2026-10-23 19:57:41.889.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'TextEncodingTests' started at 2026-10-23 19:57:41.890.
+Test Case '-[TypozaKitTests.TextEncodingTests testFallsBackToGB18030ForLegacyChinese]' started.
+Test Case '-[TypozaKitTests.TextEncodingTests testFallsBackToGB18030ForLegacyChinese]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.TextEncodingTests testUnknownEncodingNameFails]' started.
+Test Case '-[TypozaKitTests.TextEncodingTests testUnknownEncodingNameFails]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.TextEncodingTests testUTF16LittleEndianBOM]' started.
+Test Case '-[TypozaKitTests.TextEncodingTests testUTF16LittleEndianBOM]' passed (0.000 seconds).
+Test Case '-[TypozaKitTests.TextEncodingTests testUTF8WithBOMKeepsMarker]' started.
+Test Case '-[TypozaKitTests.TextEncodingTests testUTF8WithBOMKeepsMarker]' passed (0.000 seconds).
+Test Suite 'TextEncodingTests' passed at 2026-10-23 19:57:41.890.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ThemeFolderTests' started at 2026-10-23 19:57:41.890.
+Test Case '-[TypozaKitTests.ThemeFolderTests testListsCustomThemesOnly]' started.
+Test Case '-[TypozaKitTests.ThemeFolderTests testListsCustomThemesOnly]' passed (0.003 seconds).
+Test Suite 'ThemeFolderTests' passed at 2026-10-23 19:57:41.894.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'TypozaPackageTests.xctest' passed at 2026-10-23 19:57:41.894.
+	 Executed 78 tests, with 0 failures (0 unexpected) in 2.544 (2.550) seconds
+Test Suite 'All tests' passed at 2026-10-23 19:57:41.894.
+	 Executed 78 tests, with 0 failures (0 unexpected) in 2.544 (2.552) seconds
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests passed after 0.001 seconds.

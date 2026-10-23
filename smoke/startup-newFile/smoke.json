@@ -1,0 +1,19 @@
+{
+  "folder" : null,
+  "launchMarks" : {
+    "appReady" : 1.833,
+    "bridgeAppInfo" : 1.6040000000000001,
+    "didFinishLaunching" : 0.33000000000000002,
+    "didFinishLaunchingEnd" : 0.33200000000000002,
+    "indexRequested" : 1.347,
+    "navigationCommitted" : 1.369,
+    "navigationFinished" : 1.4750000000000001,
+    "navigationStarted" : 1.337,
+    "scriptRequested" : 1.4390000000000001,
+    "webViewCreated" : 0.151,
+    "willFinishLaunching" : 0.078,
+    "windowInit" : 0.099000000000000005
+  },
+  "path" : null,
+  "readySeconds" : 1.8334532916666717
+}

@@ -1,0 +1,192 @@
+0%: Compute target dependency graph
+Building targets in dependency order
+Target dependency graph (3 targets)
+0%: Gather provisioning inputs
+0%: Create build description
+0%: Discovering version info for swiftc
+0%: Discovering version info for clang
+0%: Discovering version info for ld
+Build description signature: 48036fb751398bb802c56e17e1e4f5eb
+
+Build description path: /Users/runner/work/typoza-clientAI/typoza-clientAI/app/.build/apple/Intermediates.noindex/XCBuildData/48036fb751398bb802c56e17e1e4f5eb.xcbuilddata
+
+0%: Create build directory $(OBJROOT)
+0%: Build stat cache for /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk
+0%: Create build directory $(TARGET_BUILD_DIR)
+0%: Create build directory $(TARGET_BUILD_DIR)/Release
+0%: Create build directory $(OBJROOT)/EagerLinkingTBDs/Release
+0%: Create build directory $(TARGET_BUILD_DIR)/Release/PackageFrameworks
+0%: Write Typoza.DependencyStaticMetadataFileList
+0%: Write Typoza.DependencyMetadataFileList
+0%: Write Typoza_const_extract_protocols.json (x86_64)
+0%: Write Typoza.SwiftFileList (x86_64)
+0%: Write Typoza.LinkFileList (x86_64)
+0%: Write Typoza-OutputFileMap.json (x86_64)
+0%: Write Typoza_const_extract_protocols.json (arm64)
+0%: Write Typoza.SwiftFileList (arm64)
+0%: Write Typoza.LinkFileList (arm64)
+0%: Write Typoza-OutputFileMap.json (arm64)
+0%: Write TypozaKit_Module.DependencyStaticMetadataFileList
+0%: Write TypozaKit_Module.DependencyMetadataFileList
+0%: Write TypozaKit.modulemap
+0%: Write TypozaKit_Module_const_extract_protocols.json (x86_64)
+0%: Write TypozaKit_Module.SwiftFileList (x86_64)
+0%: Write TypozaKit_Module.SwiftConstValuesFileList
+0%: Write TypozaKit_Module.LinkFileList (x86_64)
+0%: Write TypozaKit_Module-OutputFileMap.json (x86_64)
+0%: Write TypozaKit_Module_const_extract_protocols.json (arm64)
+0%: Write TypozaKit_Module.SwiftFileList (arm64)
+0%: Write TypozaKit_Module.SwiftConstValuesFileList
+0%: Write TypozaKit_Module.LinkFileList (arm64)
+0%: Write TypozaKit_Module-OutputFileMap.json (arm64)
+0%: Copy TypozaKit.modulemap
+46%: Planning Swift module TypozaKit (x86_64)
+46%: Planning Swift module TypozaKit (arm64)
+47%: Compile TypozaKit_Module (x86_64)
+47%: Compiling AISecretStore.swift, AppPaths.swift, BridgeError.swift, BridgeOrigin.swift, ByteRange.swift, DraftStore.swift, EmbedPolicy.swift, ExportOptions.swift, FileService.swift, FileWatcher.swift, HelperConnection.swift, HelperPolicy.swift, HistoryStore.swift, ImageUpload.swift, Keychain.swift, LinkPreview.swift, MenuKey.swift, MenuKeyLabel.swift, MimeType.swift, RichText.swift, SearchService.swift, SettingsStore.swift, SmokeReport.swift, TextEncoding.swift, ThemeFolder.swift, TypozaSchemeHandler.swift, UpdateCheck.swift
+47%: Compiling AISecretStore.swift, AppPaths.swift, BridgeError.swift, BridgeOrigin.swift, ByteRange.swift, DraftStore.swift, EmbedPolicy.swift, ExportOptions.swift, FileService.swift, FileWatcher.swift, HelperConnection.swift, HelperPolicy.swift, HistoryStore.swift, ImageUpload.swift, Keychain.swift, LinkPreview.swift, MenuKey.swift, MenuKeyLabel.swift, MimeType.swift, RichText.swift, SearchService.swift, SettingsStore.swift, SmokeReport.swift, TextEncoding.swift, ThemeFolder.swift, TypozaSchemeHandler.swift, UpdateCheck.swift
+47%: Compile TypozaKit_Module (arm64)
+47%: Compile 27 Swift source files (arm64)
+47%: Compile 27 Swift source files (x86_64)
+51%: Discovering Swift tasks after 'Compiling AISecretStore.swift, AppPaths.swift, BridgeError.swift, BridgeOrigin.swift, ByteRange.swift, DraftStore.swift, EmbedPolicy.swift, ExportOptions.swift, FileService.swift, FileWatcher.swift, HelperConnection.swift, HelperPolicy.swift, HistoryStore.swift, ImageUpload.swift, Keychain.swift, LinkPreview.swift, MenuKey.swift, MenuKeyLabel.swift, MimeType.swift, RichText.swift, SearchService.swift, SettingsStore.swift, SmokeReport.swift, TextEncoding.swift, ThemeFolder.swift, TypozaSchemeHandler.swift, UpdateCheck.swift'
+51%: Unblock downstream dependents of TypozaKit_Module (arm64)
+51%: Copy TypozaKit.swiftdoc (arm64)
+51%: Copy TypozaKit.swiftmodule (arm64)
+51%: Copy TypozaKit.abi.json (arm64)
+51%: Copy TypozaKit.swiftsourceinfo (arm64)
+59%: Discovering Swift tasks after 'Compiling AISecretStore.swift, AppPaths.swift, BridgeError.swift, BridgeOrigin.swift, ByteRange.swift, DraftStore.swift, EmbedPolicy.swift, ExportOptions.swift, FileService.swift, FileWatcher.swift, HelperConnection.swift, HelperPolicy.swift, HistoryStore.swift, ImageUpload.swift, Keychain.swift, LinkPreview.swift, MenuKey.swift, MenuKeyLabel.swift, MimeType.swift, RichText.swift, SearchService.swift, SettingsStore.swift, SmokeReport.swift, TextEncoding.swift, ThemeFolder.swift, TypozaSchemeHandler.swift, UpdateCheck.swift'
+59%: Unblock downstream dependents of TypozaKit_Module (x86_64)
+59%: Copy TypozaKit.swiftmodule (x86_64)
+59%: Merge Objective-C generated interface headers
+59%: Copy TypozaKit.swiftdoc (x86_64)
+59%: Copy TypozaKit.abi.json (x86_64)
+59%: Copy TypozaKit.swiftsourceinfo (x86_64)
+59%: Link TypozaKit_Module.o (x86_64)
+59%: Link TypozaKit_Module.o (arm64)
+59%: Planning Swift module Typoza (x86_64)
+59%: Planning Swift module Typoza (arm64)
+59%: Compiling AppDelegate.swift, DocumentWindowController+Media.swift, DocumentWindowController.swift, ElicitationForm.swift, ExportService.swift, HelperManager.swift, MainMenu.swift, MenuCustomizer.swift, QuickLook.swift, main.swift
+59%: Compiling AppDelegate.swift, DocumentWindowController+Media.swift, DocumentWindowController.swift, ElicitationForm.swift, ExportService.swift, HelperManager.swift, MainMenu.swift, MenuCustomizer.swift, QuickLook.swift, main.swift
+59%: Compile Typoza (x86_64)
+59%: Create universal binary TypozaKit_Module.o
+59%: Compile Typoza (arm64)
+75%: Extract app intents metadata
+75%: Compile 10 Swift source files (x86_64)
+75%: Compile 10 Swift source files (arm64)
+2026-10-23 19:58:12.332 appintentsmetadataprocessor[1964:9688] Starting appintentsmetadataprocessor export
+2026-10-23 19:58:12.381 appintentsmetadataprocessor[1964:9688] Extracted no relevant App Intents symbols, skipping writing output
+
+77%: Register execution policy exception for TypozaKit_Module.o
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                    let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+                                               ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+                    let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+                                               ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                        self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+                                            ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                                self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+                                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                                self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+                                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+
+79%: Discovering Swift tasks after 'Compiling AppDelegate.swift, DocumentWindowController+Media.swift, DocumentWindowController.swift, ElicitationForm.swift, ExportService.swift, HelperManager.swift, MainMenu.swift, MenuCustomizer.swift, QuickLook.swift, main.swift'
+79%: Unblock downstream dependents of Typoza (arm64)
+79%: Link Typoza (arm64)
+79%: Copy Typoza.swiftmodule (arm64)
+79%: Copy Typoza.swiftdoc (arm64)
+79%: Copy Typoza.abi.json (arm64)
+79%: Copy Typoza.swiftsourceinfo (arm64)
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1045:37: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
+                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                    let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+                                               ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1046:48: warning: implicit capture of 'checker' requires that 'NSSpellChecker' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+                    let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
+                                               ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1048:45: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                        self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
+                                            ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                                self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+                                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+/Users/runner/work/typoza-clientAI/typoza-clientAI/app/Sources/Typoza/AppDelegate.swift:1051:53: warning: capture of 'checker' with non-sendable type 'NSSpellChecker' in an isolated closure; this is an error in the Swift 6 language mode
+                                self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
+                                                    ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h:44:12: note: class 'NSSpellChecker' does not conform to the 'Sendable' protocol
+@interface NSSpellChecker : NSObject
+           ^
+
+87%: Discovering Swift tasks after 'Compiling AppDelegate.swift, DocumentWindowController+Media.swift, DocumentWindowController.swift, ElicitationForm.swift, ExportService.swift, HelperManager.swift, MainMenu.swift, MenuCustomizer.swift, QuickLook.swift, main.swift'
+87%: Unblock downstream dependents of Typoza (x86_64)
+87%: Copy Typoza.swiftmodule (x86_64)
+87%: Link Typoza (x86_64)
+87%: Copy Typoza.swiftdoc (x86_64)
+87%: Copy Typoza.abi.json (x86_64)
+87%: Copy Typoza.swiftsourceinfo (x86_64)
+95%: Create universal binary Typoza
+95%: Generate Typoza.dSYM for Typoza
+98%: Register execution policy exception for Typoza
+100%: Build succeeded
+Build complete!
+/Users/runner/work/_temp/build/Typoza AI.app/Contents/Info.plist: OK
+/Users/runner/work/_temp/build/Typoza AI.app/Contents/MacOS/typoza-helper: replacing existing signature
+/Users/runner/work/_temp/build/Typoza AI.app: replacing existing signature
+--prepared:/Users/runner/work/_temp/build/Typoza AI.app/Contents/MacOS/typoza-helper
+--validated:/Users/runner/work/_temp/build/Typoza AI.app/Contents/MacOS/typoza-helper
+/Users/runner/work/_temp/build/Typoza AI.app: valid on disk
+/Users/runner/work/_temp/build/Typoza AI.app: satisfies its Designated Requirement
+ 36M	/Users/runner/work/_temp/build/Typoza AI.app

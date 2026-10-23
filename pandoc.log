@@ -1,0 +1,18 @@
+[32m==>[0m [1mDownloading bottle manifests[0m
+✔︎ Bottle Manifest pandoc (3.11)
+[34m==>[0m [1mWould install 1 formula:[0m
+pandoc
+[32m==>[0m [1mFetching downloads for: [32mpandoc[39m[0m
+✔︎ Bottle pandoc (3.11)
+[34m==>[0m [1mPouring pandoc--3.11.arm64_sequoia.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/pandoc/3.11: 11 files, 279.4MB
+[32m==>[0m [1mCaveats[0m
+Bash completion has been installed to:
+  /opt/homebrew/etc/bash_completion.d
+pandoc 3.11
+Features: +server +lua
+Scripting engine: Lua 5.4
+User data directory: /Users/runner/.local/share/pandoc
+Copyright (C) 2006-2025 John MacFarlane. Web:  https://pandoc.org
+This is free software; see the source for copying conditions. There is no
+warranty, not even for merchantability or fitness for a particular purpose.
