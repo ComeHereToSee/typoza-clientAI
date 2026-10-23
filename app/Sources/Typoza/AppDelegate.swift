@@ -340,7 +340,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let target = dir.appendingPathComponent("快速上手.md")
         do {
             try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-            if !FileManager.default.fileExists(atPath: target.path) { try FileManager.default.copyItem(at: url, to: target) }
+            if !FileManager.default.fileExists(atPath: target.path) {
+                // 文中的应用名按本版本写(AI 版是「Typoza AI」),两个版本共用一份欢迎文档
+                let text = try String(contentsOf: url, encoding: .utf8).replacingOccurrences(of: "Typoza", with: AppPaths.name)
+                try text.write(to: target, atomically: true, encoding: .utf8)
+            }
             open(path: target.path, isDir: false, newWindow: !reuseBlank)
         } catch {
             NSAlert(error: error).runModal()

@@ -111,9 +111,11 @@ ident = json.load(open(path)).get('identity', {})
 want = {'name': name, 'bundleID': bundle_id, 'support': os.path.expanduser(f'~/Library/Application Support/{name}'), 'logs': os.path.expanduser(f'~/Library/Logs/{name}'), 'caches': os.path.expanduser(f'~/Library/Caches/{name}')}
 bad = [k for k, v in want.items() if ident.get(k) != v]
 bad += [k for k, v in ident.items() if k.endswith('Keychain') and not str(v).startswith(bundle_id + '.')]
-# 欢迎文档由应用首次启动时写进自己的数据目录(冒烟 firstLaunchWelcome)
-if bad or not os.path.isfile(os.path.join(want['support'], 'welcome', '快速上手.md')):
-    sys.exit(f"应用标识与数据目录不符:{'、'.join(bad) or '本版本数据目录里没有欢迎文档'} {json.dumps(ident, ensure_ascii=False)}")
+# 欢迎文档由应用首次启动时写进自己的数据目录(冒烟 firstLaunchWelcome),标题里是本版本的名称
+welcome = os.path.join(want['support'], 'welcome', '快速上手.md')
+title = open(welcome).readline().strip() if os.path.isfile(welcome) else None
+if bad or title != f'# 欢迎使用 {name}':
+    sys.exit(f"应用标识与数据目录不符:{'、'.join(bad) or f'本版本数据目录里的欢迎文档标题是 {title!r}'} {json.dumps(ident, ensure_ascii=False)}")
 print(f"应用标识核对通过:{json.dumps(ident, ensure_ascii=False)}")
 PY
 other_after=$(find "$other_dir" -type f -exec shasum {} + | sort)
