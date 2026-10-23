@@ -24,6 +24,12 @@
 - 保存面板的「存储」在后台被操作工具拦下(要先展开面板、且工具能看清目标文件夹);导出内容以 CI 冒烟为准。
 - 系统授权框点错被拒后不要立刻重弹,等用户说明。
 
+## CI 环境(2026-10-23~24)
+- **Playwright 装系统依赖卡死**:GitHub 的 Ubuntu 机器取源走镜像清单 `/etc/apt/apt-mirrors.txt`(日志里的 `Mirrorlist` 一行),Azure 镜像偶尔极慢,连续三轮卡满 18 分钟、e2e 全挂、macOS 打包拿不到图标。只改 `sources` 里的地址不生效;`timeout` 掐掉 npx 后 `sudo apt-get` 还活着占着锁,重试直接失败。做法见 `ci/playwright-install.sh`:浏览器本体与系统依赖分开装、各自限时,重试前结束残留 apt、`dpkg --configure -a`、改写镜像清单换官方源。
+- **raw.githubusercontent 有缓存**:`?t=<时间戳>` 也会读到旧文件,而且同一轮里不同文件新旧不一(SUMMARY 新、smoke.json 旧或反过来)。读结果先核 `SUMMARY.md` 的 sha,报告里自带提交号的再核一次;等待脚本里只看 SUMMARY 会被旧缓存提前放行。GitHub 接口匿名每小时 60 次,轮询会很快用光。
+- **跨 CI 机器的性能数字不能比**:同一份代码换一台机器,浏览器冷启动中位数 258 / 163 毫秒;macOS 冒烟的网页段 0.5~1.0 秒。前后对比要同一台机器、同一次运行里构建两份轮流量(`editor/scripts/startup-ab.mjs`,perf 工作流)。
+- **偶发失败先看时序**:冒烟或用例改了网页选区紧接着执行编辑器命令,编辑器自己的选区(`view.state.selection`)可能还没跟上;CI 偶发「复制为空」。等状态跟上(或等只在状态里才出现的界面,如表格工具条)再执行。
+
 ## 用例写法补充(Linux WebKit / jsdom)
 - 测试环境连不上的网络图片会加载失败,`img` 被隐藏(`.tz-image.is-broken img { display:none }`),点 `img` 会一直等可见直到超时;点外层 `.tz-image`。
 - jsdom 会规整 style 写法(`font-size:20px` → `font-size: 20px;`),断言用正则。
