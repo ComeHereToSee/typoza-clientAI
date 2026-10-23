@@ -1,9 +1,11 @@
-// 依赖补丁:prosemirror-view 块级容器的快速更新(scripts/patch-deps.mjs)。子节点很多(> 200)时走快速路径,
+// 依赖补丁(scripts/patch-deps.mjs):prosemirror-view 块级容器的快速更新、prosemirror-tables 修表格跳过前后相同部分。视图子节点很多(> 200)时走快速路径,
 // 每一步之后的界面要与用同一状态新建的视图一模一样,没动的段落 DOM 原样保留。
 import { Schema } from 'prosemirror-model'
 import { EditorState, Plugin, TextSelection, type Transaction } from 'prosemirror-state'
+import { fixTables } from 'prosemirror-tables'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view'
 import { afterEach, describe, expect, it } from 'vitest'
+import { schema as appSchema } from '../../src/core/schema'
 
 const schema = new Schema({
   nodes: {
@@ -73,3 +75,23 @@ describe('大文档顶层的快速更新(依赖补丁)', () => {
     }
   })
 })
+
+describe('大文档里修表格只看改动的部分(prosemirror-tables 依赖补丁)', () => {
+  it('300 段中间新插入的不完整表格照样补齐;没动的部分不改', () => {
+    const s = appSchema
+    const para = (t: string) => s.node('paragraph', null, s.text(t))
+    const cell = (t: string) => s.node('table_cell', null, s.text(t))
+    const broken = s.node('table', null, [s.node('table_row', null, [cell('a'), cell('b')]), s.node('table_row', null, [cell('c')])])
+    const doc = s.node('doc', null, Array.from({ length: 300 }, (_, i) => para(`第 ${i} 段`)))
+    const old = EditorState.create({ doc })
+    const next = old.apply(old.tr.insert(posOf(doc, 150), broken))
+    const tr = fixTables(next, old)
+    expect(tr).toBeTruthy()
+    const fixed = next.apply(tr!).doc
+    expect(fixed.child(150).child(1).childCount).toBe(2)
+    expect(fixed.childCount).toBe(301)
+    expect(fixed.child(0).textContent).toBe('第 0 段')
+    expect(fixed.child(300).textContent).toBe('第 299 段')
+  })
+})
+

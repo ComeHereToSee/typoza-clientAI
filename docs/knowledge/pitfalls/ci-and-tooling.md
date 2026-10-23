@@ -3,6 +3,7 @@
 > 分类:踩坑。来源:2026-10-23 收尾阶段(三仓公开后的 CI、冒烟扩展、并行子代理补用例)。
 
 ## 读 CI 结果
+- 仓库名是 `typoza-client` / `typoza-clientAI` / `typoza-backend`(本地目录名不同);API 地址写错仓库名返回 404。`ci/<job>` 分支每次运行强推覆盖,只有最新一次的结果。
 - `ci/macos` 分支带 DMG 等大文件,`git fetch origin ci/macos` 经 ssh.github.com:443 偶发卡死(`perl alarm` 只杀了 git,ssh 子进程还挂着)。仓库公开后直接读 `https://raw.githubusercontent.com/<owner>/<repo>/ci/<job>/<文件>`(SUMMARY.md、steps.tsv、e2e.log、smoke.log、smoke/smoke.json),快且不占 git。
 - zsh 里 `"origin/ci/$b:steps.tsv"` 的 `$b:s` 会被当成变量修饰符(替换),`git show` 拿到的路径不对、把整个提交打出来。变量后紧跟冒号时写 `${b}`。
 - 推送有新提交时同一工作流的旧运行会被取消(并发设置);要看某次结果就等它跑完再推。只改 `docs/**` 不触发 CI。
@@ -10,6 +11,18 @@
 ## Swift 写法(本机不编译,只能等 CI 报)
 - `steps[i] { results in … }` 被解析成「带尾随闭包的下标」,报 `extra trailing closure passed in subscript`:先 `let step = steps[i]` 再调用。
 - Release(-O)构建里强制解包、越界等运行时陷阱可能不打印消息;冒烟脚本在失败时拷回崩溃报告,并把每个桥接调用与外壳自检进度写到标准错误,崩溃停在哪一步一眼可见。
+
+- 嵌套类型在闭包参数里写 `Self.X` 或裸写 `X`,在类的扩展方法里会报 `'X' is not a member type of type 'Self'`;放到文件级(`private struct`)最省事。
+- 本机能做的只有语法检查:`swiftc -parse 文件`(不建模块、不做类型检查,类型错误仍要等 CI)。用 Python 拼 Swift 源码时别写出 `""""` 这种四连引号,会在行首多出一个 `"`。
+
+## 依赖补丁(scripts/patch-deps.mjs)
+- 同一文件可以打多个补丁(循环里每次重新读文件)。补丁改过之后,本机已经打过旧版的 node_modules 会被重复插入,本地检查前先把旧补丁去掉再跑;CI 每次 `npm ci` 都是干净的。
+
+## 真机电脑操作(后台模式)
+- 后台操作时应用不在前台,网页里 `document.hasFocus()` 为 false:依赖焦点的逻辑(CodeMirror 的 `hasFocus`)会和真用户不一样,正好暴露「只在有焦点时同步」这类缺陷。
+- 屏幕锁定或窗口被遮挡时 WebKit 节流动画与 requestAnimationFrame,灯箱等动画看起来「卡住」,不代表有缺陷;截图可能是旧画面。
+- 保存面板的「存储」在后台被操作工具拦下(要先展开面板、且工具能看清目标文件夹);导出内容以 CI 冒烟为准。
+- 系统授权框点错被拒后不要立刻重弹,等用户说明。
 
 ## 用例写法补充(Linux WebKit / jsdom)
 - 测试环境连不上的网络图片会加载失败,`img` 被隐藏(`.tz-image.is-broken img { display:none }`),点 `img` 会一直等可见直到超时;点外层 `.tz-image`。

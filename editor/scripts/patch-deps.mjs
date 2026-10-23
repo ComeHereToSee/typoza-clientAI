@@ -125,6 +125,23 @@ function tzFastBlockUpdate(desc, view) {
 // Iterate from the end of the fragment and array of descs to find
 // directly matching ones`,
   },
+  {
+    // prosemirror-tables 1.8.5:每次文档变化后 fixTables 用 changedDescendants 逐个比对新旧文档的全部顶层块找改动的表格,
+    // 5 万个块时 WebKit 里每键约 3 毫秒。子节点很多时先用紧循环跳过前后完全相同的子节点(没变的表格不用修)。
+    file: 'prosemirror-tables/dist/index.js',
+    before: 'function changedDescendants(old, cur, offset, f) {\n\tconst oldSize = old.childCount, curSize = cur.childCount;\n\touter: for (let i = 0, j = 0; i < curSize; i++) {',
+    after:
+      'function changedDescendants(old, cur, offset, f) {\n' +
+      '\tconst oldSize = old.childCount, curSize = cur.childCount;\n' +
+      '\t// [typoza 补丁] 子节点很多时先跳过前后完全相同的子节点\n' +
+      '\tlet start = 0, endCur = curSize, endOld = oldSize;\n' +
+      '\tif (curSize > 200) {\n' +
+      '\t\tconst oc = old.content.content, cc = cur.content.content;\n' +
+      '\t\twhile (start < oldSize && start < curSize && oc[start] === cc[start]) offset += cc[start++].nodeSize;\n' +
+      '\t\twhile (endOld > start && endCur > start && oc[endOld - 1] === cc[endCur - 1]) endOld--, endCur--;\n' +
+      '\t}\n' +
+      '\touter: for (let i = start, j = start; i < endCur; i++) {',
+  },
 ]
 
 for (const p of PATCHES) {

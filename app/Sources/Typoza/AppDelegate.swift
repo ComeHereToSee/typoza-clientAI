@@ -943,23 +943,25 @@ extension AppDelegate {
                     let focus = "(() => { const pm = document.querySelector('.ProseMirror'); if (!pm || !pm.querySelector('td')) return false; pm.focus(); return true })()"
                     self.waitForScript(w, focus, 15) { focused in
                         guard focused else { return fail("编辑器没聚焦") }
-                        // ⌘↑ 到文首(首段)→ ↓ 进表格第一格(光标用真按键移动;表格在文首时 ⌘↑ 会落到表格前面)
-                        let key = { (scalar: Int) in String(Character(UnicodeScalar(UInt32(scalar))!)) }
-                        let up = key(NSUpArrowFunctionKey), down = key(NSDownArrowFunctionKey)
-                        self.sendKey(window, code: 126, chars: up, ignoring: up, mods: [.command, .numericPad, .function])
-                        self.sendKey(window, code: 125, chars: down, ignoring: down, mods: [.numericPad, .function])
-                        self.waitForScript(w, "(() => { const n = getSelection().anchorNode; const el = n && (n.nodeType === 3 ? n.parentElement : n); return el?.closest('th, td') != null })()", 5) { inTable in
-                            guard inTable else { return fail("光标没进表格") }
-                            guard let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return fail("菜单里找不到复制表格") }
-                            let pb = NSPasteboard.general
-                            pb.clearContents()
-                            found.menu.performActionForItem(at: found.index)
-                            self.waitUntil(5, {
-                                let text = pb.string(forType: .string) ?? ""
-                                return text.contains("甲") && text.contains("|") && (pb.string(forType: .html) ?? "").contains("<table")
-                            }) { ok in
-                                if !ok { return fail("剪贴板没有表格内容,类型:\(pb.types?.map(\.rawValue) ?? [])") }
-                                done(["menuCopyTable": true])
+                        // 真鼠标点一下表格里的「1」那格(与用户一样;按键移动光标进表格不稳定)
+                        let rect = "(() => { const td = document.querySelector('.ProseMirror td'); if (!td) return ''; const r = td.getBoundingClientRect(); return (r.left + 8) + ',' + (r.top + r.height / 2) })()"
+                        w.webView.evaluateJavaScript(rect) { value, _ in
+                            let xy = ((value as? String) ?? "").split(separator: ",").compactMap { Double($0) }
+                            guard xy.count == 2 else { return fail("找不到表格单元格") }
+                            self.sendClick(w, x: xy[0], y: xy[1])
+                            self.waitForScript(w, "(() => { const n = getSelection().anchorNode; const el = n && (n.nodeType === 3 ? n.parentElement : n); return el?.closest('th, td') != null })()", 5) { inTable in
+                                guard inTable else { return fail("光标没进表格") }
+                                guard let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return fail("菜单里找不到复制表格") }
+                                let pb = NSPasteboard.general
+                                pb.clearContents()
+                                found.menu.performActionForItem(at: found.index)
+                                self.waitUntil(5, {
+                                    let text = pb.string(forType: .string) ?? ""
+                                    return text.contains("甲") && text.contains("|") && (pb.string(forType: .html) ?? "").contains("<table")
+                                }) { ok in
+                                    if !ok { return fail("剪贴板没有表格内容,类型:\(pb.types?.map(\.rawValue) ?? [])") }
+                                    done(["menuCopyTable": true])
+                                }
                             }
                         }
                     }
@@ -1139,6 +1141,17 @@ extension AppDelegate {
 
     /// 光标所在块的文字与光标在块内的字符偏移,如「末段|2」
     private static let caretScript = "(() => { const s = getSelection(); if (!s.rangeCount) return ''; const n = s.anchorNode; const el = n.nodeType === 3 ? n.parentElement : n; const block = el && el.closest('h1, p'); if (!block) return ''; const r = document.createRange(); r.setStart(block, 0); r.setEnd(n, s.anchorOffset); return block.textContent + '|' + r.toString().length })()"
+
+    /// 合成一次鼠标单击(按下 + 抬起)交给应用分发;x、y 是网页里的 CSS 坐标(相对网页视图左上角,缩放 100%)
+    private func sendClick(_ controller: DocumentWindowController, x: Double, y: Double) {
+        guard let window = controller.window else { return }
+        let view = controller.webView
+        let point = view.convert(NSPoint(x: x, y: view.isFlipped ? y : view.bounds.height - y), to: nil)
+        for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
+            guard let event = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1) else { continue }
+            NSApp.sendEvent(event)
+        }
+    }
 
     /// 合成一次按键(按下 + 抬起)交给应用分发:先过菜单键位,再到网页
     private func sendKey(_ window: NSWindow, code: UInt16, chars: String, ignoring: String, mods: NSEvent.ModifierFlags) {

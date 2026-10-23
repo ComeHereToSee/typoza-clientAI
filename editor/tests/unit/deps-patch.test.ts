@@ -25,4 +25,9 @@ describe('依赖性能补丁', () => {
     expect(code).toContain('[typoza 补丁] 子节点很多的块级容器')
     expect(code).toContain('function tzFastBlockUpdate(desc, view)')
   })
+
+  it('修表格时子节点很多的容器先跳过前后相同的子节点(prosemirror-tables)', () => {
+    const code = readFileSync(resolve(process.cwd(), 'node_modules/prosemirror-tables/dist/index.js'), 'utf8')
+    expect(code).toContain('[typoza 补丁] 子节点很多时先跳过前后完全相同的子节点')
+  })
 })
