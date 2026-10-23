@@ -221,6 +221,21 @@ test.describe('模型改文档(doc.edit)', () => {
     expect((await aiCalls(page, 'ai.tool.decide'))[0]).toMatchObject({ decision: 'deny', result: expect.stringContaining('修改失败') })
     expect(await markdown(page)).toBe('正文。\n')
   })
+
+  test('只读文档:不预览,直接把原因回报模型', async ({ page }) => {
+    await loadDoc(page, '正文。\n')
+    await page.evaluate(() => {
+      window.typozaTest!.app.session.readOnly = 'permission'
+    })
+    await openAiPanel(page)
+    await queueReply(page, [{ edit: { kind: 'insert', text: '\n\n新增。' } }, { text: '好。' }])
+    await ask(page, '加一句')
+    await expect(lastAnswer(page)).toHaveAttribute('data-status', 'done')
+    await expect(lastAnswer(page).locator('[data-edit-state=failed]')).toContainText('只读')
+    await expect(page.locator('.tz-ai-diff-bar')).toHaveCount(0)
+    expect((await aiCalls(page, 'ai.tool.decide'))[0]).toMatchObject({ decision: 'deny', result: expect.stringContaining('只读') })
+    expect(await markdown(page)).toBe('正文。\n')
+  })
 })
 
 test.describe('未配置模型', () => {
