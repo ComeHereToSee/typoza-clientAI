@@ -949,7 +949,8 @@ extension AppDelegate {
                             let xy = ((value as? String) ?? "").split(separator: ",").compactMap { Double($0) }
                             guard xy.count == 2 else { return fail("找不到表格单元格") }
                             self.sendClick(w, x: xy[0], y: xy[1])
-                            self.waitForScript(w, "(() => { const n = getSelection().anchorNode; const el = n && (n.nodeType === 3 ? n.parentElement : n); return el?.closest('th, td') != null })()", 5) { inTable in
+                            // 表格工具条只在编辑器自己的选区进了表格后才显示:等到它,菜单命令才能找到表格(只看网页选区会早一拍)
+                            self.waitForScript(w, "(() => { const n = getSelection().anchorNode; const el = n && (n.nodeType === 3 ? n.parentElement : n); const bar = document.querySelector('.tz-table-toolbar'); return el?.closest('th, td') != null && bar != null && !bar.hidden })()", 5) { inTable in
                                 guard inTable else { return fail("光标没进表格") }
                                 guard let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return fail("菜单里找不到复制表格") }
                                 let pb = NSPasteboard.general

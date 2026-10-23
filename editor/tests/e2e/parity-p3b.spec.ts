@@ -137,6 +137,8 @@ test.describe('偏好「编辑器」页', () => {
 
     await loadDoc(page, '**粗体**文字')
     await page.keyboard.press('Shift+Home')
+    // 复制取的是编辑器自己的选区:等它跟上 ⇧Home(CI 上偶尔慢一拍,复制时还是空选区)
+    await expect.poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.empty)).toBe(false)
     const written = await clipboardOn(page, 'copy')
     expect(written.text).toBe('粗体文字')
     expect(written.html).toContain('<strong>粗体</strong>')
