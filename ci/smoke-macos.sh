@@ -41,7 +41,8 @@ if missing:
     sys.exit("菜单键位与 notion-input.md 5.2 不符")
 print(f"菜单键位核对通过:{len(actual)} 项里期望的 {len(json.load(open(expected_path)))} 项都对")
 # 同名同键位出现两次 = 菜单里有重复项(系统自动插入的项与应用自己的项撞了)
-dups = sorted({(t, k) for t, k in menu if menu.count([t, k]) > 1})
+primary = report.get("menuKeysPrimary", [])
+dups = sorted({(t, k) for t, k in primary if primary.count([t, k]) > 1})
 if dups:
     sys.exit("菜单里有重复项:" + "、".join(f"{t} {k}" for t, k in dups))
 # 外壳行为自检(最近文件 / 目录、置顶、重开关闭的文件、全部保存、欢迎文档、新建窗口 / 标签、真按键、导出读回、命令行打开、恢复草稿等;见 AppDelegate.runNativeSmoke)

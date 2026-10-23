@@ -105,14 +105,24 @@ export class DocumentSession {
     return serializeMarkdown(doc, this.meta, serializeOptionsFrom(s))
   }
 
+  /** 正在写盘的那次保存;文件监视的通知可能比写盘的回执先到,判断「被其他程序修改」前要等它写完 */
+  saving: Promise<void> | null = null
+
   async save(doc: PMNode, path = this.path): Promise<void> {
     if (!path) throw new Error('文档还没有保存位置')
     const text = this.serialize(doc)
-    const { mtime } = await this.host.writeText(path, text, this.encoding)
-    this.path = path
-    this.savedMtime = mtime
-    this.savedText = text
-    this.dirty = false
+    const write = this.host.writeText(path, text, this.encoding).then(({ mtime }) => {
+      this.path = path
+      this.savedMtime = mtime
+      this.savedText = text
+      this.dirty = false
+    })
+    this.saving = write
+    try {
+      await write
+    } finally {
+      if (this.saving === write) this.saving = null
+    }
   }
 }
 

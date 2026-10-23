@@ -588,6 +588,8 @@ export class App {
 
   /** 外部修改:没有未保存修改就静默重载;有则询问(PRD 3.1 外部修改)。 */
   private async onExternalChange(): Promise<void> {
+    // 自己这次保存触发的通知:等写盘回执(更新已保存的时间与内容)再比,否则会误报「被其他程序修改」
+    if (this.session.saving) await this.session.saving.catch(() => undefined)
     const path = this.session.path
     if (!path) return
     const stat = await this.host.stat(path)

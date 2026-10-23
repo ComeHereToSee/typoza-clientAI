@@ -360,3 +360,25 @@ test('X-44 HTML 块里的 position:fixed 只铺满预览框,盖不住编辑器�
   expect(cover!.height).toBeLessThanOrEqual(preview!.height + 1)
   expect(cover!.width).toBeLessThan(viewport.width - 100)
 })
+
+test('自己保存触发的文件监视通知比写盘回执先到时,不误报「文件已被其他程序修改」', async ({ page }) => {
+  await loadDoc(page, '原文\n', '/demo/自己保存.md')
+  await page.evaluate(() => {
+    const host = window.typozaTest!.host
+    const write = host.writeText.bind(host)
+    // 模拟真机上的时序:文件监视先通知,写盘的回执晚 50 毫秒才到
+    host.writeText = async (path, text, encoding) => {
+      const result = await write(path, text, encoding)
+      host.emit('fs.changed', { paths: [path] })
+      await new Promise((r) => setTimeout(r, 50))
+      return result
+    }
+  })
+  await page.keyboard.type('追加')
+  await runMenuCommand(page, 'file.save')
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.session.dirty)).toBe(false)
+  // 通知的处理是异步的:多等一会儿,确认没有弹出询问
+  await page.waitForTimeout(300)
+  expect(await hostCalls(page, 'confirm')).toEqual([])
+  expect(await markdown(page)).toBe('原文追加\n')
+})

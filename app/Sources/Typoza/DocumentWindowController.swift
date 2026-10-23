@@ -741,6 +741,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             guard let self else { return }
             var report: [String: Any] = ["readySeconds": readySeconds, "launchMarks": self.app.launchMarks, "launchEpochMs": self.app.launchEpochMs]
             report["menuKeys"] = Self.menuKeys(NSApp.mainMenu)
+            // 查重复项只看平时显示的项
+            report["menuKeysPrimary"] = Self.menuKeys(NSApp.mainMenu, alternates: false)
             if let preMain = self.app.preMainSeconds { report["preMainSeconds"] = preMain }
             switch result {
             case .success(let value): report["result"] = value
@@ -770,15 +772,15 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
     }
 
     /// 整张菜单的键位 [标题, 键位](冒烟导出,CI 与 docs/prd/notion-input.md 5.2 核对)
-    static func menuKeys(_ menu: NSMenu?) -> [[String]] {
+    /// alternates:是否含按住修饰键才出现的备用项(应用自己的别名键位如放大 ⇧⌘=,以及系统附加的 ⌥⌘W、fn F 等)
+    static func menuKeys(_ menu: NSMenu?, alternates: Bool = true) -> [[String]] {
         var out: [[String]] = []
-        // 按住修饰键才出现的备用项(系统给「关闭」「切换全屏」附加的 ⌥⌘W、fn F 等)不算
-        for item in menu?.items ?? [] where !item.isAlternate {
+        for item in menu?.items ?? [] where alternates || !item.isAlternate {
             if !item.keyEquivalent.isEmpty {
                 let m = item.keyEquivalentModifierMask
                 out.append([item.title, MenuKeyLabel.text(key: item.keyEquivalent, control: m.contains(.control), option: m.contains(.option), shift: m.contains(.shift), command: m.contains(.command))])
             }
-            out += menuKeys(item.submenu)
+            out += menuKeys(item.submenu, alternates: alternates)
         }
         return out
     }
