@@ -204,6 +204,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             for id in queuedCommands { emit("menu.command", ["id": id]) }
             queuedCommands.removeAll()
             if smokeOut != nil { runSmoke() }
+            if let out = app.startupCheckOut, isLaunchWindow { reportStartup(to: out) }
         case "app.fatal":
             reply(nil, nil)
             let msg = params.optionalString("message") ?? "未知错误"
@@ -771,7 +772,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
     /// 整张菜单的键位 [标题, 键位](冒烟导出,CI 与 docs/prd/notion-input.md 5.2 核对)
     static func menuKeys(_ menu: NSMenu?) -> [[String]] {
         var out: [[String]] = []
-        for item in menu?.items ?? [] {
+        // 按住修饰键才出现的备用项(系统给「关闭」「切换全屏」附加的 ⌥⌘W、fn F 等)不算
+        for item in menu?.items ?? [] where !item.isAlternate {
             if !item.keyEquivalent.isEmpty {
                 let m = item.keyEquivalentModifierMask
                 out.append([item.title, MenuKeyLabel.text(key: item.keyEquivalent, control: m.contains(.control), option: m.contains(.option), shift: m.contains(.shift), command: m.contains(.command))])
@@ -779,6 +781,17 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             out += menuKeys(item.submenu)
         }
         return out
+    }
+
+    /// 启动选项冷启动核对(PF-01):等网页按启动选项打开文件 / 目录,记下当前文档与侧栏目录后退出
+    private func reportStartup(to out: URL) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            self.webView.evaluateJavaScript("JSON.stringify(window.typoza.startupState())") { value, error in
+                var report: [String: Any] = ["error": "读不到启动状态:\(error?.localizedDescription ?? "无结果")"]
+                if let text = value as? String, let obj = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any] { report = obj }
+                self.writeSmokeAndExit(report, to: out, code: report["error"] == nil ? 0 : 4)
+            }
+        }
     }
 
     private func writeSmokeAndExit(_ report: [String: Any], to out: URL, code: Int32) {

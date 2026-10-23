@@ -344,6 +344,11 @@ export class App {
   }
 
   /** 大文档还在分段载入(冒烟与性能剖析用来等全文载完) */
+  /** 侧栏当前打开的文件夹(没有时为 null) */
+  get rootFolder(): string | null {
+    return this.sidebar.rootFolder
+  }
+
   get loading(): boolean {
     return this.session.loading
   }

@@ -172,7 +172,7 @@ const EXPORTS: [string, string][] = [
   ['textile', 'textile'],
   ['opml', 'opml'],
 ]
-/** 纯文本产物:读回核对正文在里面(RTF 把中文写成 \uNNNN 转义,只核对文件头) */
+/** 纯文本产物:读回核对正文在里面(RTF 另按转义后的中文核对) */
 const TEXT_EXPORTS = new Set(['html', 'html-plain', 'latex', 'mediawiki', 'rst', 'textile', 'opml'])
 
 /**
@@ -198,7 +198,11 @@ async function exportChecks(app: App, dir: string, checks: Record<string, boolea
       const st = await host.stat(target)
       let ok = Boolean(st && st.size > 0)
       if (ok && TEXT_EXPORTS.has(format)) ok = (await host.readText(target)).text.includes('资助项目')
-      if (ok && format === 'rtf') ok = (await host.readText(target)).text.startsWith('{\\rtf')
+      if (ok && format === 'rtf') {
+        // RTF 把「资」(U+8D44)写成 \u36164 或带符号的 \u-29372
+        const rtf = (await host.readText(target)).text
+        ok = rtf.startsWith('{\\rtf') && /\\u(36164|-29372)\b/.test(rtf)
+      }
       checks[`export_${format}`] = ok
     }
   } finally {

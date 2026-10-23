@@ -8,7 +8,13 @@ import type { SmokeResult } from './smoke'
 
 declare global {
   interface Window {
-    typoza: { smoke(): Promise<SmokeResult>; markdown(): string; prepareClose(reason?: string): Promise<boolean> }
+    typoza: {
+      smoke(): Promise<SmokeResult>
+      markdown(): string
+      prepareClose(reason?: string): Promise<boolean>
+      /** CI 冷启动核对启动选项用:当前文档与侧栏目录 */
+      startupState(): { path: string | null; folder: string | null }
+    }
     typozaTest?: { host: MemoryHost; app: App; load(markdown: string, path?: string): Promise<void>; markdown(): string; parse: typeof parseMarkdown }
   }
 }
@@ -55,7 +61,12 @@ async function boot(): Promise<void> {
     }
   }
   // 冒烟自检只在 CI 与本机验证时调用,按需加载
-  window.typoza = { smoke: async () => (await import('./smoke')).runSmoke(app, bootTimings), markdown: () => app.markdown(), prepareClose: (reason) => app.confirmLeave(reason === 'quit' ? 'quit' : 'close') }
+  window.typoza = {
+    smoke: async () => (await import('./smoke')).runSmoke(app, bootTimings),
+    markdown: () => app.markdown(),
+    prepareClose: (reason) => app.confirmLeave(reason === 'quit' ? 'quit' : 'close'),
+    startupState: () => ({ path: app.session.path, folder: app.rootFolder }),
+  }
   document.documentElement.dataset.ready = 'true'
   void window.webkit?.messageHandlers?.typoza?.postMessage({ method: 'app.ready', params: {} })
 }

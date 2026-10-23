@@ -59,6 +59,34 @@ final class FilesTests: XCTestCase {
         XCTAssertThrowsError(try UpdateCheck.parse(Data("不是 JSON".utf8)))
     }
 
+    /// 对照表 A-04 的四种结果:没配更新源、已是最新、有新版本、更新服务出错;用假的更新源代替网络
+    func testUpdateCheckOutcomes() {
+        func run(feed: URL?, data: String?, status: Int = 200) -> UpdateCheck.Outcome? {
+            var result: UpdateCheck.Outcome?
+            UpdateCheck.check(current: "1.2.0", feed: feed, fetch: { _, reply in reply(data.map { Data($0.utf8) }, status, nil) }) { result = $0 }
+            return result
+        }
+        let feed = URL(string: "https://updates.example.com/typoza.json")!
+
+        let none = run(feed: nil, data: nil)
+        XCTAssertEqual(none, .unconfigured(current: "1.2.0"))
+        XCTAssertEqual(none?.title, "无法检查更新")
+        XCTAssertEqual(none?.buttons, ["好"])
+
+        let same = run(feed: feed, data: #"{"version":"1.2.0","url":"https://example.com/Typoza.dmg"}"#)
+        XCTAssertEqual(same?.title, "当前已是最新!")
+        XCTAssertEqual(same?.message, "当前版本 1.2.0。")
+
+        let newer = run(feed: feed, data: #"{"version":"1.3.0","url":"https://example.com/Typoza.dmg","notes":"新增功能"}"#)
+        XCTAssertEqual(newer?.title, "发现新版本 1.3.0")
+        XCTAssertEqual(newer?.message, "新增功能")
+        XCTAssertEqual(newer?.buttons, ["下载", "以后再说"])
+
+        let broken = run(feed: feed, data: nil, status: 500)
+        XCTAssertEqual(broken, .failed("更新服务返回异常(HTTP 500)"))
+        XCTAssertEqual(broken?.title, "检查更新失败")
+    }
+
     // ---------- 历史版本 ----------
 
     func testPinnedSnapshotSurvivesCoalescing() throws {

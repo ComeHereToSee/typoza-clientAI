@@ -389,6 +389,8 @@ p.tz-image-only > .tz-image { display: block; width: fit-content; margin: 4px au
 
 /* HTML */
 .tz-html-block { margin: 6px 0; }
+/* 文档里的 HTML 只能画在自己这一块里:position:fixed 也以预览框为准,盖不住编辑器界面(防仿冒界面,对照表 X-44) */
+.tz-html-preview { contain: paint; }
 .tz-html-preview:empty { min-height: 1em; }
 .tz-html-source {
   display: none;

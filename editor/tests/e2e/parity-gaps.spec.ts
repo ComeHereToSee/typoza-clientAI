@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
-import { loadDoc, markdown, openApp } from './helpers'
+import { loadDoc, markdown, modKey, openApp } from './helpers'
 import { contextMenuAt, hostCalls, runMenuCommand } from './media-helpers'
 
-// 对照表「实现」行里此前没有用例为证、或补实现后要验证的几项:X-15、X-60、C-10、C-13、C-14、P-11、P-13、P-17、P-23、P-30、M-12、M-20、M-21、S-01、PF-02、E-44、PA-06、PM-15、PM-16、X-43、E-38、PX-04、PX-06,以及 HTML 块里的图片双击放大
+// 对照表「实现」行里此前没有用例为证、或补实现后要验证的几项:X-15、X-60、C-10、C-13、C-14、P-11、P-13、P-17、P-23、P-30、M-12、M-20、M-21、S-01、PF-02、E-44、PA-06、PM-15、PM-16、X-43、E-38、PX-04、PX-06、Notion 2.1 #2 与 5.1 #55,以及 HTML 块里的图片双击放大
 test.beforeEach(async ({ page }) => {
   await openApp(page)
 })
@@ -330,4 +330,33 @@ test('PX-04 / PX-06 导出参数:PDF 的页边距与主题、图片的字号与�
   expect(image.format).toBe('image')
   expect(image.html).toContain('--tz-font-size: 20px')
   expect(image.html).toContain('data-theme="night"')
+})
+
+test('Notion 2.1 #2 「[ ]」加空格同「[]」一样成待办', async ({ page }) => {
+  await loadDoc(page, '')
+  await page.keyboard.type('[ ] 待办')
+  await expect.poll(() => markdown(page)).toBe('- [ ] 待办\n')
+})
+
+test('Notion 5.1 #55 光标在文档链接上按 ⌘↩:打开链接的文档', async ({ page }) => {
+  await loadDoc(page, '去 [另一篇](另一篇.md) 看\n', '/demo/链接起点.md')
+  // 光标从段尾左移三格,落在链接文字「另一|篇」中间
+  for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowLeft')
+  await expect
+    .poll(() => page.evaluate(() => window.typozaTest!.app.view.state.selection.$from.marks().some((m) => m.type.name === 'link')))
+    .toBe(true)
+  const mod = await modKey(page)
+  await page.keyboard.press(`${mod}+Enter`)
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.session.path)).toBe('/demo/另一篇.md')
+})
+
+test('X-44 HTML 块里的 position:fixed 只铺满预览框,盖不住编辑器界面', async ({ page }) => {
+  await loadDoc(page, '<div style="position:fixed;inset:0;background:red">盖层</div>\n\n正文\n')
+  const cover = await page.locator('.tz-html-preview div', { hasText: '盖层' }).boundingBox()
+  const preview = await page.locator('.tz-html-preview').first().boundingBox()
+  const viewport = page.viewportSize()!
+  expect(cover && preview).toBeTruthy()
+  expect(cover!.width).toBeLessThanOrEqual(preview!.width + 1)
+  expect(cover!.height).toBeLessThanOrEqual(preview!.height + 1)
+  expect(cover!.width).toBeLessThan(viewport.width - 100)
 })

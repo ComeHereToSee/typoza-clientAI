@@ -7,6 +7,7 @@ import WebKit
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let launchUptime: TimeInterval
     let smokeOut: URL?
+    let startupCheckOut: URL?
     let settings = SettingsStore()
     let history = HistoryStore()
     let drafts = DraftStore()
@@ -51,6 +52,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } else {
             smokeOut = nil
         }
+        // CI 冷启动核对启动选项(对照表 PF-01):照常启动,首个窗口就绪后记下打开了什么并退出
+        if let i = args.firstIndex(of: "--startup-check-out"), i + 1 < args.count {
+            startupCheckOut = URL(fileURLWithPath: args[i + 1], isDirectory: true)
+        } else {
+            startupCheckOut = nil
+        }
         super.init()
     }
 
@@ -58,6 +65,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         mark("willFinishLaunching")
         recentMenu.delegate = self
         recentFoldersMenu.delegate = self
+        // 编辑菜单已有「表情与符号 ⌃⌘空格」(对照表 E-46):不让系统再自动插一项,否则菜单里出现两个
+        UserDefaults.standard.register(defaults: ["NSDisabledCharacterPaletteMenuItem": true])
         NSApp.mainMenu = MainMenu.build(recentMenu: recentMenu, recentFoldersMenu: recentFoldersMenu, servicesMenu: servicesMenu, windowMenu: NSMenu(title: "窗口"), helpMenu: NSMenu(title: "帮助"))
         NSApp.windowsMenu = NSApp.mainMenu?.item(withTitle: "窗口")?.submenu
         NSApp.helpMenu = NSApp.mainMenu?.item(withTitle: "帮助")?.submenu
@@ -102,10 +111,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    /// 命令行直接传入的文件(开发调试用):typoza <路径>;--smoke-out 后面的输出目录不算
+    /// 命令行直接传入的文件(开发调试用):typoza <路径>;--smoke-out、--startup-check-out 后面的输出目录不算
     private func commandLinePaths() -> [(String, Bool)] {
         var args = Array(CommandLine.arguments.dropFirst())
-        if let i = args.firstIndex(of: "--smoke-out") { args.removeSubrange(i ..< min(i + 2, args.count)) }
+        for flag in ["--smoke-out", "--startup-check-out"] {
+            if let i = args.firstIndex(of: flag) { args.removeSubrange(i ..< min(i + 2, args.count)) }
+        }
         return args.compactMap { arg in
             var isDir: ObjCBool = false
             guard !arg.hasPrefix("-"), FileManager.default.fileExists(atPath: arg, isDirectory: &isDir) else { return nil }
@@ -377,40 +388,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// 检查更新(对照表 A-04):更新源地址写在 Info.plist 的 TypozaUpdateFeedURL;没配置时如实说明无法在线检查。
     private func checkForUpdates() {
         let current = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-        guard let feed = Self.configuredURL("TypozaUpdateFeedURL") else {
-            showAlert("无法检查更新", "这个版本还没有接入更新服务,暂时不能在线检查。当前版本 \(current)。")
-            return
+        let fetch: UpdateCheck.Fetch = { url, reply in
+            let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async { reply(data, (response as? HTTPURLResponse)?.statusCode ?? 0, error) }
+            }.resume()
         }
-        let request = URLRequest(url: feed, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                if let error {
-                    self.showAlert("检查更新失败", error.localizedDescription)
-                    return
-                }
-                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-                guard let data, status == 200 else {
-                    self.showAlert("检查更新失败", "更新服务返回异常(HTTP \(status))")
-                    return
-                }
-                do {
-                    let release = try UpdateCheck.parse(data)
-                    guard UpdateCheck.isNewer(release.version, than: current) else {
-                        self.showAlert("当前已是最新!", "当前版本 \(current)。")
-                        return
-                    }
-                    let alert = NSAlert()
-                    alert.messageText = "发现新版本 \(release.version)"
-                    alert.informativeText = release.notes.isEmpty ? "当前版本 \(current)。" : release.notes
-                    alert.addButton(withTitle: "下载")
-                    alert.addButton(withTitle: "以后再说")
-                    if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(release.url) }
-                } catch {
-                    self.showAlert("检查更新失败", error.localizedDescription)
-                }
-            }
-        }.resume()
+        UpdateCheck.check(current: current, feed: Self.configuredURL("TypozaUpdateFeedURL"), fetch: fetch) { outcome in
+            let alert = NSAlert()
+            alert.messageText = outcome.title
+            alert.informativeText = outcome.message
+            outcome.buttons.forEach { alert.addButton(withTitle: $0) }
+            if alert.runModal() == .alertFirstButtonReturn, case let .newer(release, _) = outcome { NSWorkspace.shared.open(release.url) }
+        }
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -626,7 +616,7 @@ extension AppDelegate {
         }
     }
 
-    /// 外壳自检第二段(对照表 C-05、E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
+    /// 外壳自检第二段(对照表 A-01、A-05、A-06、C-05、E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
     /// 网页侧冒烟(smoke.ts)已导出好 PDF / PNG、把动图拷进剪贴板,这里读回核对。
     private func moreNativeSmoke(_ main: DocumentWindowController, _ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
         var checks = checks
@@ -800,6 +790,37 @@ extension AppDelegate {
             p.arguments = ["-a", Bundle.main.bundlePath, file]
             do { try p.run() } catch { return done(["openCommandLine": false]) }
             self.waitUntil(20, { self.windows.contains { $0.currentPath.map(real) == real(file) } }) { done(["openCommandLine": $0]) }
+        }
+
+        // A-01 / A-05 / A-06 / E-45 / E-46 / H-08 / V-19 / W-01 ~ W-04 系统标准菜单项:动作接对、服务 / 窗口 / 帮助菜单交给系统;关于面板真能打开
+        steps.append { done in
+            var items: [NSMenuItem] = []
+            func collect(_ menu: NSMenu?) {
+                for item in menu?.items ?? [] {
+                    items.append(item)
+                    collect(item.submenu)
+                }
+            }
+            collect(NSApp.mainMenu)
+            let has = { (action: String) in items.contains { $0.action.map(NSStringFromSelector) == action && $0.target == nil } }
+            let actions = [
+                "orderFrontStandardAboutPanel:", "hide:", "hideOtherApplications:", "unhideAllApplications:", "terminate:",
+                "startSpeaking:", "stopSpeaking:", "orderFrontCharacterPalette:",
+                "performMiniaturize:", "performZoom:", "arrangeInFront:",
+            ]
+            let missing = actions.filter { !has($0) }
+            if !missing.isEmpty { FileHandle.standardError.write(Data("冒烟 缺少标准菜单项:\(missing)\n".utf8)) }
+            let palette = items.filter { $0.action.map(NSStringFromSelector) == "orderFrontCharacterPalette:" && !$0.isAlternate }.count
+            let menus = NSApp.servicesMenu != nil && NSApp.windowsMenu != nil && NSApp.helpMenu != nil
+                && NSApp.mainMenu?.item(withTitle: "帮助")?.submenu === NSApp.helpMenu
+                && NSApp.mainMenu?.item(withTitle: "窗口")?.submenu === NSApp.windowsMenu
+            let tabbing = NSWindow.allowsAutomaticWindowTabbing && main.window?.tabbingMode != .disallowed
+            let before = NSApp.windows.count
+            NSApp.orderFrontStandardAboutPanel(nil)
+            self.waitUntil(5, { NSApp.windows.count > before }) { about in
+                NSApp.windows.filter { $0 is NSPanel && $0.isVisible }.forEach { $0.close() }
+                done(["standardMenus": missing.isEmpty && palette == 1 && menus && tabbing, "aboutPanel": about])
+            }
         }
 
         // H-01 / H-03 / H-04 / H-07 帮助文档:换成应用自带的最新版并设为只读,开在新窗口;Markdown 参考含 Typoza 新块的存储写法

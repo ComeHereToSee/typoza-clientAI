@@ -509,9 +509,19 @@ function htmlTagAttrs(open: string): Record<string, string> {
   const out: Record<string, string> = {}
   for (const m of open.matchAll(ATTR_RE)) {
     const name = m[1].toLowerCase()
-    if (HTML_TAG_ATTRS.has(name)) out[name] = m[2] ?? m[3] ?? m[4] ?? ''
+    if (!HTML_TAG_ATTRS.has(name)) continue
+    const value = m[2] ?? m[3] ?? m[4] ?? ''
+    out[name] = name === 'style' ? withoutPositioning(value) : value
   }
   return out
+}
+
+/** 去掉定位与层级:行内标签没法像 HTML 块那样关在预览框里,带 position:fixed 就能盖住整个窗口仿冒界面 */
+function withoutPositioning(style: string): string {
+  return style
+    .split(';')
+    .filter((decl) => !/^\s*(position|z-index)\s*:/i.test(decl))
+    .join(';')
 }
 
 marks.html_tag = {

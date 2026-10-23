@@ -46,6 +46,14 @@ describe('段落里的成对行内 HTML 标签', () => {
     expect(edited(md)).toBe(md)
   })
 
+  it('style 里的定位与层级不进渲染结果(防盖住窗口仿冒界面),颜色等照常;写回原文不变', () => {
+    const md = '<span style="position:fixed;inset:0;z-index:9999;color:red">盖层</span>'
+    const out = html(md)
+    expect(out).not.toMatch(/position|z-index/)
+    expect(out).toMatch(/color: ?red/)
+    expect(edited(md)).toBe(md)
+  })
+
   it('标签里套 Markdown 格式:内层照常识别', () => {
     const { doc } = parseMarkdown('<kbd>**粗**</kbd>', opts)
     const marks = (doc.firstChild as PMNode).firstChild!.marks.map((m) => m.type.name).sort()
