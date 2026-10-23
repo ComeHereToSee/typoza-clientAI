@@ -1,0 +1,23 @@
+
+> typoza-editor@0.1.0 postinstall
+> node scripts/patch-deps.mjs
+
+已修补 micromark-extension-gfm-table/lib/edit-map.js
+已修补 micromark-extension-gfm-table/dev/lib/edit-map.js
+已修补 micromark-util-edit-map/index.js
+已修补 micromark-util-edit-map/dev/index.js
+已修补 prosemirror-view/dist/index.js
+已修补 prosemirror-view/dist/index.js
+已修补 prosemirror-tables/dist/index.js
+
+added 345 packages, and audited 346 packages in 7s
+
+98 packages are looking for funding
+  run `npm fund` for details
+
+3 low severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.

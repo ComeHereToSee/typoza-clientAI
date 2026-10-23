@@ -1,0 +1,7 @@
+npm-ci	0	7
+build	0	3
+typecheck	0	5
+unit	0	17
+playwright-install	0	39
+e2e	0	561
+icon	0	3

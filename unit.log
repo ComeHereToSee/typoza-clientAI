@@ -1,0 +1,990 @@
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./build/emoji-data" without a file extension (vitest.config.ts:2:27). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/home/runner/work/typoza-clientAI/typoza-clientAI/editor[39m
+
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m提示词占位替换[2m > [22m替换 selection / document / language,允许花括号里有空格[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m提示词占位替换[2m > [22m没给值的占位符换成空串,不认识的原样保留,同一占位符可出现多次[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m提示词占位替换[2m > [22m替换值里含 $ 等特殊字符时照原样放进去[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22mAI 动作[2m > [22m内置在前、自定义在后;内置动作齐全[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22mAI 动作[2m > [22m代码块里只给「解释」「改写」[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22mAI 动作[2m > [22m名称或提示词为空不能保存[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m当前路线:根 → leaf[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m断链或成环时停下,不死循环[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m同一位置的版本:同父同角色、按时间排;切到某版本后沿最新的子消息走到末端[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m分支列表:每个末端一条,以分叉处消息开头命名,标出当前分支[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m没有分叉时以第一条提问命名[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m对话分支[2m > [22m导出当前分支为 Markdown:提问写成引用块,工具调用记一行[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:套用 doc.edit[2m > [22mreplace_all 整篇替换[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:套用 doc.edit[2m > [22mreplace_range:有 find 替换第一处,否则按偏移替换[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:套用 doc.edit[2m > [22minsert:按偏移、按 find 之后、默认插到文末(空一行)[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:套用 doc.edit[2m > [22m找不到原文、偏移越界、to 小于 from 时报错说明原因[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:按块差分[2m > [22m相同序列没有差异[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:按块差分[2m > [22m只改中间一块:一段替换[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:按块差分[2m > [22m文末追加、开头删除[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:按块差分[2m > [22m分散的多处改动各成一段,没改的块不动[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m改文档:按块差分[2m > [22m先插入后删除的交错也能还原[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m服务商与模型[2m > [22m至少一个启用的服务商里有模型才算可用[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m服务商与模型[2m > [22m模型选择项只列启用的服务商;模型 ID 里有斜杠也能来回转换[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-logic.test.ts[2m > [22m服务商与模型[2m > [22m新条目 ID 与辅助进程同格式:20 位 base32 小写,不重复[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPE-07 新文件默认换行符[2m > [22mPE-07 选 CRLF 时新建的文档按 \r\n 写盘;默认 LF[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPE-07 新文件默认换行符[2m > [22mPE-07 打开的已有文件保持原换行符,不跟偏好走[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPM-06 内联公式开关[2m > [22mPM-06 关掉内联公式:$…$ 按普通文字解析并原样写回;所在段落被编辑过也不加转义[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPM-20 公式内换行开关[2m > [22mPM-20 块公式里的 \\ 与 \newline:开着时换行;关掉后不换行,也不报错[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPM-24 导出时的连续空格与单个换行[2m > [22mPM-24 默认「忽略」:导出的 HTML 与 PDF 不保留空白;选「保留」后加上 pre-wrap[32m 26[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-01 默认导出文件夹[2m > [22mPX-01「自动」:导出过之后沿用这篇文档上一次导出的位置[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m粘贴网址识别 detectEmbed[2m > [22mYouTube 各种分享地址换成嵌入播放器[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m粘贴网址识别 detectEmbed[2m > [22m哔哩哔哩 BV 号带分 P[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m粘贴网址识别 detectEmbed[2m > [22m直链按扩展名归类(忽略查询串)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m粘贴网址识别 detectEmbed[2m > [22m普通网页、非 http 地址不识别[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m/pdf /video /audio 填网址[2m > [22m在线视频网站存 <iframe> 嵌入地址,直链存 <video>[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m/pdf /video /audio 填网址[2m > [22mPDF 网址存成 <iframe src="….pdf">[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m书签卡片的标题与描述[2m > [22m描述存在 <a title>,解析后重新生成不变[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m书签卡片的标题与描述[2m > [22m取到的描述合成一行写回;没有描述时不写 title[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m书签卡片的标题与描述[2m > [22m取不到网页信息时用网址作标题[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m图片尺寸存储(PRD 3.4)[2m > [22m拖手柄写 width 像素[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m图片尺寸存储(PRD 3.4)[2m > [22m选比例写 zoom,100% 回到 ![]()[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m图片尺寸存储(PRD 3.4)[2m > [22m原文是 <img> 的图片转 Markdown 前后写法[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m文内查找[2m > [22m默认不区分大小写;区分时只命中小写[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m文内查找[2m > [22m正则写错时报错而不是抛异常[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m文内查找[2m > [22m限「选中部分」:只保留完全落在范围内的匹配[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m编辑菜单[2m > [22m转换大小写[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m编辑菜单[2m > [22m复制内容并简化格式:去掉颜色等内联样式,保留语义标签[32m 40[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m编辑菜单[2m > [22m粘贴为纯文本:每行一段,Markdown 符号按字面保留[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m解析时转化 Unicode 标点(默认关)[2m > [22m行首全角标记等长换成半角,围栏代码里不动[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m解析时转化 Unicode 标点(默认关)[2m > [22m关闭时照常按文字解析;开启后识别为引用、标题,未编辑时原文不变[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22mHTML 里的 style、meta 只显示源码[2m > [22m换成 <code> 显示原文,其余 HTML 不动[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/media-tools.test.ts[2m > [22m页面图标与封面(front matter)[2m > [22m新增、修改、删除键,保留其它键[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-01 默认导出文件夹[2m > [22mPX-01「与原文件同一目录」:不管上次导出到哪,都用文档所在文件夹[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-01 默认导出文件夹[2m > [22mPX-01「自定义」:用指定的文件夹[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-03 导出后动作[2m > [22mPX-03「打开导出文件」:导出后用默认应用打开导出的文件[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-03 导出后动作[2m > [22mPX-03 运行自定义命令并「显示命令行输出」:弹出命令输出,没输出时写明;不勾选不弹[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-07 / PX-08 交给外壳的 Pandoc 选项[2m > [22mPX-07 Word 样式参考文件只给 docx,Epub 样式表与目录层级只给 epub;额外参数都带上[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-07 / PX-08 交给外壳的 Pandoc 选项[2m > [22mPX-07 「PDF(LaTeX)」导出项:所选 PDF 引擎随导出项交给外壳[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-07 / PX-08 交给外壳的 Pandoc 选项[2m > [22mPX-08「Markdown(其他规范)」导出项:七种变体可选;所选变体、每行字符数、换行符、引用式链接、只用 ASCII 交给外壳[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-10 YAML front matter 覆盖导出设置[2m > [22mPX-10 默认允许覆盖:title / author 进导出参数,header 换掉页首设置,append-head 进导出的 HTML[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-10 YAML front matter 覆盖导出设置[2m > [22mPX-10 关掉「允许 YAML front matter 覆盖当前设置」:文档 YAML 不影响导出,用偏好里的值[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-11 自定义命令导出[2m > [22mPX-11 执行前弹出「选择文件」:保存框按目标扩展名给默认文件名,${outputPath} 为所选文件[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-11 自定义命令导出[2m > [22mPX-11 执行前弹出「选择文件夹」:${outputPath} 为所选文件夹;在选择框里取消就不执行[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-11 自定义命令导出[2m > [22mPX-11 不弹选择框:直接执行,${outputPath} 为空[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3b.test.ts[2m > [22mPX-11 自定义命令导出[2m > [22mPX-11 勾选「显示命令行输出」:执行后弹出命令输出;不勾选不弹[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m语料[32m 70[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22mCRLF[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22mBOM[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m无结尾换行[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m多空行[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m星号列表[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m只改一个块时,其它块逐字不变[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m编辑过的段落、标题末尾的空格不写成 &#x20;(含加粗等标记里的末尾空格)[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m原文保真:未编辑的文档原样写回[2m > [22m邮箱链接存成裸邮箱;纯文本里的 @ 才转义[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m高亮、下划线、颜色、删除线[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m上下标默认不识别,按普通文字显示[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m打开上下标识别后,^2^ 是上标、~2~ 是下标[32m 26[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m转义的定界符保持为文本[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22mfront matter、目录、提示框、折叠块[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m媒体块与 HTML 图片[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m表格对齐与单元格换行[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m任务列表、wikilink、脚注、公式、引用定义[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22mTypora 扩展语法识别[2m > [22m换行的三种写法分别记录[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mTypora 语料[32m 64[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22m相邻的两个同类列表不会被合并(换用不同标记符)[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #1 Tabs[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #2 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #3 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #4 Tabs[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #5 Tabs[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #6 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #7 Tabs[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #8 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #9 Tabs[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #10 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #11 Tabs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #12 Backslash escapes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #13 Backslash escapes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #14 Backslash escapes[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #15 Backslash escapes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #16 Backslash escapes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #17 Backslash escapes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #18 Backslash escapes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #19 Backslash escapes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #20 Backslash escapes[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #21 Backslash escapes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #22 Backslash escapes[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #23 Backslash escapes[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #24 Backslash escapes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #25 Entity and numeric character references[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #26 Entity and numeric character references[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #27 Entity and numeric character references[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #28 Entity and numeric character references[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #29 Entity and numeric character references[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #30 Entity and numeric character references[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #31 Entity and numeric character references[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #32 Entity and numeric character references[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #33 Entity and numeric character references[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #34 Entity and numeric character references[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #35 Entity and numeric character references[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #36 Entity and numeric character references[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #37 Entity and numeric character references[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #38 Entity and numeric character references[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #39 Entity and numeric character references[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #40 Entity and numeric character references[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #41 Entity and numeric character references[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #42 Precedence[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #43 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #44 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #45 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #46 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #47 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #48 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #49 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #50 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #51 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #52 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #53 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #54 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #55 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #56 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #57 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #58 Thematic breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #59 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #60 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #61 Thematic breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #62 ATX headings[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #63 ATX headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #64 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #65 ATX headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #66 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #67 ATX headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #68 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #69 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #70 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #71 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #72 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #73 ATX headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #74 ATX headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #75 ATX headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #76 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #77 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #78 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #79 ATX headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #80 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #81 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #82 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #83 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #84 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #85 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #86 Setext headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #87 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #88 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #89 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #90 Setext headings[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #91 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #92 Setext headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #93 Setext headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #94 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #95 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #96 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #97 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #98 Setext headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #99 Setext headings[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #100 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #101 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #102 Setext headings[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #103 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #104 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #105 Setext headings[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #106 Setext headings[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #107 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #108 Indented code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #109 Indented code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #110 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #111 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #112 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #113 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #114 Indented code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #115 Indented code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #116 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #117 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #118 Indented code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #119 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #120 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #121 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #122 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #123 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #124 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #125 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #126 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #127 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #128 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #129 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #130 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #131 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #132 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #133 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #134 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #135 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #136 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #137 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #138 Fenced code blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #139 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #140 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #141 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #142 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #143 Fenced code blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #144 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #145 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #146 Fenced code blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #147 Fenced code blocks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #148 HTML blocks[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #149 HTML blocks[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #150 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #151 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #152 HTML blocks[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #153 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #154 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #155 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #156 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #157 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #158 HTML blocks[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #159 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #160 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #161 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #162 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #163 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #164 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #165 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #166 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #167 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #168 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #169 HTML blocks[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #170 HTML blocks[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #171 HTML blocks[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #172 HTML blocks[32m 3[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #173 HTML blocks
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #174 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #175 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #176 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #177 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #178 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #179 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #180 HTML blocks[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #181 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #182 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #183 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #184 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #185 HTML blocks[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #186 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #187 HTML blocks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #188 HTML blocks[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #189 HTML blocks[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #190 HTML blocks[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #191 HTML blocks[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #192 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #193 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #194 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #195 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #196 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #197 Link reference definitions[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #198 Link reference definitions[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #199 Link reference definitions[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #200 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #201 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #202 Link reference definitions[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #203 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #204 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #205 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #206 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #207 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #208 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #209 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #210 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #211 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #212 Link reference definitions[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #213 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #214 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-09 命名锚点[2m > [22mX-09 <a name> 命名锚点能找到:段落里的、HTML 块里的;双引号、单引号、不加引号都认[32m 38[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-10 链接到本地文件:绝对路径[2m > [22mX-10 绝对路径、file:// 地址、~/ 开头都按本机文档打开,可省 .md、可带 #标题;不存在时可以新建[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-12 尖括号链接与邮箱[2m > [22mX-12 <a@b.com> 解析成 mailto: 链接,文字是邮箱;这一段改过后重新生成仍写成尖括号[32m 21[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-13 引用式链接与图片[2m > [22mX-13 [文字][id]、[文字][]、[文字] 与 ![图][id] 的地址取自定义行;重新生成仍写成引用式[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-20 / X-21 YAML 里的 typora-root-url 与 typora-copy-images-to[2m > [22mX-20 从文档 YAML 读出图片根路径:相对路径按文档所在文件夹解析;/ 开头的图片按根路径找,相对图片不受影响[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-20 / X-21 YAML 里的 typora-root-url 与 typora-copy-images-to[2m > [22mX-21 从文档 YAML 读出插图目录并决定落盘位置:相对、${filename}、绝对路径;值为 upload 时改为上传[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-23 导出变量[2m > [22mX-23 ${today} 为年-月-日;${outputFolder}、${currentFolder}、${currentFileName} 取导出位置与文档位置;页码留给外壳逐页替换[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p4.test.ts[2m > [22mX-23 导出变量[2m > [22mX-23 未保存的文档:标题取首个标题,文档位置相关的变量为空;YAML 的 title、author 优先[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #215 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #216 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #217 Link reference definitions[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #218 Link reference definitions[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #219 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #220 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #221 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #222 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #223 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #224 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #225 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #226 Paragraphs[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #227 Blank lines[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #228 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #229 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #230 Block quotes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #231 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #232 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #233 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #234 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #235 Block quotes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #236 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #237 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #238 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #239 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #240 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #241 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #242 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #243 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #244 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #245 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #246 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #247 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #248 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #249 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #250 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #251 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #252 Block quotes[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #253 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #254 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #255 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #256 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #257 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #258 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #259 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #260 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #261 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #262 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #263 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #264 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #265 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #266 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #267 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #268 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #269 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #270 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #271 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #272 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #273 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #274 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #275 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #276 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #277 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #278 List items[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #279 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #280 List items[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #281 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #282 List items[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #283 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #284 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #285 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #286 List items[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #287 List items[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #288 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #289 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #290 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #291 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #292 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #293 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #294 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #295 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #296 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #297 List items[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #298 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #299 List items[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #300 List items[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #301 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #302 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #303 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #304 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #305 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #306 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #307 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #308 Lists[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #309 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #310 Lists[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #311 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #312 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #313 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #314 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #315 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #316 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #317 Lists[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #318 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #319 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #320 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #321 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #322 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #323 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #324 Lists[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #325 Lists[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #326 Lists[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #327 Inlines[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #328 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #329 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #330 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #331 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #332 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #333 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #334 Code spans[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #335 Code spans[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #336 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #337 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #338 Code spans[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #339 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #340 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #341 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #342 Code spans[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #343 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #344 Code spans[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #345 Code spans[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #346 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #347 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #348 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #349 Code spans[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #350 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #351 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #352 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #353 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #354 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #355 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #356 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #357 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #358 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #359 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #360 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #361 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #362 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #363 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #364 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #365 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #366 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #367 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #368 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #369 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #370 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #371 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #372 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #373 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #374 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #375 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #376 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #377 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #378 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #379 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #380 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #381 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #382 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #383 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #384 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #385 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #386 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #387 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #388 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #389 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #390 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #391 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #392 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #393 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #394 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #395 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #396 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #397 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #398 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #399 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #400 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #401 Emphasis and strong emphasis[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #402 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #403 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #404 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #405 Emphasis and strong emphasis[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #406 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #407 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #408 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #409 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #410 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #411 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #412 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #413 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #414 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #415 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #416 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #417 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #418 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #419 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #420 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #421 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #422 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #423 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #424 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #425 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #426 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #427 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #428 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #429 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #430 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #431 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #432 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #433 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #434 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #435 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #436 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #437 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #438 Emphasis and strong emphasis[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #439 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #440 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #441 Emphasis and strong emphasis[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #442 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #443 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #444 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #445 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #446 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #447 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #448 Emphasis and strong emphasis[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #449 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #450 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #451 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #452 Emphasis and strong emphasis[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #453 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #454 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #455 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #456 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #457 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #458 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #459 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #460 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #461 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #462 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #463 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #464 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #465 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #466 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #467 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #468 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #469 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #470 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #471 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #472 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #473 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #474 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #475 Emphasis and strong emphasis[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #476 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #477 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #478 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #479 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #480 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #481 Emphasis and strong emphasis[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #482 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #483 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #484 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #485 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #486 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #487 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #488 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #489 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #490 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #491 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #492 Links[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #493 Links[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #494 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #495 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #496 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #497 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #498 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #499 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #500 Links[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #501 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #502 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #503 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #504 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #505 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #506 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #507 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #508 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #509 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #510 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #511 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #512 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #513 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #514 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #515 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #516 Links[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #517 Links[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #518 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #519 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #520 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #521 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #522 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #523 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #524 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #525 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #526 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #527 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #528 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #529 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #530 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #531 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #532 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #533 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #534 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #535 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #536 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #537 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #538 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #539 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #540 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #541 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #542 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #543 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #544 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #545 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #546 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #547 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #548 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #549 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #550 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #551 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #552 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #553 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #554 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #555 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #556 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #557 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #558 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #559 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #560 Links[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #561 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #562 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #563 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #564 Links[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #565 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #566 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #567 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #568 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #569 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #570 Links[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #571 Links[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #572 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #573 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #574 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #575 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #576 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #577 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #578 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #579 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #580 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #581 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #582 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #583 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #584 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #585 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #586 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #587 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #588 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #589 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #590 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #591 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #592 Images[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #593 Images[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #594 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #595 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #596 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #597 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #598 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #599 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #600 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #601 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #602 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #603 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #604 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #605 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #606 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #607 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #608 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #609 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #610 Autolinks[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22m变量与 YAML[2m > [22m替换 ${变量},不认识的原样保留[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22m变量与 YAML[2m > [22m自定义命令里的变量只当文字:按所在位置转义,文件名与 YAML 里的内容执行不了命令[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22m变量与 YAML[2m > [22m变量放在双引号里的 $( )、反引号、单引号与嵌套里也只当文字、值原样:交给真 shell 执行,输出就是原值,没执行任何命令[33m 672[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22m变量与 YAML[2m > [22m读文档 YAML 里的导出键;YAML 写错按没有处理[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22m变量与 YAML[2m > [22m从模板新建导出项[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22mrunExport[2m > [22m第一次导出默认放在文档所在文件夹;成功后记下,「使用上一次设置导出」沿用格式与位置[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22mrunExport[2m > [22m导出并覆盖:先确认,取消就不导出;没导出过时提示[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22mrunExport[2m > [22m没装 Pandoc:提示「需要安装 Pandoc 以继续…」并给【安装说明】[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22mrunExport[2m > [22m其它失败提示「导出失败:」+ 原因;导出后运行命令失败单独提示[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/export-flow.test.ts[2m > [22mrunExport[2m > [22m自定义命令导出项:在文档所在文件夹执行,变量替换[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #611 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #612 Autolinks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #613 Raw HTML[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #614 Raw HTML[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #615 Raw HTML[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #616 Raw HTML[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #617 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #618 Raw HTML[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #619 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #620 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #621 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #622 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #623 Raw HTML[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #624 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #625 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #626 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #627 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #628 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #629 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #630 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #631 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #632 Raw HTML[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #633 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #634 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #635 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #636 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #637 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #638 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #639 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #640 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #641 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #642 Hard line breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #643 Hard line breaks[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #644 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #645 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #646 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #647 Hard line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #648 Soft line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #649 Soft line breaks[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #650 Textual content[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #651 Textual content[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mCommonMark #652 Textual content[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #1[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #2[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #3[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #4[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #5[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #6[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #7[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 表格 #8[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 任务列表 #1[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 任务列表 #2[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 删除线 #1[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 删除线 #2[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 删除线 #3[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #1[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #2[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #3[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #4[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #5[32m 2[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #6
+ [2m[90m↓[39m[22m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #7
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #8[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #9[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #10[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 扩展自动链接 #11[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 禁用的原始 HTML #1[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown.test.ts[2m > [22m语义往返:每个块都重新生成后再解析,结构不变[2m > [22mGFM 脚注 #1[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m段落转折叠标题 2,再转折叠标题 1 只改级别[32m 31[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m转代码块时行内样式变 Markdown 源码[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m纯文字转代码块不转义原文;列表项先移出列表[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m代码块转正文:多行合为一个段落,行间为段内换行[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m标注块默认提醒类;已在标注块里时指定别的类型就切换类型[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m块选中态多块逐块转换[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m单块选中态(Esc 之后)也能转换[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m转换为(notion-input.md 7.3)[2m > [22m可转换与可设色的块[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m块操作[2m > [22m行内源码:段内换行变换行符[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m块操作[2m > [22m复制为 Markdown:同一列表里连续的项合成一个列表[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m块操作[2m > [22m颜色菜单:不在清单里的色值显示「自定义」并打勾(notion-input.md 第八节)[32m 81[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m块操作[2m > [22m整块设色包住块内全部文字[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m代码缩进宽度(对照表 PM-18)[2m > [22mTab 按偏好的空格数缩进,⇧Tab 按同样宽度反缩进[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m表格(PRD 3.6)[2m > [22m多选单元格 ⌘D 向下填充、⌘R 向右填充[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m表格(PRD 3.6)[2m > [22m向右填充每行用最左边一格[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m表格(PRD 3.6)[2m > [22m不是单元格多选时不处理(⌘D 回到复制块)[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/block-commands.test.ts[2m > [22m表格(PRD 3.6)[2m > [22m末格 Tab 新增一行,光标进新行第一格[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/pm-fast-update.test.ts[2m > [22m大文档顶层的快速更新(依赖补丁)[2m > [22m打字、换光标位置、改块类型、增删段落、整篇替换后,界面与重新渲染的一致;没动的段落 DOM 原样保留[33m 378[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m可打开的文件类型(对照表 F-04、X-53)[2m > [22m扩展名清单与 PRD 一致[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m可打开的文件类型(对照表 F-04、X-53)[2m > [22mTextBundle 是一个文档,标题取包名[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m标题与摘要[2m > [22m第一个标题:跳过 front matter 与代码块,支持 Setext[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m标题与摘要[2m > [22m首段摘要:跳过标题、图片、表格,去掉标记[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m标题与摘要[2m > [22mplainText 去掉行内标记[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m改名联动:改写指向它的链接(PRD 3.8)[2m > [22m相对链接、图片、引用定义、HTML、省略 .md 的写法都改,其余字节不动[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m改名联动:改写指向它的链接(PRD 3.8)[2m > [22m文件夹改名:里面的文件链接一起改;wikilink 只在文件改名时改[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m改名联动:改写指向它的链接(PRD 3.8)[2m > [22m与它无关的文档不变[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m文内锚点(对照表 X-09)[2m > [22m先找标题,重名加序号;再找 <a id> 命名锚点[32m 28[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m文档列表排序(对照表 S-04)[2m > [22m四种排序各分升降序[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m大纲折叠(对照表 S-01)[2m > [22m折叠的标题下级都隐藏,同级与上级不受影响[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m历史版本预览[2m > [22m时间按 PRD 写法[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/files.test.ts[2m > [22m历史版本预览[2m > [22m标出这个版本多出、少了的行[32m 31[2mms[22m[39m
+ [32m✓[39m tests/unit/pm-fast-update.test.ts[2m > [22m有装饰、自定义节点视图或在内层容器里时(依赖补丁)[2m > [22m跨块的行内装饰、自定义节点视图:走快速路径(容器层没有小部件),界面照样与重新渲染的一致[32m 115[2mms[22m[39m
+ [32m✓[39m tests/unit/pm-fast-update.test.ts[2m > [22m有装饰、自定义节点视图或在内层容器里时(依赖补丁)[2m > [22m块与块之间有小部件时退回原逻辑,界面照样一致[32m 167[2mms[22m[39m
+ [32m✓[39m tests/unit/pm-fast-update.test.ts[2m > [22m有装饰、自定义节点视图或在内层容器里时(依赖补丁)[2m > [22m超过 200 项的列表里打字、增删列表项:列表这一层也走快速路径,界面一致[32m 83[2mms[22m[39m
+ [32m✓[39m tests/unit/pm-fast-update.test.ts[2m > [22m大文档里修表格只看改动的部分(prosemirror-tables 依赖补丁)[2m > [22m300 段中间新插入的不完整表格照样补齐;没动的部分不改[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22m目标文件夹[2m > [22m按「插入图片时」选项[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22m目标文件夹[2m > [22mYAML 的 typora-copy-images-to 优先;值为 upload 时表示上传,不是文件夹名[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m复制到 ./assets:目录不存在先询问「该目录不存在,是否立即创建?」,同名自动加序号[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m在询问里取消:不复制,返回 null[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m相对路径加 ./ 与转义网址[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m关掉「对本地位置的图片应用上述规则」:本机图片直接引用原路径;剪贴板图片照规则落盘[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m上传:首次上传先确认会调用第三方服务,确认后记下不再问[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m上传:自定义命令没填时报错;取消确认时不上传[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22mimportFile[2m > [22m非图片文件(附件)也按规则复制[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22m网络图片与上传验证[2m > [22m默认保持网址;开了「对网络位置的图片应用上述规则」时下载到资源文件夹[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/assets.test.ts[2m > [22m网络图片与上传验证[2m > [22m验证上传选项:上传一张测试图片并返回网址[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m高亮可以关掉:==文字== 按普通文字显示,原文不变[32m 27[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m警报框可以关掉:> [!NOTE] 显示为普通引用,内部照常识别[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m自动识别链接可以关掉:裸网址是普通文字,写回时不加转义[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m尖括号链接不受「自动识别链接」影响[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m严格模式默认开;关掉后 #标题(# 后没有空格)也是标题[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m解析选项[2m > [22m偏好设置映射到解析选项[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m序列化选项(只影响新建或编辑过的块)[2m > [22m标题样式:atx / atx 带后缀 / setext / 可变宽 setext[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m序列化选项(只影响新建或编辑过的块)[2m > [22m无序列表符号:原文没有无序列表时按偏好,有则沿用原文[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m序列化选项(只影响新建或编辑过的块)[2m > [22m有序列表编号:1. 2. 3. 或 1. 1. 1.[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m序列化选项(只影响新建或编辑过的块)[2m > [22m默认缩进:与列表标记对齐 / 4 个空格[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/markdown-options.test.ts[2m > [22m序列化选项(只影响新建或编辑过的块)[2m > [22m偏好设置映射到序列化选项[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m去掉编辑器界面元素、注释、占位与编辑标记;本机图片改成相对导出文件的路径[32m 77[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m本机图片路径:文件名里的 % # ? 编码,「重新加载所有图片」加的查询串去掉;懒加载去掉[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m智能标点「渲染时转换」导出成真正的弯引号与破折号[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m一块用 NodeSelection,多块用 BlockSelection;内容是所选的兄弟块[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m⇧↓ 从选中的一块扩到下一块,再按 ⇧↑ 收回[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m文字编辑态不扩选(⇧↑⇧↓ 保留系统行为)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m⇧+点击:跨层级时取共同容器下的块(列表项 → 整个列表)[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m⇧⌘+点击:增减单块,不必连续;全部移除后光标回到该块[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m删除、复制、移动多块[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m全部块都删掉时留一个空段落[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m文档变化后选择随之映射;被删的块移出选择[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/block-selection.test.ts[2m > [22m多块选择(notion-input.md 7.4)[2m > [22m退出块选中态时光标在移动端那一块末尾;状态栏字数取全部所选块[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m有样式:带主题与深色标记,公式保留 KaTeX 渲染结果[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m无样式 HTML 的公式:MathML(块级带 display="block")[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m无样式 HTML 的公式:LaTeX 源码(块级取编辑区原文)[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m大纲侧边栏、按一级标题分页、保留空白、字号、追加的 HTML 与作者[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mbuildExportHtml[2m > [22m标题锚点与 Typora 一致[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/exporter.test.ts[2m > [22mHTML 块的 class、id(对照表 X-44)[2m > [22m预览里去掉,导出时还原[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m新对话:回答的增量先到、send 的结果后到,登记后文字一个不丢[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m不是当前对话的事件不记;对话列表跟着 conversation.updated 排序[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m工具调用:确认请求挂起,状态变化后撤下;同一 callId 的部件就地更新[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m重新生成:新版本与原回答同父并成为末端;技能部件不重复记[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m换成辅助进程给的完整对话时,本地正在输出的消息以本地为准[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-chat-store.test.ts[2m > [22mChatStore[2m > [22m编辑后重发:给了 parentId 时提问挂在它下面[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/sync.test.ts[2m > [22m同步状态文字[2m > [22m状态栏摘要:未用同步不显示;同步中、出错、登录失效优先级[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/sync.test.ts[2m > [22m同步状态文字[2m > [22m单个库的状态文字[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/sync.test.ts[2m > [22m同步状态文字[2m > [22m字节与时间格式[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/sync.test.ts[2m > [22m模拟同步服务与辅助进程的契约一致[2m > [22m注册、重复注册、错误密码、两步验证[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/sync.test.ts[2m > [22m模拟同步服务与辅助进程的契约一致[2m > [22m关联文件夹:重叠报错、历史版本只对库内文件[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m文档标题与链接(notion-input.md 4.3)[2m > [22m首个一级标题:跳过 YAML 与代码块,去掉格式标记;Setext 写法也认[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m文档标题与链接(notion-input.md 4.3)[2m > [22m[[文档名]] 同名时优先当前文档所在文件夹[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m文档标题与链接(notion-input.md 4.3)[2m > [22m文档引用的标题取首个一级标题,链接相对当前文件夹[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m文档标题与链接(notion-input.md 4.3)[2m > [22m新建文档重名时加序号;追加 Markdown 与原文空一行[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m斜杠菜单条目与过滤(notion-input.md 4.1、4.2)[2m > [22m条目名按 PRD[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m斜杠菜单条目与过滤(notion-input.md 4.1、4.2)[2m > [22m中文名(忽略空格)、英文别名、拼音缩写都能命中[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m斜杠菜单条目与过滤(notion-input.md 4.1、4.2)[2m > [22m「/turnbullet」这类直达条目只在搜索时出现[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m斜杠菜单条目与过滤(notion-input.md 4.1、4.2)[2m > [22m「转换为」目标含折叠标题 1~3[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/doc-links.test.ts[2m > [22m斜杠菜单条目与过滤(notion-input.md 4.1、4.2)[2m > [22m/ 在块开头、空白或标点后触发;单词中间与网址里不触发[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22msequence 图转 Mermaid(对照表 X-42)[2m > [22m参与者、四种箭头、备注与标题[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22msequence 图转 Mermaid(对照表 X-42)[2m > [22mparticipant 名字 as 别名:连线用别名[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22msequence 图转 Mermaid(对照表 X-42)[2m > [22m\n 换行、分号与 # 转义;无法识别的行报错[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22mflow 图转 Mermaid[2m > [22m节点形状、判断分支标签、链接与状态去掉[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22mflow 图转 Mermaid[2m > [22m未定义的节点按名字显示;未知类型报错[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22mflow 图转 Mermaid[2m > [22mmermaid 原样渲染,sequence / flow 先转换[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22m公式选项(PRD 3.7,对照表 PM-20~PM-22)[2m > [22m不编号:只认手写 \tag[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22m公式选项(PRD 3.7,对照表 PM-20~PM-22)[2m > [22mAMS:编号环境按行编号,\notag 与带星号的不编号[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22m公式选项(PRD 3.7,对照表 PM-20~PM-22)[2m > [22m全部编号:每个块公式各编一个号,并包进 equation 环境[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22m公式选项(PRD 3.7,对照表 PM-20~PM-22)[2m > [22m\ref 与 \eqref 换成编号,找不到显示 ??;\label 去掉[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/diagram-math.test.ts[2m > [22m公式选项(PRD 3.7,对照表 PM-20~PM-22)[2m > [22mphysics 宏按开关加入或移除,不动用户同名定义[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m后退 / 前进(notion 5.1 第 4、5 行)[2m > [22m后退回到跳转前的文档与位置,前进再回来;新的跳转清空前进[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m后退 / 前进(notion 5.1 第 4、5 行)[2m > [22m文件改名后历史里的路径跟着改[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m后退 / 前进(notion 5.1 第 4、5 行)[2m > [22m修饰键:⌘ 新标签,⌥⇧ 新窗口[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m链接目标(PRD 3.2、对照表 X-09、X-10)[2m > [22m相对路径、省略 .md、锚点、TextBundle、其它文件[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m链接目标(PRD 3.2、对照表 X-09、X-10)[2m > [22mwikilink 按文件名在根文件夹里找,同名优先当前文档所在文件夹[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m链接目标(PRD 3.2、对照表 X-09、X-10)[2m > [22m不存在:Markdown 与省略扩展名的写法可以新建,其它文件不能[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m快速打开模糊匹配(PRD 3.9)[2m > [22m连续命中、命中文件名开头得分更高;不匹配为 -1[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/navigation.test.ts[2m > [22m快速打开模糊匹配(PRD 3.9)[2m > [22m也按首个标题匹配[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-fake.test.ts[2m > [22m模拟 AI 服务[2m > [22m密钥写进去后读不出来:设置里只有 hasKey,调用记录里是 ***[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-fake.test.ts[2m > [22m模拟 AI 服务[2m > [22m没有可用模型时发送报 not_configured[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-fake.test.ts[2m > [22m模拟 AI 服务[2m > [22m按脚本流式推文字;每次询问的工具等确认,总是允许后不再问[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-fake.test.ts[2m > [22m模拟 AI 服务[2m > [22mdoc.edit 等网页回报 result;停住的回答可以停止[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m源代码模式光标映射(PRD 3.10)[2m > [22m顶层块在原文里的范围与序列化结果一致[32m 28[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m源代码模式光标映射(PRD 3.10)[2m > [22m文档 → 原文:跳过标记符,光标在标题开头时放到 # 之后[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m源代码模式光标映射(PRD 3.10)[2m > [22m原文 → 文档:来回切换回到同一位置[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m源代码模式光标映射(PRD 3.10)[2m > [22m改过的块(重新生成原文)也能映射[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m源代码模式光标映射(PRD 3.10)[2m > [22m带 BOM 的文件:偏移多算文首一个字符[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m文内查找(find.ts)[2m > [22mbuildPattern:空查询为 null;普通文字按字面匹配;大小写与全词[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/sourcemap.test.ts[2m > [22m文内查找(find.ts)[2m > [22mfindMatches:返回文档位置,行内公式等原子节点不打乱偏移;正则有误时报错[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m键名[2m > [22m统一修饰键顺序与大小写[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m键名[2m > [22m显示成菜单写法(⌃⌥⇧⌘)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m键名[2m > [22m编辑区键位与菜单键位同一个键指向同一个命令[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m冲突就地提示占用者;系统保留键不能用[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m录制新键位:原有键位取消,占用该键的命令改为无键位[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m再次录制:去掉上次自定义的键;清除键位[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m原生菜单只收到与出厂不同的命令[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m浏览器里的应用级键位跟着自定义走;native.* 不交给编辑器键位表[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/shortcuts.test.ts[2m > [22m自定义键位[2m > [22m快捷键页列出全部命令,含只在外壳里的命令[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m选择类命令(Typora「选择」菜单)[2m > [22m选中当前词(英文按单词)[32m 37[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m选择类命令(Typora「选择」菜单)[2m > [22m选中当前行或句[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m选择类命令(Typora「选择」菜单)[2m > [22m选中当前格式文本(取最短的那段格式)[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m选择类命令(Typora「选择」菜单)[2m > [22m没有格式时选中格式文本不处理[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m删除类命令[2m > [22m删除当前词[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m删除类命令[2m > [22m删除当前行或句[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m删除类命令[2m > [22m删除当前格式文本[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m块选中态[2m > [22mEsc 选中当前块,再按 Esc 回到块末尾编辑[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m块选中态[2m > [22m↑ ↓ 换选相邻块;到顶不动[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m块选中态[2m > [22m⇧↓ 扩选后 ↩ 进入移动端那一块,Esc 清除多块选择[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/selection-commands.test.ts[2m > [22m块选中态[2m > [22m文字编辑态 ⇧↓ 不处理(交给系统扩选文字)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22mkbd:渲染成 <kbd>,编辑后原样写回[32m 40[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22mruby 里套 rt:两层都渲染,写回不变[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22mfont color 与带字号的 span:保留属性渲染,开标签原文写回[32m 35[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22m只认白名单属性:事件处理、class、id 不进渲染结果,但写回原文不变[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22mstyle 里的定位与层级不进渲染结果(防盖住窗口仿冒界面),颜色等照常;写回原文不变[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22m换种写法也去得掉定位:注释、大写、转义[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22m标签里套 Markdown 格式:内层照常识别[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22m纯颜色 span 仍走颜色标记(可在界面里改色)[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/inline-html-tags.test.ts[2m > [22m段落里的成对行内 HTML 标签[2m > [22m不成对的标签原样保留,不吞内容[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3a.test.ts[2m > [22m大纲折叠开关(对照表 S-01、PF-02)[2m > [22m默认可折叠:有下级的标题带折叠箭头,有「全部折叠 / 全部展开」;点箭头收起下级[32m 107[2mms[22m[39m
+ [32m✓[39m tests/unit/parity-p3a.test.ts[2m > [22m大纲折叠开关(对照表 S-01、PF-02)[2m > [22m关掉「允许折叠和展开侧边栏的大纲视图」:没有箭头和折叠按钮,标题全部显示,点击照常跳转[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m大文档分段(core/markdown/chunks.ts)[2m > [22m各段首尾相接等于原文,且每段都不小于目标大小(最后一段除外)[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m大文档分段(core/markdown/chunks.ts)[2m > [22m只在空行后、顶格且不是列表项的行前切开[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m大文档分段(core/markdown/chunks.ts)[2m > [22m有链接或脚注定义时不切[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m大文档分段(core/markdown/chunks.ts)[2m > [22m小文档整篇一段[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m分段解析与整篇解析结果相同[2m > [22m混排结构[33m 1243[2mms[22m[39m
+ [32m✓[39m tests/unit/embed-security.test.ts[2m > [22m嵌入框沙箱[2m > [22m只有远程网页给同源[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/embed-security.test.ts[2m > [22m嵌入框沙箱[2m > [22mPDF 只看路径:x.html#.pdf 不算 PDF(否则绕开沙箱)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/embed-security.test.ts[2m > [22m嵌入框沙箱[2m > [22m文档里写的 iframe 按路径归类[32m 27[2mms[22m[39m
+ [32m✓[39m tests/unit/embed-security.test.ts[2m > [22m资源地址的协议[2m > [22m不认的协议给空串,未保存的文档也一样[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/embed-security.test.ts[2m > [22m资源地址的协议[2m > [22m网址、data、blob 原样;相对路径走本机[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m分段解析与整篇解析结果相同[2m > [22m带 front matter 与 CRLF[33m 721[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-render.test.ts[2m > [22mAI 输出 → 正文[2m > [22m只有一段文字:取段内的行内内容(带格式)[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-render.test.ts[2m > [22mAI 输出 → 正文[2m > [22m多块:按块插入;空文本给一个空段落[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-render.test.ts[2m > [22mAI 输出 → 正文[2m > [22m显示:Markdown 渲染成只读 DOM,HTML 不执行[32m 28[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-render.test.ts[2m > [22mAI 版键位[2m > [22m⌘J 打开 AI 对话(菜单键位);跳转到所选内容改为 ⌥⌘J[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m分段解析与整篇解析结果相同[2m > [22m开头有空行、结尾多个换行[33m 497[2mms[22m[39m
+ [32m✓[39m tests/unit/smart-punctuation.test.ts[2m > [22m智能标点[2m > [22m按前一个字符决定左右引号;单引号在字母后是撇号[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/smart-punctuation.test.ts[2m > [22m智能标点[2m > [22m引号样式[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/smart-punctuation.test.ts[2m > [22m智能标点[2m > [22m破折号规则[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/smart-punctuation.test.ts[2m > [22m智能标点[2m > [22m渲染时转换:找出要替换的位置[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/smart-punctuation.test.ts[2m > [22m智能标点[2m > [22m行内代码里不转换;关掉引号或破折号时只转另一种[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/emoji.test.ts[2m > [22m表情数据(构建期由 emojibase 生成)[2m > [22m包含中英文名与 GitHub 短码,不含肤色等组件[32m 186[2mms[22m[39m
+ [32m✓[39m tests/unit/emoji.test.ts[2m > [22m表情数据(构建期由 emojibase 生成)[2m > [22m搜索排序:短码全等 > 短码前缀 > 英文名前缀 > 中文名 > 关键词[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/emoji.test.ts[2m > [22m提及与链接[2m > [22m日期按本地时区,跨月跨年[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/emoji.test.ts[2m > [22m提及与链接[2m > [22m文档链接地址:中文原样,空格括号等转义[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/deps-patch.test.ts[2m > [22m依赖性能补丁[2m > [22mGFM 表格解析不再复制未改动的事件前缀[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/deps-patch.test.ts[2m > [22m依赖性能补丁[2m > [22m文档分词器关容器时不再复制整篇事件前缀(micromark-util-edit-map)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/deps-patch.test.ts[2m > [22m依赖性能补丁[2m > [22mProseMirror 视图更新子节点很多的块级容器时先走快速路径(prosemirror-view)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/deps-patch.test.ts[2m > [22m依赖性能补丁[2m > [22m修表格时子节点很多的容器先跳过前后相同的子节点(prosemirror-tables)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/chunks.test.ts[2m > [22m分段解析与整篇解析结果相同[2m > [22mparseMarkdown 对大文档走分段,结果不变[33m 1584[2mms[22m[39m
+ [32m✓[39m tests/unit/bridge-contract.test.ts[2m > [22m桥接契约[2m > [22m网页调用的每个方法,外壳都恰好有一个分支[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/wordcount.test.ts[2m > [22mcountWords[2m > [22m中日韩字符每字算一个词,西文按词[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/wordcount.test.ts[2m > [22mcountWords[2m > [22m撇号、连字符连在词里;日文假名与韩文也按字[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/wordcount.test.ts[2m > [22mcountWords[2m > [22m段落与行数[32m 0[2mms[22m[39m
+ [32m✓[39m tests/unit/wordcount.test.ts[2m > [22mcountWords[2m > [22m空文本[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/wordcount.test.ts[2m > [22mcountWords[2m > [22m阅读时间按阅读速度(默认 382 字每分钟,不足 1 分钟按 1 分钟)[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/smoke.test.ts[2m > [22m单测环境[2m > [22mProseMirror 可在 jsdom 中构建文档[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m33 passed[39m[22m[90m (33)[39m
+[2m      Tests [22m [1m[32m971 passed[39m[22m[2m | [22m[33m3 skipped[39m[90m (974)[39m
+[2m   Start at [22m 19:46:20
+[2m   Duration [22m 16.85s[2m (environment 63%, tests 20%, import 12%, transform 4%, worker 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 33 times[39m[2m · 28.11s total, 63% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+
