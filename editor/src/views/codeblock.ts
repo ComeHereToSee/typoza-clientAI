@@ -78,6 +78,17 @@ export function refreshCodeBlocks(): void {
 /** 为选中内容 / 整个代码块调整缩进(对照表 P-24)。 */
 registerCommand({ id: 'code.indentSelection', label: '为选中内容调整缩进', run: (view) => activeCodeView(view)?.reindent(false) ?? false })
 registerCommand({ id: 'code.indentBlock', label: '为整个代码块调整缩进', run: (view) => activeCodeView(view)?.reindent(true) ?? false })
+/** 复制代码块内容(对照表 P-23),与右上角【复制代码】按钮同一做法。 */
+registerCommand({
+  id: 'code.copyBlock',
+  label: '复制代码块内容',
+  run: (view) => {
+    const code = activeCodeView(view)
+    if (!code) return false
+    void code.copyAll()
+    return true
+  },
+})
 
 const ALIASES: Record<string, string> = {
   js: 'javascript',
@@ -147,9 +158,10 @@ export class CodeBlockView implements NodeView {
         type: 'button',
         onclick: ((e: Event) => {
           e.preventDefault()
-          void navigator.clipboard.writeText(this.node.textContent)
-          copy.classList.add('is-done')
-          setTimeout(() => copy.classList.remove('is-done'), 1200)
+          void this.copyAll().then(() => {
+            copy.classList.add('is-done')
+            setTimeout(() => copy.classList.remove('is-done'), 1200)
+          })
         }) as EventListener,
       },
       svgIcon(ICONS.copy, 14),
@@ -218,6 +230,13 @@ export class CodeBlockView implements NodeView {
     const pos = this.getPos()
     const { from, to } = view.state.selection
     return pos !== undefined && from > pos && to < pos + this.node.nodeSize
+  }
+
+  /** 整块代码写进剪贴板。走宿主剪贴板:typoza:// 页面里 navigator.clipboard 不一定可用。 */
+  copyAll(): Promise<void> {
+    return this.env.host
+      .clipboardWrite({ text: this.node.textContent })
+      .catch((err: unknown) => this.env.actions.notify(`复制失败:${err instanceof Error ? err.message : String(err)}`, true))
   }
 
   /** 按语言的缩进规则重排所选行(whole 为整个代码块)。 */

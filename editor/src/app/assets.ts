@@ -112,7 +112,7 @@ async function ensureFolder(ctx: ImportContext, folder: string): Promise<boolean
 }
 
 /** 写进文档的地址:相对路径(可加 ./)或绝对路径,按设置转义(PI-04 ~ PI-06)。 */
-export function documentSrc(ctx: ImportContext, absolute: string): string {
+export function documentSrc(ctx: Pick<ImportContext, 'docPath' | 'settings'>, absolute: string): string {
   const docDir = ctx.docPath ? dirname(ctx.docPath) : null
   let src = absolute
   if (docDir && ctx.settings.imageUseRelative) {

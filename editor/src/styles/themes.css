@@ -100,4 +100,7 @@ body.tz-export #write { max-width: var(--tz-page-width); margin: 48px auto; padd
 @media print {
   .tz-sidebar, .tz-side-resizer, .tz-statusbar, .tz-block-handle, .tz-page-actions { display: none !important; }
   html, body, .tz-scroll { overflow: visible !important; height: auto !important; }
+  /* 导出 PDF 与打印时代码块始终折行(对照表 PM-16):纸上没有横向滚动 */
+  .tz-editor .cm-content, .tz-code-static, body.tz-export pre, body.tz-export pre code { white-space: pre-wrap !important; overflow-wrap: anywhere; }
+  .tz-editor .cm-scroller { overflow: visible !important; }
 }

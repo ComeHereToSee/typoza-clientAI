@@ -23,7 +23,7 @@ import { normalizeIdentifier } from 'micromark-util-normalize-identifier'
 import { DOMSerializer, type Mark, type Node as PMNode } from 'prosemirror-model'
 import { schema } from '../schema'
 import { escapeAttr, escapeHtml } from './html'
-import type { TzCallout, TzHtmlImage, TzInlineMark, TzMedia, TzToggle, TzWikiLink } from './mdast-types'
+import type { TzCallout, TzHtmlImage, TzHtmlTag, TzInlineMark, TzMedia, TzToggle, TzWikiLink } from './mdast-types'
 import { blockSources, type DocMeta } from './parse'
 import { typoraInlineToMarkdown } from './syntax'
 
@@ -212,6 +212,14 @@ const handlers: Record<string, Handle> = {
     let value = tracker.move(open)
     value += state.containerPhrasing(node as unknown as Emphasis, { ...tracker.current(), before: value, after: '<' })
     value += tracker.move(close)
+    return value
+  },
+
+  tzHtmlTag(node: TzHtmlTag, _parent, state, info) {
+    const tracker = state.createTracker(info)
+    let value = tracker.move(node.open)
+    value += state.containerPhrasing(node as unknown as Emphasis, { ...tracker.current(), before: value, after: '<' })
+    value += tracker.move(`</${node.tag}>`)
     return value
   },
 
@@ -470,6 +478,7 @@ function markToMdast(mark: Mark): PhrasingContent {
   if (t === m.color) {
     return { type: 'tzInlineMark', mark: 'color', color: mark.attrs.color, background: mark.attrs.background, children: [] }
   }
+  if (t === m.html_tag) return { type: 'tzHtmlTag', tag: mark.attrs.tag, open: mark.attrs.open, children: [] }
   throw new Error(`无法序列化的行内标记:${t.name}`)
 }
 

@@ -1,9 +1,9 @@
 // mdast 后处理:从标准节点里识别 Typoza 扩展结构。
 // 原则:识别不了的一律保持原样(落成 html_block / html_inline),保证打开再保存不丢内容。
 import type { Blockquote, Html, Nodes, Paragraph, Parent, PhrasingContent, Root, RootContent, Text } from 'mdast'
-import { type MediaKind, isPdfSource } from '../schema'
 import { closeTagName, openTagName, parseInlineStyle, parseSingleElement } from './html'
-import type { TzCallout, TzHtmlImage, TzInlineMark, TzMedia, TzToc, TzToggle } from './mdast-types'
+import type { TzCallout, TzHtmlImage, TzHtmlTag, TzInlineMark, TzMedia, TzToc, TzToggle } from './mdast-types'
+import { HTML_TAG_MARKS, type MediaKind, isPdfSource } from '../schema'
 
 type FlowParent = Parent & { children: RootContent[] }
 
@@ -213,6 +213,7 @@ const PHRASING_CONTAINERS = new Set([
   'superscript',
   'subscript',
   'tzInlineMark',
+  'tzHtmlTag',
 ])
 
 type PhrasingParent = Parent & { children: PhrasingContent[] }
@@ -258,13 +259,18 @@ function wrapperFor(html: string): { tag: string; wrap: Wrapper } | null {
       const keys = Object.keys(style)
       const color = style.color ?? null
       const background = style['background-color'] ?? style.background ?? null
-      // 只认纯颜色样式;带其它属性(字号、字体……)的 span 原样保留,避免丢信息
-      if ((!color && !background) || keys.some((k) => !['color', 'background-color', 'background'].includes(k))) return null
+      // 纯颜色样式进颜色标记(可在界面里改);带其它属性(字号、字体……)的 span 按通用标签渲染,开标签原文写回,不丢信息
+      if ((!color && !background) || keys.some((k) => !['color', 'background-color', 'background'].includes(k))) return htmlTagWrapper(tag, html)
       return { tag, wrap: (children) => inlineMark('color', color, background, children) }
     }
     default:
-      return null
+      return HTML_TAG_MARKS.has(tag) ? htmlTagWrapper(tag, html) : null
   }
+}
+
+/** 其它成对的行内标签(对照表 X-43:kbd、ruby、font……):渲染成同名元素,开标签原文留着原样写回 */
+function htmlTagWrapper(tag: string, html: string): { tag: string; wrap: Wrapper } {
+  return { tag, wrap: (children): TzHtmlTag => ({ type: 'tzHtmlTag', tag, open: html.trim(), children }) }
 }
 
 function inlineMark(mark: TzInlineMark['mark'], color: string | null, background: string | null, children: PhrasingContent[]): TzInlineMark {

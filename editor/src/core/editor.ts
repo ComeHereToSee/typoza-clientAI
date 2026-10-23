@@ -8,7 +8,7 @@ import { type Command, EditorState, type Plugin, type Transaction } from 'prosem
 import { tableEditing } from 'prosemirror-tables'
 import { EditorView } from 'prosemirror-view'
 import { aiPlugin } from '../ai/plugin'
-import { autoPairPlugin, editingPlugin, placeholderPlugin, tocRefreshPlugin, viewModesPlugin } from '../plugins/basics'
+import { autoPairPlugin, editingPlugin, imageOnlyPlugin, placeholderPlugin, tocRefreshPlugin, viewModesPlugin } from '../plugins/basics'
 import { copyLinePlugin, markdownPairsPlugin } from '../plugins/editing-prefs'
 import { blockSelectionPlugin } from '../plugins/blockselect'
 import { emojiShortcodePlugin } from '../plugins/emoji-shortcodes'
@@ -151,6 +151,7 @@ export function buildPlugins(env: EditorEnv): Plugin[] {
     placeholderPlugin(),
     emojiShortcodePlugin(),
     editingPlugin(),
+    imageOnlyPlugin(),
     markdownMarkersPlugin(env),
     smartPunctuationRenderPlugin(env),
     tocRefreshPlugin(),

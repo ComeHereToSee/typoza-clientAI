@@ -147,6 +147,12 @@ jobs:
         id: package
         if: ${{ !cancelled() }}
         run: ci/step.sh package scripts/build-app.sh "$RUNNER_TEMP/build"
+      # 冒烟里走一遍 Pandoc 导出 / 导入(对照表 F-21、F-26 ~ F-34)
+      - name: pandoc
+        if: ${{ !cancelled() && steps.package.outcome == 'success' }}
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: ci/step.sh pandoc bash -c "brew install pandoc && pandoc --version"
       - name: smoke
         if: ${{ !cancelled() && steps.package.outcome == 'success' }}
         run: ci/step.sh smoke ci/smoke-macos.sh "$RUNNER_TEMP/build/Typoza.app" "$CI_OUT/smoke"

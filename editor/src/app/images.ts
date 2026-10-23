@@ -21,6 +21,7 @@ import { registerCommand } from '../core/registry'
 import type { Host } from '../host/types'
 import { promptInput } from '../ui/prompt'
 import { reloadAllImages } from '../views/image'
+import { documentSrc } from './assets'
 import { frontMatterInfo } from './document'
 import type { AppSettings } from './settings'
 
@@ -71,10 +72,9 @@ function remoteFileName(url: string): string {
   return /\.[a-z0-9]+$/i.test(name) ? name : `${name}.png`
 }
 
-/** 写进文档的地址:文档已保存且偏好「优先使用相对路径」时写相对路径(与插入图片一致)。 */
+/** 写进文档的地址:与插入图片同一规则(相对路径、加 ./、转义按偏好 PI-04 / PI-05;对照表 M-20、M-21)。 */
 function srcFor(ctx: ImageCommandContext, absolute: string): string {
-  const doc = ctx.docPath()
-  return doc && ctx.settings().imageUseRelative ? relativePath(dirname(doc), absolute) : absolute
+  return documentSrc({ docPath: ctx.docPath(), settings: ctx.settings() }, absolute)
 }
 
 /** 写进 YAML 的文件夹:在文档所在文件夹之内写 ./相对路径,否则写绝对路径。 */

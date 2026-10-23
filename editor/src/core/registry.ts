@@ -29,6 +29,7 @@ import {
   removeLink,
   selectCurrentBlock,
   setHeading,
+  setTaskChecked,
   shiftHeading,
   toggleAllFolds,
   toggleCheckOrFold,
@@ -163,6 +164,8 @@ const builtins: CommandDef[] = [
   { id: 'block.indent', label: '增加缩进', run: st(indent) },
   { id: 'block.outdent', label: '减少缩进', run: st(outdent) },
   { id: 'block.toggleCheck', label: '切换待办 / 展开折叠', run: st(toggleCheckOrFold) },
+  { id: 'block.markDone', label: '标记为已完成', run: st(setTaskChecked(true)) },
+  { id: 'block.markUndone', label: '标记为未完成', run: st(setTaskChecked(false)) },
   { id: 'block.toggleAllFolds', label: '全部展开 / 收起', run: st(toggleAllFolds) },
   {
     id: 'block.paragraphAfter',

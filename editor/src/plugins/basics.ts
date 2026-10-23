@@ -1,4 +1,5 @@
-// 基础插件:占位提示、编辑态标记(公式 / HTML / 图表块显示源码)、目录刷新、专注与打字机模式、括号自动配对。
+// 基础插件:占位提示、编辑态标记(公式 / HTML / 图表块显示源码)、单图段落居中、目录刷新、专注与打字机模式、括号自动配对。
+import type { Node as PMNode } from 'prosemirror-model'
 import { type EditorState, Plugin, PluginKey, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view'
 import { blockAt } from '../core/blocks'
@@ -59,6 +60,57 @@ export function editingPlugin(): Plugin {
         }
         return null
       },
+    },
+  })
+}
+
+// ---------- 单图段落居中(对照表 X-60) ----------
+// 段落只有一张图时加 tz-image-only。只靠样式表 :only-child 不行:ProseMirror 在以图片结尾的段落末尾
+// 补 <br class="ProseMirror-trailingBreak">,图片永远不是唯一子元素;文字节点样式表也看不见。
+
+const imageOnlyKey = new PluginKey<DecorationSet>('tz-image-only')
+
+function imageOnlyDecos(doc: PMNode, from: number, to: number): Decoration[] {
+  const out: Decoration[] = []
+  doc.nodesBetween(from, to, (node, pos) => {
+    if (node.type === n.paragraph) {
+      if (node.childCount === 1 && node.firstChild?.type === n.image) out.push(Decoration.node(pos, pos + node.nodeSize, { class: 'tz-image-only' }))
+      return false
+    }
+    return !node.isTextblock
+  })
+  return out
+}
+
+export function imageOnlyPlugin(): Plugin<DecorationSet> {
+  return new Plugin<DecorationSet>({
+    key: imageOnlyKey,
+    state: {
+      init: (_, state) => DecorationSet.create(state.doc, imageOnlyDecos(state.doc, 0, state.doc.content.size)),
+      apply(tr, prev) {
+        if (!tr.docChanged) return prev
+        // 只重算改动所在的顶层块(大文档每次按键不扫全文)
+        let from = Infinity
+        let to = -Infinity
+        tr.mapping.maps.forEach((map, i) => {
+          const rest = tr.mapping.slice(i + 1)
+          map.forEach((_a, _b, start, end) => {
+            from = Math.min(from, rest.map(start, -1))
+            to = Math.max(to, rest.map(end, 1))
+          })
+        })
+        const set = prev.map(tr.mapping, tr.doc)
+        if (from > to) return set
+        const $from = tr.doc.resolve(from)
+        const $to = tr.doc.resolve(to)
+        if ($from.depth) from = $from.before(1)
+        if ($to.depth) to = $to.after(1)
+        const stale = set.find(from, to).filter((d) => d.from >= from && d.to <= to)
+        return set.remove(stale).add(tr.doc, imageOnlyDecos(tr.doc, from, to))
+      },
+    },
+    props: {
+      decorations: (state) => imageOnlyKey.getState(state),
     },
   })
 }

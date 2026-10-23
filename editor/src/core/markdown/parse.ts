@@ -485,6 +485,9 @@ class ToProseMirror {
           out.push(...this.inlines(node.children, add(mark)))
           break
         }
+        case 'tzHtmlTag':
+          out.push(...this.inlines(node.children, add(s.marks.html_tag.create({ tag: node.tag, open: node.open }))))
+          break
         case 'inlineCode':
           out.push(...this.text(node.value, add(s.marks.code.create())))
           break

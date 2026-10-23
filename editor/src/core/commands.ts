@@ -688,6 +688,16 @@ export const toggleCheckOrFold: Command = (state, dispatch) => {
   return false
 }
 
+/** 标记为已完成 / 未完成(对照表 P-30):光标所在待办项设成指定状态。 */
+export function setTaskChecked(checked: boolean): Command {
+  return (state, dispatch) => {
+    const item = findAncestor(state.selection.$from, n.list_item)
+    if (!item || item.node.attrs.checked === null) return false
+    if (dispatch && item.node.attrs.checked !== checked) dispatch(state.tr.setNodeMarkup(item.pos, null, { ...item.node.attrs, checked }))
+    return true
+  }
+}
+
 export function setToggleOpen(tr: Transaction, pos: number, open: boolean): Transaction {
   const node = tr.doc.nodeAt(pos)
   if (!node || node.type !== n.toggle) return tr

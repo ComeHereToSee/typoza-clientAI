@@ -1,9 +1,11 @@
 // 打包产物冒烟自检(macOS CI 上以 --smoke-out 启动应用时由外壳调用):
-// 在临时目录写一篇带图片 / 表格 / 动图的文档 → 打开 → 双击表格里的图片 → 确认灯箱打开且图片真的加载出来。
-import { TextSelection } from 'prosemirror-state'
+// 在临时目录写一篇带图片 / 表格 / 动图的文档 → 打开 → 双击表格里的图片 → 确认灯箱打开且图片真的加载出来;
+// 再走一遍真实的导出 / 导入(外壳离屏渲染与 Pandoc)、指定编码重新打开、拷贝图片。
+import { NodeSelection, TextSelection } from 'prosemirror-state'
 import type { App } from './app/app'
 import { createEditorState } from './core/editor'
 import { parseMarkdown, parseTimings } from './core/markdown/parse'
+import { runCommand } from './core/registry'
 import { DEMO_MARKDOWN, TINY_GIF, sampleSvg } from './demo'
 
 export interface SmokeResult {
@@ -128,8 +130,100 @@ export async function runSmoke(app: App, bootTimings: Record<string, number> = {
     const sync = await host.syncCall<{ signedIn: boolean; vaults: unknown[] }>('sync.status')
     timings.syncStatusMs = Math.round(performance.now() - t1)
     checks.syncHelper = sync.signedIn === false && Array.isArray(sync.vaults)
+
+    await imageCopyCheck(app, checks)
+    await exportChecks(app, dir, checks, timings)
+    await encodingCheck(app, dir, checks)
   } catch (err) {
     return { ok: false, checks, timings, error: err instanceof Error ? `${err.message}\n${err.stack ?? ''}` : String(err) }
   }
   return { ok: Object.values(checks).every(Boolean), checks, timings }
+}
+
+/** 拷贝图片(对照表 E-03):选中动图执行「拷贝图片」,外壳把图像数据放进系统剪贴板(外壳自检 nativeChecks.copyImage 读回核对)。 */
+async function imageCopyCheck(app: App, checks: Record<string, boolean>): Promise<void> {
+  const view = app.view
+  let at = -1
+  view.state.doc.descendants((node, pos) => {
+    if (at < 0 && node.type.name === 'image' && String(node.attrs.src).includes('anim.gif')) at = pos
+    return at < 0
+  })
+  checks.copyImageCommand = at >= 0
+  if (at < 0) return
+  view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, at)))
+  checks.copyImageCommand = runCommand(view, 'image.copy')
+  // 命令是异步的:等外壳回执(下一步导出不能抢在它前面改剪贴板,导出本身不碰剪贴板)
+  await wait(500)
+}
+
+/** 导出格式与文件扩展名(对照表 F-22 ~ F-34);Pandoc 格式需要 CI 机装好 Pandoc。 */
+const EXPORTS: [string, string][] = [
+  ['html', 'html'],
+  ['html-plain', 'html'],
+  ['pdf', 'pdf'],
+  ['image', 'png'],
+  ['docx', 'docx'],
+  ['odt', 'odt'],
+  ['rtf', 'rtf'],
+  ['epub', 'epub'],
+  ['latex', 'tex'],
+  ['mediawiki', 'wiki'],
+  ['rst', 'rst'],
+  ['textile', 'textile'],
+  ['opml', 'opml'],
+]
+/** 纯文本产物:读回核对正文在里面 */
+const TEXT_EXPORTS = new Set(['html', 'html-plain', 'rtf', 'latex', 'mediawiki', 'rst', 'textile', 'opml'])
+
+/**
+ * 导出(对照表 F-22 ~ F-34、PX-02、PX-04、PX-06)与导入(F-21):走真实流程(网页拼 HTML 与参数 → 外壳离屏渲染 / Pandoc),
+ * 只把保存框换成固定路径。PDF 纸张与页首、PNG 像素宽度由外壳自检用 PDFKit / NSImage 读回核对(nativeChecks.exportPdf / exportPng)。
+ */
+async function exportChecks(app: App, dir: string, checks: Record<string, boolean>, timings: Record<string, number>): Promise<void> {
+  const host = app.host
+  const out = `${dir}/out`
+  await host.mkdir(out)
+  // PX-04:A5 + 页首变量;PX-06:宽 600、质量「高」(2 倍)→ 1200 像素宽;PX-02:Pandoc 路径留空 = 自动检测
+  await app.updateSettings({ exportPdfPaper: 'A5', exportPdfHeader: '页首 ${pageNo}', exportImageWidth: 600, exportImageQuality: 'high', exportAfter: 'none', pandocPath: '' })
+  let target = ''
+  const saveDialog = host.saveDialog
+  host.saveDialog = async () => target
+  try {
+    for (const [format, ext] of EXPORTS) {
+      target = `${out}/smoke-${format}.${ext}`
+      const t = performance.now()
+      // exportAs 是私有方法:冒烟要走与菜单同一条导出流程
+      await app['exportAs'](format)
+      timings[`export_${format}Ms`] = Math.round(performance.now() - t)
+      const st = await host.stat(target)
+      let ok = Boolean(st && st.size > 0)
+      if (ok && TEXT_EXPORTS.has(format)) ok = (await host.readText(target)).text.includes('资助项目')
+      checks[`export_${format}`] = ok
+    }
+  } finally {
+    host.saveDialog = saveDialog
+  }
+  // PX-02 指定可执行文件:填上 Pandoc 的实际路径再导入(F-21:把刚导出的 docx 导回 Markdown)
+  const which = await host.runCommand('command -v pandoc', null)
+  await app.updateSettings({ pandocPath: which.output.trim() })
+  try {
+    const md = await host.importDocument(`${out}/smoke-docx.docx`)
+    checks.importDocx = md.endsWith('.md') && (await host.readText(md)).text.includes('资助项目')
+  } finally {
+    await app.updateSettings({ pandocPath: '' })
+  }
+}
+
+/** 选择编码重新打开(对照表 F-41):Big5 文件按自动识别会被当成 GB18030 读乱,指定 big5 后正确;改动保存后仍是 Big5。 */
+async function encodingCheck(app: App, dir: string, checks: Record<string, boolean>): Promise<void> {
+  const host = app.host
+  const path = `${dir}/繁體.md`
+  await host.writeText(path, '# 繁體中文\n\n資料內容\n', 'big5')
+  await app.openFile(path, { replace: true, encoding: 'big5' })
+  const view = app.view
+  checks.encodingReopen = view.state.doc.textContent.includes('資料內容')
+  view.dispatch(view.state.tr.insertText('追加', view.state.doc.content.size - 1))
+  await app.save()
+  const back = await host.readText(path, 'big5')
+  checks.encodingSaved = back.text.includes('資料內容追加')
 }

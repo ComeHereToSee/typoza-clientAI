@@ -220,6 +220,9 @@ export class FloatingMenu {
     sub.el.dataset.for = item.id
     const r = row.getBoundingClientRect()
     sub.open(item.children(), { left: r.right + 4, top: r.top, bottom: r.top }, '', undefined, focusSearch)
+    // 右侧放不下时翻到父菜单左边:按视口夹住会盖住父菜单里的项(多级子菜单靠近窗口右缘时)
+    const width = sub.el.getBoundingClientRect().width
+    if (r.right + 4 + width > window.innerWidth - 8) sub.el.style.left = `${Math.max(8, r.left - 4 - width)}px`
     this.sub = sub
   }
 

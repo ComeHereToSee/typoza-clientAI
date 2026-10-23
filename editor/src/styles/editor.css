@@ -255,7 +255,7 @@
 /* 图片 */
 .tz-image { position: relative; display: inline-block; max-width: 100%; line-height: 0; vertical-align: bottom; border-radius: 4px; }
 .tz-image img { max-width: 100%; height: auto; border-radius: 4px; cursor: zoom-in; display: block; }
-p > .tz-image:only-child { display: block; width: fit-content; margin: 4px auto; }
+p.tz-image-only > .tz-image { display: block; width: fit-content; margin: 4px auto; }
 .tz-image[data-align='left'] { margin-left: 0; }
 .tz-image[data-align='right'] { margin-left: auto; margin-right: 0; }
 .tz-image.ProseMirror-selectednode { outline: 2px solid var(--tz-accent); outline-offset: 2px; }

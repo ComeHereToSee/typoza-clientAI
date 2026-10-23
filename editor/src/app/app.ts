@@ -237,6 +237,7 @@ export class App {
     this.applyViewModes()
     if ('exportItems' in patch) this.syncExportItems()
     if ('exportHistory' in patch) this.updateWindowState()
+    if ('outlineCollapsible' in patch) this.sidebar.setOutlineCollapsible(this.settings.outlineCollapsible)
     this.renderStatus()
   }
 
@@ -1266,7 +1267,8 @@ export class App {
       )
     })
     cmd('file.revealInFinder', '在 Finder 中显示', () => {
-      if (this.session.path) void this.host.revealInFinder(this.session.path)
+      // TextBundle 显示包本身(与侧栏右键一致),不是包里的 text.md
+      if (this.session.path) void this.host.revealInFinder(bundleOf(this.session.path) ?? this.session.path)
     })
     cmd('file.copyPath', '复制当前文档路径', () => {
       if (this.session.path) {

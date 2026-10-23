@@ -59,6 +59,15 @@ export function blockHandlePlugin(env: EditorEnv): Plugin {
   return new Plugin({ view: (view) => new BlockHandle(view, env) })
 }
 
+/** dom 是某个列表项里的第一块时返回该列表项(待办项的内容包在 .tz-task-content 里) */
+function firstBlockOfListItem(dom: HTMLElement): HTMLElement | null {
+  const parent = dom.parentElement
+  const li = parent?.tagName === 'LI' ? parent : parent?.classList.contains('tz-task-content') ? parent.parentElement : null
+  if (!li || li.tagName !== 'LI') return null
+  const content = li.classList.contains('tz-task') ? li.querySelector(':scope > .tz-task-content') : li
+  return content?.firstElementChild === dom ? li : null
+}
+
 class BlockHandle {
   private readonly el: HTMLDivElement
   private readonly grip: HTMLButtonElement
@@ -126,8 +135,9 @@ class BlockHandle {
     const style = getComputedStyle(dom)
     const line = Number.parseFloat(style.lineHeight) || 24
     const top = rect.top - box.top + this.container.scrollTop + Math.max(0, Math.min(line, rect.height) / 2 - 12) + (Number.parseFloat(style.paddingTop) || 0)
-    const isListItem = info.node.type === schema.nodes.list_item
-    const left = rect.left - box.left + this.container.scrollLeft - (isListItem ? 72 : 52)
+    // 列表项的首段按整项对齐,手柄放在项目符号 / 待办复选框左边,不盖住复选框(对照表 P-30「点击复选框」)
+    const li = info.node.type === schema.nodes.list_item ? dom : firstBlockOfListItem(dom)
+    const left = (li ? li.getBoundingClientRect().left - 72 : rect.left - 52) - box.left + this.container.scrollLeft
     this.el.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`
     this.el.hidden = false
   }

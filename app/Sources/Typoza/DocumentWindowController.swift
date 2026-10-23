@@ -51,6 +51,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
         self?.emit("fs.changed", ["paths": paths])
     }
 
+    /// 网页已就绪(收到 app.info 请求之后)
+    var isLoaded: Bool { ready }
+
     /// 空白新文档(没打开文件、没修改、没有待恢复的草稿),可以直接拿来打开别的文件
     var isBlank: Bool { currentPath == nil && window?.isDocumentEdited != true && draftId == nil && pendingDraft == nil }
 

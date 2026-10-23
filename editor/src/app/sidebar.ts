@@ -194,6 +194,13 @@ export class Sidebar {
     else if (activeChanged) this.highlightOutline()
   }
 
+  /** 偏好「允许折叠和展开侧边栏的大纲视图」改了:当场重画大纲(对照表 PF-02) */
+  setOutlineCollapsible(collapsible: boolean): void {
+    if (collapsible === this.outlineCollapsible) return
+    this.outlineCollapsible = collapsible
+    if (this.tab === 'outline') void this.render()
+  }
+
   /** 文件变化后刷新(文件树、文档列表)。 */
   refresh(): void {
     if (this.tab === 'files' || this.tab === 'list') void this.render()

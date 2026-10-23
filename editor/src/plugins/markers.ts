@@ -29,6 +29,8 @@ function tokens(mark: Mark): [string, string] | null {
       return mark.attrs.syntax === 'typora' ? ['~', '~'] : ['<sub>', '</sub>']
     case m.link:
       return ['[', `](${mark.attrs.href as string})`]
+    case m.html_tag:
+      return [mark.attrs.open as string, `</${mark.attrs.tag as string}>`]
     default:
       return null
   }

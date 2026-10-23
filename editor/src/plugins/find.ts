@@ -125,7 +125,11 @@ function replaceCurrent(view: EditorView, replacement: string): void {
   const m = st.matches[st.current]
   const tr = view.state.tr.insertText(expand(st, view.state, m, replacement), m.from, m.to)
   view.dispatch(tr.setMeta(findKey, {}))
-  go(view, 1)
+  // 重算后的当前项已是光标(替换文字末尾)之后的第一处,选中它即可;再前进一格会跳过一处(对照表 E-44)
+  const next = findKey.getState(view.state)
+  if (!next || next.current < 0) return
+  const hit = next.matches[next.current]
+  view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, hit.from, hit.to)).scrollIntoView())
 }
 
 function replaceAll(view: EditorView, replacement: string): number {

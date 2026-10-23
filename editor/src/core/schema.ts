@@ -497,6 +497,29 @@ const marks: Record<string, MarkSpec> = {
   },
 }
 
+/** 段落里照样渲染的成对行内 HTML 标签(对照表 X-43);u、sup、sub、mark、s、b、i 与纯颜色 span 另有专门的格式标记 */
+export const HTML_TAG_MARKS = new Set(['kbd', 'ruby', 'rb', 'rt', 'rp', 'small', 'big', 'abbr', 'cite', 'q', 'var', 'samp', 'dfn', 'bdi', 'bdo', 'time', 'span', 'font'])
+/** 通用行内标签只保留这些属性:不带事件处理、class、id(与 HTML 块预览同一口径) */
+const HTML_TAG_ATTRS = new Set(['style', 'title', 'lang', 'dir', 'color', 'face', 'size', 'datetime'])
+const ATTR_RE = /\s([a-zA-Z][\w-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g
+
+function htmlTagAttrs(open: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const m of open.matchAll(ATTR_RE)) {
+    const name = m[1].toLowerCase()
+    if (HTML_TAG_ATTRS.has(name)) out[name] = m[2] ?? m[3] ?? m[4] ?? ''
+  }
+  return out
+}
+
+marks.html_tag = {
+  attrs: { tag: { default: 'span' }, open: { default: '<span>' } },
+  // ruby 里套 rt:同一种标记可以叠多层
+  excludes: '',
+  inclusive: false,
+  toDOM: (mark): DOMOutputSpec => [HTML_TAG_MARKS.has(mark.attrs.tag) ? mark.attrs.tag : 'span', htmlTagAttrs(mark.attrs.open), 0],
+}
+
 export const schema = new Schema({ nodes, marks })
 
 /** Notion 调色板(浅色主题取值)。 */

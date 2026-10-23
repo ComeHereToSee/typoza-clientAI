@@ -53,6 +53,14 @@ export interface TzInlineMark extends Parent {
   children: PhrasingContent[]
 }
 
+/** 其它成对的行内 HTML 标签(<kbd>、<ruby>、<font>、带其它样式的 <span>……):照样渲染,开标签原文保存以便原样写回 */
+export interface TzHtmlTag extends Parent {
+  type: 'tzHtmlTag'
+  tag: string
+  open: string
+  children: PhrasingContent[]
+}
+
 /** <img> 标签形式的图片(带 width / zoom 等 Markdown 表达不了的属性) */
 export interface TzHtmlImage extends Node {
   type: 'tzHtmlImage'
@@ -86,6 +94,7 @@ declare module 'mdast' {
     tzToc: TzToc
     tzWikiLink: TzWikiLink
     tzInlineMark: TzInlineMark
+    tzHtmlTag: TzHtmlTag
     tzHtmlImage: TzHtmlImage
     tzHtmlBreak: TzHtmlBreak
   }
@@ -98,6 +107,7 @@ declare module 'mdast' {
   interface PhrasingContentMap {
     tzWikiLink: TzWikiLink
     tzInlineMark: TzInlineMark
+    tzHtmlTag: TzHtmlTag
     tzHtmlImage: TzHtmlImage
     tzHtmlBreak: TzHtmlBreak
   }

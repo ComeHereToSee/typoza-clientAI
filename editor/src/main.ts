@@ -35,6 +35,9 @@ async function boot(): Promise<void> {
     seedDemo(host)
     const params = new URLSearchParams(location.search)
     const empty = params.has('empty')
+    // E2E 用:以给定偏好启动(只在启动时读一次的选项,如「默认显示大纲视图」)
+    const preset = params.get('settings')
+    if (preset) Object.assign(host.settings, JSON.parse(preset) as Record<string, unknown>)
     app = new App({ host, mount, openPath: empty ? DEMO_ROOT : DEMO_DOC, openIsDir: empty, dark })
     await app.init()
     window.typozaTest = {

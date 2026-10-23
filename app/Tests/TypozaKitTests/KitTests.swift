@@ -50,6 +50,19 @@ final class FileServiceTests: XCTestCase {
         XCTAssertEqual(r["mtime"] as? Int64, w["mtime"] as? Int64)
     }
 
+    /// 对照表 X-54:自动识别出 GB18030 的旧文件,按原编码写回(盘上字节仍是 GB18030,不是 UTF-8)
+    func testLegacyEncodingIsDetectedAndWrittenBack() throws {
+        let path = dir.appendingPathComponent("旧文件.md").path
+        try TextEncoding.encode("中文旧文件\n", as: "gb18030").write(to: URL(fileURLWithPath: path))
+        let r = try FileService.readText(path, encoding: nil)
+        XCTAssertEqual(r["encoding"] as? String, "gb18030")
+        XCTAssertEqual(r["text"] as? String, "中文旧文件\n")
+        _ = try FileService.writeText(path, text: "中文旧文件,改过\n", encoding: r["encoding"] as? String)
+        let bytes = try Data(contentsOf: URL(fileURLWithPath: path))
+        XCTAssertEqual(bytes, try TextEncoding.encode("中文旧文件,改过\n", as: "gb18030"))
+        XCTAssertNil(String(data: bytes, encoding: .utf8))
+    }
+
     func testListDirPutsFoldersFirstWithNaturalOrder() throws {
         for name in ["b10.md", "b2.md", "a.md"] { _ = try FileService.writeText(dir.appendingPathComponent(name).path, text: "", encoding: nil) }
         try FileService.mkdir(dir.appendingPathComponent("zz").path)

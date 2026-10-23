@@ -1,5 +1,5 @@
-// 编辑区右键菜单(对照表 C-01、C-03 ~ C-05、C-08 ~ C-12、C-14;notion-input 7.2「右键块空白处」)。
-// 按右键位置给出:图片 / 媒体 / 公式 / 代码块与图表的专属操作,剪切拷贝粘贴、复制 / 粘贴为、内联样式、搜索、插入、跳转、块菜单。
+// 编辑区右键菜单(对照表 C-01、C-03 ~ C-05、C-08 ~ C-14、P-11 ~ P-17;notion-input 7.2「右键块空白处」)。
+// 按右键位置给出:图片 / 媒体 / 公式 / 代码块与图表 / 链接 / 表格的专属操作,剪切拷贝粘贴、复制 / 粘贴为、内联样式、搜索、插入、跳转、块菜单。
 // 按住 ⌥ 右键保留系统菜单(拼写建议、查询等系统能力)。
 import type { Node as PMNode, NodeType } from 'prosemirror-model'
 import { NodeSelection, Plugin, Selection, TextSelection } from 'prosemirror-state'
@@ -7,6 +7,7 @@ import type { EditorView } from 'prosemirror-view'
 import { aiHooks } from '../ai/plugin'
 import { type EditorEnv, localPathOf, openImageLightbox, resourceUrl } from '../core/env'
 import { ZOOM_PRESETS, currentImage, deleteImage, setImageAttrs, zoomAttrs } from '../core/image-ops'
+import { openHref } from '../core/links'
 import { getCommand, runCommand } from '../core/registry'
 import { schema } from '../core/schema'
 import { FloatingMenu, type MenuItem } from '../ui/menu'
@@ -110,6 +111,10 @@ function buildItems(view: EditorView, env: EditorEnv, target: Element, e: MouseE
   if (media) items.push(...mediaItems(view, env, media))
   if (math) items.push(...mathItems(view, env, math, command))
   if (code) items.push(...codeItems(view, env, code))
+  if (!image && !media && !math && !code) {
+    items.push(...linkItems(view, env, target))
+    if (inTable(view)) items.push(tableMenu(command))
+  }
 
   const text = view.state.selection.empty ? '' : view.state.doc.textBetween(view.state.selection.from, view.state.selection.to, ' ', ' ').trim()
   const edit = '编辑'
@@ -261,6 +266,42 @@ function imageItems(view: EditorView, env: EditorEnv, hit: Hit): (MenuItem | nul
       },
     },
   ]
+}
+
+/** 链接:打开链接、复制链接地址、复制链接文字(对照表 C-13、M-12;与单击链接弹出的浮层同一做法)。 */
+function linkItems(view: EditorView, env: EditorEnv, target: Element): (MenuItem | null)[] {
+  const a = target.closest<HTMLAnchorElement>('a[href]')
+  if (!a || !view.dom.contains(a) || a.classList.contains('tz-wikilink') || a.closest('.tz-media, .tz-html-preview')) return []
+  const href = a.getAttribute('href') ?? ''
+  const text = a.textContent ?? ''
+  const group = '链接'
+  const copy = (value: string) => env.host.clipboardWrite({ text: value }).catch((err: unknown) => env.actions.notify(`复制失败:${errorText(err)}`, true))
+  return [
+    { id: 'ctx.link.open', label: '打开链接', group, run: () => openHref(view, env, href, 'current') },
+    { id: 'ctx.link.copyUrl', label: '复制链接地址', group, run: () => void copy(href) },
+    text && text !== href ? { id: 'ctx.link.copyText', label: `复制「${text.length > 20 ? `${text.slice(0, 20)}…` : text}」`, group, run: () => void copy(text) } : null,
+  ]
+}
+
+function inTable(view: EditorView): boolean {
+  const { $from } = view.state.selection
+  for (let d = $from.depth; d > 0; d--) if ($from.node(d).type === n.table) return true
+  return false
+}
+
+/** 表格 ▸ 插入 / 删除行列、复制表格(对照表 P-11 ~ P-17;命令与表格工具条「更多」相同)。 */
+function tableMenu(command: (id: string, label: string, group: string, hint?: string) => MenuItem | null): MenuItem | null {
+  const group = '表格'
+  return submenu('ctx.table', '表格', group, [
+    command('table.rowAbove', '上方插入行', group),
+    command('table.rowBelow', '下方插入行', group, '⌘↩'),
+    command('table.colLeft', '左侧插入列', group),
+    command('table.colRight', '右侧插入列', group),
+    command('table.deleteRow', '删除行', group, '⇧⌘⌫'),
+    command('table.deleteCol', '删除列', group),
+    command('table.copy', '复制表格', group),
+    command('table.delete', '删除表格', group),
+  ])
 }
 
 /** 视频 / 音频:播放 / 暂停(对照表 C-11);PDF:用「预览」打开。 */

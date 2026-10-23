@@ -66,8 +66,8 @@ const REBUILD_KEYS: Key[] = [
 const REPARSE_KEYS: Key[] = ['inlineMath', 'subscript', 'superscript', 'highlight', 'alerts', 'autolink', 'strictMode', 'unicodePunctuation']
 // 空格与换行:只影响显示,交给显示插件
 const DISPLAY_KEYS: Key[] = ['firstLineIndent', 'showBrTag', 'preserveSingleNewline']
-// 改了图表、公式选项要重画节点视图
-const REDRAW_KEYS: Key[] = ['diagrams', 'mathNumbering', 'mathPhysics', 'mathLineBreak', 'mathCodeFence', 'codeIndentWidth']
+// 改了图表、公式、代码块显示选项要重画节点视图(已显示的代码块当场换上行号 / 折行,对照表 PM-15、PM-16)
+const REDRAW_KEYS: Key[] = ['diagrams', 'mathNumbering', 'mathPhysics', 'mathLineBreak', 'mathCodeFence', 'codeIndentWidth', 'codeLineNumbers', 'codeLineWrap']
 
 export interface LiveEditor {
   view: EditorView

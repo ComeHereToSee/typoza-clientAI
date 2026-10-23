@@ -1,4 +1,5 @@
 import AppKit
+import PDFKit
 import TypozaKit
 import WebKit
 
@@ -129,10 +130,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             if let key = self.keyController { key.sendCommand("file.quickOpen") } else { self.newWindow(open: nil).sendCommandWhenReady("file.quickOpen") }
             return nil
         }
-        if smokeOut == nil, !UserDefaults.standard.bool(forKey: Self.welcomeShownKey) {
-            UserDefaults.standard.set(true, forKey: Self.welcomeShownKey)
-            openWelcome(reuseBlank: true)
-        }
+        if smokeOut == nil { showWelcomeOnFirstLaunch() }
         NSApp.activate(ignoringOtherApps: true)
         mark("didFinishLaunchingEnd")
     }
@@ -153,6 +151,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// 偏好「所有窗口被关闭后自动退出」(PG-01,默认关);冒烟自检由自检流程自己退出
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         guard smokeOut == nil else { return false }
+        return quitsAfterLastWindowClosed()
+    }
+
+    private func quitsAfterLastWindowClosed() -> Bool {
         do {
             return (try settings.load()["quitOnLastWindowClosed"] as? Bool) ?? false
         } catch {
@@ -307,6 +309,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } catch {
             NSAlert(error: error).runModal()
         }
+    }
+
+    /// 欢迎向导(对照表 H-06):首次启动自动打开「快速上手」,之后不再自动打开
+    private func showWelcomeOnFirstLaunch() {
+        guard !UserDefaults.standard.bool(forKey: Self.welcomeShownKey) else { return }
+        UserDefaults.standard.set(true, forKey: Self.welcomeShownKey)
+        openWelcome(reuseBlank: true)
     }
 
     private func openWelcome(reuseBlank: Bool) {
@@ -578,7 +587,7 @@ extension AppDelegate {
                 guard opened, let first = self.windows.first(where: { $0.isShowing(file) }) else {
                     checks["reopenClosed"] = false
                     checks["saveAll"] = false
-                    return self.welcomeSmoke(checks, completion)
+                    return self.welcomeSmoke(main, checks, completion)
                 }
                 first.window?.performClose(nil)
                 self.waitUntil(5, { !self.windows.contains { $0.isShowing(file) } }) { _ in
@@ -587,7 +596,7 @@ extension AppDelegate {
                         checks["reopenClosed"] = reopened
                         guard reopened, let again = self.windows.first(where: { $0.isShowing(file) }) else {
                             checks["saveAll"] = false
-                            return self.welcomeSmoke(checks, completion)
+                            return self.welcomeSmoke(main, checks, completion)
                         }
                         // F-17 全部保存:在这个窗口里打字(未保存),用菜单命令保存全部,文件里出现新字
                         let typing = "(() => { const pm = document.querySelector('.ProseMirror'); pm.focus(); const s = getSelection(); s.selectAllChildren(pm); s.collapseToEnd(); return document.execCommand('insertText', false, '全部保存自检') })()"
@@ -596,7 +605,7 @@ extension AppDelegate {
                                 command("native.saveAll")
                                 self.waitUntil(10, { ((try? String(contentsOfFile: file, encoding: .utf8)) ?? "").contains("全部保存自检") }) { saved in
                                     checks["saveAll"] = saved
-                                    self.welcomeSmoke(checks, completion)
+                                    self.welcomeSmoke(main, checks, completion)
                                 }
                             }
                         }
@@ -607,14 +616,280 @@ extension AppDelegate {
     }
 
     /// H-06 欢迎向导:首次启动打开的「快速上手」(冒烟时跳过首次启动流程,这里直接走一遍打开)
-    private func welcomeSmoke(_ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
+    private func welcomeSmoke(_ main: DocumentWindowController, _ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
         var checks = checks
         let target = AppPaths.support.appendingPathComponent("welcome/快速上手.md").path
         openWelcome(reuseBlank: false)
         waitUntil(15, { self.windows.contains { $0.isShowing(target) } }) { shown in
             checks["welcome"] = shown
-            completion(checks)
+            self.moreNativeSmoke(main, checks, completion)
         }
+    }
+
+    /// 外壳自检第二段(对照表 E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
+    /// 网页侧冒烟(smoke.ts)已导出好 PDF / PNG、把动图拷进剪贴板,这里读回核对。
+    private func moreNativeSmoke(_ main: DocumentWindowController, _ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
+        var checks = checks
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("typoza-native2-\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let exports = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches/app.typoza.mac/smoke/out")
+        let real = { (path: String) in URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
+        let command = { (id: String) in
+            let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+            item.representedObject = id
+            self.menuCommand(item)
+        }
+        var steps: [(@escaping ([String: Bool]) -> Void) -> Void] = []
+
+        // E-03 拷贝图片:网页冒烟对动图执行了「拷贝图片」,系统剪贴板里应有图像数据与文件地址
+        steps.append { done in
+            let pb = NSPasteboard.general
+            let urls = pb.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] ?? []
+            done(["copyImage": NSImage(pasteboard: pb) != nil && urls.contains { $0.lastPathComponent == "anim.gif" }])
+        }
+
+        // PX-04 PDF:A5(148 × 210 毫米 = 419.5 × 595.3 点),每页页首「页首 <页码>」
+        steps.append { done in
+            guard let doc = PDFDocument(url: exports.appendingPathComponent("smoke-pdf.pdf")), let page = doc.page(at: 0) else { return done(["exportPdf": false]) }
+            let box = page.bounds(for: .mediaBox)
+            let a5 = abs(box.width - 419.53) < 1.5 && abs(box.height - 595.28) < 1.5
+            done(["exportPdf": a5 && page.annotations.contains { $0.contents == "页首 1" }])
+        }
+
+        // PX-06 图片:宽 600、质量「高」(每个 CSS 像素 2 个图片像素)→ 1200 像素宽
+        steps.append { done in
+            let rep = (try? Data(contentsOf: exports.appendingPathComponent("smoke-image.png"))).flatMap { NSBitmapImageRep(data: $0) }
+            done(["exportPng": rep?.pixelsWide == 1200])
+        }
+
+        // F-01 / F-03 新建(⌘N、⇧⌘N 同一命令):多一个独立的空白窗口;测完关掉
+        steps.append { done in
+            let before = self.windows.count
+            command("native.newWindow")
+            guard self.windows.count == before + 1, let created = self.windows.last else { return done(["newWindow": false]) }
+            self.waitUntil(15, { created.isLoaded }) { loaded in
+                let ok = loaded && created.isBlank && created.window?.isVisible == true && (created.window?.tabbedWindows?.count ?? 1) == 1
+                created.window?.performClose(nil)
+                self.waitUntil(10, { !self.windows.contains { $0 === created } }) { closed in done(["newWindow": ok && closed]) }
+            }
+        }
+
+        // F-02 新建标签页:当前窗口的标签多一个空白文档;测完关掉
+        steps.append { done in
+            guard let parent = main.window else { return done(["newTab": false]) }
+            parent.makeKeyAndOrderFront(nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                let before = parent.tabbedWindows?.count ?? 1
+                command("native.newTab")
+                guard let created = self.windows.last, created !== main else { return done(["newTab": false]) }
+                self.waitUntil(15, { created.isLoaded }) { loaded in
+                    let ok = loaded && created.isBlank && (parent.tabbedWindows?.count ?? 1) == before + 1
+                    created.window?.performClose(nil)
+                    self.waitUntil(10, { !self.windows.contains { $0 === created } }) { closed in done(["newTab": ok && closed]) }
+                }
+            }
+        }
+
+        // F-05 清除最近文件:菜单只剩「空」与「清除最近文件」
+        steps.append { done in
+            self.clearRecent(NSMenuItem())
+            self.menuNeedsUpdate(self.recentMenu)
+            done(["clearRecent": self.recentMenu.items.filter { !$0.isSeparatorItem }.map(\.title) == ["空", "清除最近文件"]])
+        }
+
+        // F-06 / S-18 固定的目录排在前面并打勾;「清除最近使用的目录」只清最近、不动固定;测完恢复原值
+        steps.append { done in
+            let saved = (try? self.settings.load()) ?? [:]
+            let pinned = dir.appendingPathComponent("固定").path
+            let recent = dir.appendingPathComponent("最近").path
+            try? self.settings.merge(["pinnedFolders": [pinned], "recentFolders": [recent, pinned]])
+            self.buildRecentFoldersMenu(self.recentFoldersMenu)
+            let rows = self.recentFoldersMenu.items.compactMap { item in (item.representedObject as? String).map { ($0, item.state) } }
+            let ordered = rows.map { $0.0 } == [pinned, recent] && rows.first?.1 == .on && rows.last?.1 == .off
+            self.clearRecentFolders(NSMenuItem())
+            let after = (try? self.settings.load()) ?? [:]
+            let cleared = (after["recentFolders"] as? [String])?.isEmpty == true && (after["pinnedFolders"] as? [String]) == [pinned]
+            try? self.settings.merge(["pinnedFolders": saved["pinnedFolders"] ?? [String](), "recentFolders": saved["recentFolders"] ?? [String]()])
+            done(["pinnedFolders": ordered && cleared])
+        }
+
+        // PG-01 所有窗口被关闭后自动退出:按偏好返回(冒烟时委托方法固定不退出,自检要自己写完报告再退出)
+        steps.append { done in
+            let saved = (try? self.settings.load())?["quitOnLastWindowClosed"] as? Bool ?? false
+            try? self.settings.merge(["quitOnLastWindowClosed": true])
+            let on = self.quitsAfterLastWindowClosed()
+            try? self.settings.merge(["quitOnLastWindowClosed": false])
+            let off = self.quitsAfterLastWindowClosed()
+            try? self.settings.merge(["quitOnLastWindowClosed": saved])
+            done(["quitAfterLastWindow": on && !off])
+        }
+
+        // E-15 / E-17 ⌘↑ ⌘↓、E-18 ⌃A ⌃E、E-09 ⌥⇧⌘V:真按键事件,经菜单与网页的完整链路(CI 的网页用例在 Linux 上按不出这些键)
+        steps.append { done in
+            let names = ["keyLineStart", "keyLineEnd", "keyDocStart", "keyDocEnd", "pasteMatchStyle"]
+            let fail = { done(Dictionary(uniqueKeysWithValues: names.map { ($0, false) })) }
+            let file = dir.appendingPathComponent("键位自检.md").path
+            do { try "# 键位自检\n\n第二段文字内容\n\n末段\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return fail() }
+            self.open(path: file, isDir: false, newWindow: true)
+            self.waitUntil(15, { self.windows.contains { $0.isShowing(file) && $0.isLoaded } }) { opened in
+                guard opened, let w = self.windows.first(where: { $0.isShowing(file) }), let window = w.window else { return fail() }
+                window.makeKeyAndOrderFront(nil)
+                _ = window.makeFirstResponder(w.webView)
+                let place = "(() => { const pm = document.querySelector('.ProseMirror'); const p = pm && [...pm.querySelectorAll('p')].find((e) => e.textContent === '第二段文字内容'); if (!p) return false; pm.focus(); const r = document.createRange(); r.setStart(p.firstChild, 3); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); return true })()"
+                self.waitForScript(w, place, 15) { placed in
+                    guard placed else { return fail() }
+                    let up = String(Character(UnicodeScalar(UInt32(NSUpArrowFunctionKey))!))
+                    let down = String(Character(UnicodeScalar(UInt32(NSDownArrowFunctionKey))!))
+                    let arrow: NSEvent.ModifierFlags = [.command, .numericPad, .function]
+                    let presses: [(String, UInt16, String, String, NSEvent.ModifierFlags, String)] = [
+                        ("keyLineStart", 0, "\u{01}", "a", [.control], "第二段文字内容|0"),
+                        ("keyLineEnd", 14, "\u{05}", "e", [.control], "第二段文字内容|7"),
+                        ("keyDocStart", 126, up, up, arrow, "键位自检|0"),
+                        ("keyDocEnd", 125, down, down, arrow, "末段|2"),
+                    ]
+                    var results: [String: Bool] = [:]
+                    func pasteCheck() {
+                        // 光标在「末段」末尾:⌥⇧⌘V 按纯文字粘贴,Markdown 符号原样留下
+                        let pb = NSPasteboard.general
+                        pb.clearContents()
+                        pb.setString("**粗**", forType: .string)
+                        self.sendKey(window, code: 9, chars: "◊", ignoring: "V", mods: [.command, .option, .shift])
+                        self.waitForScript(w, "document.querySelector('.tz-editor')?.textContent.includes('末段**粗**') === true", 5) { ok in
+                            results["pasteMatchStyle"] = ok
+                            done(results)
+                        }
+                    }
+                    func press(_ i: Int) {
+                        guard i < presses.count else { return pasteCheck() }
+                        let (name, code, chars, ignoring, mods, expected) = presses[i]
+                        self.sendKey(window, code: code, chars: chars, ignoring: ignoring, mods: mods)
+                        self.waitForScript(w, "\(Self.caretScript) === '\(expected)'", 3) { ok in
+                            results[name] = ok
+                            press(i + 1)
+                        }
+                    }
+                    press(0)
+                }
+            }
+        }
+
+        // X-55 命令行打开:open -a <应用> <文件> 交给正在运行的本应用打开
+        steps.append { done in
+            let file = dir.appendingPathComponent("命令行打开.md").path
+            do { try "# 命令行打开\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return done(["openCommandLine": false]) }
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            p.arguments = ["-a", Bundle.main.bundlePath, file]
+            do { try p.run() } catch { return done(["openCommandLine": false]) }
+            self.waitUntil(20, { self.windows.contains { $0.currentPath.map(real) == real(file) } }) { done(["openCommandLine": $0]) }
+        }
+
+        // H-01 / H-03 / H-04 / H-07 帮助文档:换成应用自带的最新版并设为只读,开在新窗口;Markdown 参考含 Typoza 新块的存储写法
+        steps.append { done in
+            let keys = ["changelog", "markdown", "images", "pandoc", "acknowledgements", "privacy"]
+            var results: [String: Bool] = [:]
+            func openNext(_ i: Int) {
+                guard i < keys.count else { return done(results) }
+                let key = keys[i]
+                guard let doc = Self.helpDocs[key] else {
+                    results["help_\(key)"] = false
+                    return openNext(i + 1)
+                }
+                let target = AppPaths.support.appendingPathComponent("help/\(doc.title).md").path
+                command("native.help.\(key)")
+                self.waitUntil(15, { self.windows.contains { $0.isShowing(target) } }) { shown in
+                    var ok = shown && !FileManager.default.isWritableFile(atPath: target)
+                    if key == "markdown" { ok = ok && ((try? String(contentsOfFile: target, encoding: .utf8)) ?? "").contains("data-tz-type=\"bookmark\"") }
+                    results["help_\(key)"] = ok
+                    openNext(i + 1)
+                }
+            }
+            openNext(0)
+        }
+
+        // H-07 官方网站、反馈:Info.plist 没配地址时菜单项置灰,配了才可点
+        steps.append { done in
+            let item = { (id: String) -> NSMenuItem in
+                let m = NSMenuItem(title: "", action: #selector(self.menuCommand(_:)), keyEquivalent: "")
+                m.representedObject = id
+                return m
+            }
+            let website = self.validateMenuItem(item("native.website")) == (Self.configuredURL("TypozaWebsiteURL") != nil)
+            let feedback = self.validateMenuItem(item("native.feedback")) == (Self.configuredURL("TypozaFeedbackURL") != nil)
+            done(["linksGreyed": website && feedback])
+        }
+
+        // H-06 欢迎向导:没有「已显示」标记时(首次启动)自动打开「快速上手」并记下标记;再走一次不再打开
+        steps.append { done in
+            let target = AppPaths.support.appendingPathComponent("welcome/快速上手.md").path
+            let showing = { self.windows.contains { $0.isShowing(target) } }
+            let closeAll = { self.windows.filter { $0.isShowing(target) }.forEach { $0.window?.performClose(nil) } }
+            closeAll()
+            self.waitUntil(10, { !showing() }) { closed in
+                guard closed else { return done(["firstLaunchWelcome": false]) }
+                UserDefaults.standard.removeObject(forKey: Self.welcomeShownKey)
+                self.showWelcomeOnFirstLaunch()
+                self.waitUntil(15, showing) { shown in
+                    let marked = UserDefaults.standard.bool(forKey: Self.welcomeShownKey)
+                    closeAll()
+                    self.waitUntil(10, { !showing() }) { _ in
+                        self.showWelcomeOnFirstLaunch()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { done(["firstLaunchWelcome": shown && marked && !showing()]) }
+                    }
+                }
+            }
+        }
+
+        // PF-06 恢复未保存的草稿:没在任何标签里的草稿开出来,内容进编辑器(窗口留着:关掉会询问是否保存)
+        steps.append { done in
+            let id = "smoke-\(UUID().uuidString)"
+            do { try self.drafts.save(id: id, text: "草稿自检内容\n") } catch { return done(["recoverDrafts": false]) }
+            command("native.recoverDrafts")
+            self.waitUntil(15, { self.windows.contains { $0.pendingDraft == id || $0.draftId == id } }) { opened in
+                guard opened, let w = self.windows.first(where: { $0.pendingDraft == id || $0.draftId == id }) else {
+                    try? self.drafts.remove(id: id)
+                    return done(["recoverDrafts": false])
+                }
+                self.waitForScript(w, "document.querySelector('.tz-editor')?.textContent.includes('草稿自检内容') === true", 15) { shown in
+                    try? self.drafts.remove(id: id)
+                    done(["recoverDrafts": shown])
+                }
+            }
+        }
+
+        func next(_ i: Int) {
+            guard i < steps.count else { return completion(checks) }
+            let step = steps[i]
+            step { results in
+                results.forEach { checks[$0.key] = $0.value }
+                DispatchQueue.main.async { next(i + 1) }
+            }
+        }
+        next(0)
+    }
+
+    /// 光标所在块的文字与光标在块内的字符偏移,如「末段|2」
+    private static let caretScript = "(() => { const s = getSelection(); if (!s.rangeCount) return ''; const n = s.anchorNode; const el = n.nodeType === 3 ? n.parentElement : n; const block = el && el.closest('h1, p'); if (!block) return ''; const r = document.createRange(); r.setStart(block, 0); r.setEnd(n, s.anchorOffset); return block.textContent + '|' + r.toString().length })()"
+
+    /// 合成一次按键(按下 + 抬起)交给应用分发:先过菜单键位,再到网页
+    private func sendKey(_ window: NSWindow, code: UInt16, chars: String, ignoring: String, mods: NSEvent.ModifierFlags) {
+        for type in [NSEvent.EventType.keyDown, .keyUp] {
+            guard let event = NSEvent.keyEvent(with: type, location: .zero, modifierFlags: mods, timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber, context: nil, characters: chars, charactersIgnoringModifiers: ignoring, isARepeat: false, keyCode: code) else { continue }
+            NSApp.sendEvent(event)
+        }
+    }
+
+    /// 每 0.2 秒在网页里求值一次,结果为 true 或超时(秒)后回调
+    private func waitForScript(_ controller: DocumentWindowController, _ script: String, _ timeout: TimeInterval, then: @escaping (Bool) -> Void) {
+        let deadline = Date().addingTimeInterval(timeout)
+        func poll() {
+            controller.webView.evaluateJavaScript(script) { value, _ in
+                if (value as? Bool) == true { return then(true) }
+                if Date() >= deadline { return then(false) }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: poll)
+            }
+        }
+        poll()
     }
 
     /// 每 0.1 秒看一次条件,成立或超时(秒)后回调
