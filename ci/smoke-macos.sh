@@ -11,10 +11,13 @@ perl -e 'alarm shift; exec @ARGV' 300 "$app/Contents/MacOS/Typoza" --smoke-out "
 end=$(python3 -c 'import time; print(time.time())')
 if [ "$status" -ne 0 ]; then
   # 崩溃时把系统生成的崩溃报告带回来(调用栈),否则只看得到「Trace/BPT trap」
-  sleep 5
+  sleep 20
   mkdir -p "$out/crash"
-  find "$HOME/Library/Logs/DiagnosticReports" -name 'Typoza*' -mmin -15 -exec cp {} "$out/crash/" \; 2>/dev/null || true
-  for f in "$out"/crash/*; do [ -f "$f" ] && head -c 20000 "$f"; done
+  for d in "$HOME/Library/Logs/DiagnosticReports" /Library/Logs/DiagnosticReports; do
+    ls -lt "$d" 2>/dev/null | head -5
+    find "$d" -name 'Typoza*' -mmin -15 -exec cp {} "$out/crash/" \; 2>/dev/null || true
+  done
+  for f in "$out"/crash/*; do [ -f "$f" ] && head -c 400000 "$f"; done
   exit "$status"
 fi
 python3 - "$out/smoke.json" "$start" "$end" "$(dirname "$0")/menu-keys.json" <<'PY'

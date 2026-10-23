@@ -155,6 +155,7 @@ export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportH
   clone.querySelectorAll(EDITOR_ONLY).forEach((el) => el.remove())
   for (const cls of EDITOR_CLASSES) clone.querySelectorAll(`.${cls}`).forEach((el) => el.classList.remove(cls))
   clone.querySelectorAll('[data-placeholder]').forEach((el) => el.removeAttribute('data-placeholder'))
+  clone.querySelectorAll('[spellcheck]').forEach((el) => el.removeAttribute('spellcheck'))
   // HTML 块预览里去掉的 class、id 导出时还原(对照表 X-44;原值由 views/blocks.ts 的净化暂存)
   clone.querySelectorAll<HTMLElement>('[data-tz-class], [data-tz-id]').forEach((el) => {
     const cls = el.getAttribute('data-tz-class')

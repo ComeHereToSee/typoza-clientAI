@@ -168,6 +168,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             return
         }
         let params = Params((body["params"] as? [String: Any]) ?? [:])
+        // 冒烟时把每个桥接调用记到标准错误(进 smoke.log):崩溃时能看出停在哪一步
+        if app.smokeOut != nil { FileHandle.standardError.write(Data("冒烟 桥接:\(method)\n".utf8)) }
         // 耗时操作放到后台线程,回复切回主线程
         func background(_ work: @escaping () throws -> Any?) {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -600,8 +602,11 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
     }
 
     @objc private func printOperationDidRun(_ op: NSPrintOperation, success: Bool, contextInfo: UnsafeMutableRawPointer?) {
-        printCompletion?()
-        printCompletion = nil
+        // WKWebView 的打印在单独线程里跑,结束回调也可能在那个线程:回网页要回主线程(同导出 PDF)
+        DispatchQueue.main.async {
+            self.printCompletion?()
+            self.printCompletion = nil
+        }
     }
 
     // ---------- 按窗口状态启用的菜单项 ----------

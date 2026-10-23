@@ -626,7 +626,7 @@ extension AppDelegate {
         }
     }
 
-    /// 外壳自检第二段(对照表 E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
+    /// 外壳自检第二段(对照表 C-05、E-03、E-09、E-15、E-17、E-18、F-01 ~ F-03、F-05、F-06、H-01、H-03、H-04、H-06、H-07、PF-06、PG-01、PX-04、PX-06、X-55),逐项按顺序跑。
     /// 网页侧冒烟(smoke.ts)已导出好 PDF / PNG、把动图拷进剪贴板,这里读回核对。
     private func moreNativeSmoke(_ main: DocumentWindowController, _ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
         var checks = checks
@@ -646,6 +646,15 @@ extension AppDelegate {
             let pb = NSPasteboard.general
             let urls = pb.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] ?? []
             done(["copyImage": NSImage(pasteboard: pb) != nil && urls.contains { $0.lastPathComponent == "anim.gif" }])
+        }
+
+        // C-05 复制为图片:按网页给的区域截图放进系统剪贴板(公式、图表右键「复制为图片」走这条路)
+        steps.append { done in
+            NSPasteboard.general.clearContents()
+            main.snapshotToClipboard(Params(["x": 0, "y": 0, "width": 200, "height": 120])) { _, error in
+                let image = NSImage(pasteboard: .general)
+                done(["copyRegionAsImage": error == nil && (image?.size.width ?? 0) >= 199])
+            }
         }
 
         // PX-04 PDF:A5(148 × 210 毫米 = 419.5 × 595.3 点),每页页首「页首 <页码>」
@@ -859,6 +868,7 @@ extension AppDelegate {
 
         func next(_ i: Int) {
             guard i < steps.count else { return completion(checks) }
+            FileHandle.standardError.write(Data("冒烟 外壳第 \(i + 1) / \(steps.count) 项\n".utf8))
             let step = steps[i]
             step { results in
                 results.forEach { checks[$0.key] = $0.value }

@@ -205,16 +205,19 @@ final class OffscreenRenderer: NSObject, WKNavigationDelegate {
     @objc private func printDone(_ op: NSPrintOperation, success: Bool, contextInfo: UnsafeMutableRawPointer?) {
         guard let contextInfo else { return }
         let box = Unmanaged<CompletionBox>.fromOpaque(contextInfo).takeRetainedValue()
-        defer { finish() }
-        guard success, let doc = PDFDocument(url: box.target), doc.pageCount > 0 else {
-            box.completion(BridgeError("PDF 导出失败"))
-            return
-        }
-        do {
-            try PDFDecorator.decorate(doc, page: box.page, writeTo: box.target)
-            box.completion(nil)
-        } catch {
-            box.completion(error)
+        // WKWebView 的打印在单独线程里跑,结束回调也在那个线程:回网页、收窗口都得回主线程,否则 WebKit 断言崩溃
+        DispatchQueue.main.async {
+            defer { self.finish() }
+            guard success, let doc = PDFDocument(url: box.target), doc.pageCount > 0 else {
+                box.completion(BridgeError("PDF 导出失败"))
+                return
+            }
+            do {
+                try PDFDecorator.decorate(doc, page: box.page, writeTo: box.target)
+                box.completion(nil)
+            } catch {
+                box.completion(error)
+            }
         }
     }
 

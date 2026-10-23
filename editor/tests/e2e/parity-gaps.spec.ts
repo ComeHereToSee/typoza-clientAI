@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { loadDoc, markdown, openApp } from './helpers'
 import { contextMenuAt, hostCalls, runMenuCommand } from './media-helpers'
 
-// 对照表「实现」行里此前没有用例为证、或补实现后要验证的几项:X-15、X-60、C-10、C-13、C-14、P-11、P-13、P-17、P-23、P-30、M-12、M-20、M-21、S-01、PF-02、E-44、PA-06、PM-15、PM-16、X-43,以及 HTML 块里的图片双击放大
+// 对照表「实现」行里此前没有用例为证、或补实现后要验证的几项:X-15、X-60、C-10、C-13、C-14、P-11、P-13、P-17、P-23、P-30、M-12、M-20、M-21、S-01、PF-02、E-44、PA-06、PM-15、PM-16、X-43、E-38、PX-04、PX-06,以及 HTML 块里的图片双击放大
 test.beforeEach(async ({ page }) => {
   await openApp(page)
 })
@@ -291,4 +291,43 @@ test('X-43 段落里成对的 kbd、ruby、font 照样渲染,保存不改原文'
   await expect(page.locator('.tz-editor p ruby rt')).toHaveText('hàn')
   await expect(page.locator('.tz-editor p font[color="red"]')).toContainText('红')
   expect(await markdown(page)).toBe(md)
+})
+
+test('E-38 行内代码、代码块、公式、自动识别的网址不做拼写检查;普通正文与链接文字照常检查', async ({ page }) => {
+  await page.evaluate(() => window.typozaTest!.app.updateSettings({ spellcheck: true }))
+  await loadDoc(page, '正文 `code` 与 https://example.com/a 和 [链接文字](https://b.example)\n\n```js\nconst a = 1\n```\n\n$$\nx^2\n$$\n')
+  await expect(page.locator('.tz-editor')).toHaveAttribute('spellcheck', 'true')
+  await expect(page.locator('.tz-editor p code')).toHaveAttribute('spellcheck', 'false')
+  await expect(page.locator('.tz-editor a[href="https://example.com/a"]')).toHaveAttribute('spellcheck', 'false')
+  expect(await page.locator('.tz-editor a[href="https://b.example"]').getAttribute('spellcheck')).toBeNull()
+  await expect(page.locator('.tz-editor .tz-code-block .cm-content')).toHaveAttribute('spellcheck', 'false')
+  await expect(page.locator('.tz-editor .tz-math-source')).toHaveAttribute('spellcheck', 'false')
+})
+
+test('PX-04 / PX-06 导出参数:PDF 的页边距与主题、图片的字号与主题都交给导出', async ({ page }) => {
+  await loadDoc(page, '# 标题\n\n正文\n', '/demo/导出参数.md')
+  // 内存宿主只记格式、目标与参数;这里另外截下发给外壳的 HTML
+  await page.evaluate(() => {
+    const host = window.typozaTest!.host
+    const sent: { format: string; html: string; options?: Record<string, unknown> }[] = []
+    ;(window as unknown as { __sent: typeof sent }).__sent = sent
+    const original = host.exportDocument.bind(host)
+    host.exportDocument = async (o) => {
+      sent.push({ format: o.format, html: o.html, options: o.options })
+      return original(o)
+    }
+  })
+  await page.evaluate(() => window.typozaTest!.app.updateSettings({ exportPdfMargin: 25, exportPdfTheme: 'newsprint', exportImageFontSize: 20, exportImageTheme: 'night' }))
+  const sent = () => page.evaluate(() => (window as unknown as { __sent: { format: string; html: string; options?: Record<string, unknown> }[] }).__sent)
+  await runMenuCommand(page, 'file.export.pdf')
+  await expect.poll(async () => (await sent()).length).toBe(1)
+  await runMenuCommand(page, 'file.export.image')
+  await expect.poll(async () => (await sent()).length).toBe(2)
+  const [pdf, image] = await sent()
+  expect(pdf.format).toBe('pdf')
+  expect(pdf.options?.margin).toBe(25)
+  expect(pdf.html).toContain('data-theme="newsprint"')
+  expect(image.format).toBe('image')
+  expect(image.html).toContain('--tz-font-size: 20px')
+  expect(image.html).toContain('data-theme="night"')
 })

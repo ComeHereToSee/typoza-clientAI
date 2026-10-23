@@ -414,7 +414,8 @@ const marks: Record<string, MarkSpec> = {
           dom.classList.contains('tz-wikilink') ? false : { href: dom.getAttribute('href'), title: dom.getAttribute('title') },
       },
     ],
-    toDOM: (mark) => ['a', { href: mark.attrs.href, title: mark.attrs.title, rel: 'noopener noreferrer' }, 0],
+    // 自动识别出的网址(显示文字就是链接地址)不做拼写检查(对照表 E-38)
+    toDOM: (mark) => ['a', { href: mark.attrs.href, title: mark.attrs.title, rel: 'noopener noreferrer', spellcheck: mark.attrs.autolink ? 'false' : null }, 0],
   },
 
   strong: {
@@ -443,7 +444,8 @@ const marks: Record<string, MarkSpec> = {
     excludes: ATTENTION,
     code: true,
     parseDOM: [{ tag: 'code' }],
-    toDOM: () => ['code', 0],
+    // 行内代码不做拼写检查(对照表 E-38)
+    toDOM: () => ['code', { spellcheck: 'false' }, 0],
   },
 
   strike: {
