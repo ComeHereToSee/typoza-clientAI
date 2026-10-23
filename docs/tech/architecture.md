@@ -123,7 +123,7 @@ flowchart LR
 |---|---|---|
 | editor(Ubuntu,Node 24) | 构建、类型检查、Vitest 单测(含 CommonMark 规范用例)、Playwright WebKit E2E、渲染应用图标 | `editor-dist`、`app-icon` |
 | helper(Ubuntu,Go) | vet、`go test -race`(含两台设备经 RPC 的端到端流程,对着 sdk 假服务端)、交叉编译 darwin arm64 / amd64 | `helper-darwin` |
-| macos(macOS 15) | `swift test`、组装通用二进制 Typoza.app(内嵌辅助进程、图标、ad-hoc 签名)、冒烟自检、打 DMG | `Typoza.dmg` |
+| macos(macOS 15) | `swift test`、组装通用二进制 Typoza AI.app(内嵌辅助进程、图标、ad-hoc 签名)、冒烟自检(含与基础版同机并装的标识与数据目录核对)、打 DMG | `Typoza-AI.dmg` |
 | perf(Ubuntu,独立工作流) | 推 `perf` 分支触发:大文档分阶段剖析(Chromium 采样 + WebKit 计时) | `perf/perf.md` |
 
 - 每个任务把步骤日志与产物强推到 `ci/<任务名>` 孤儿分支,本机 `git fetch origin '+refs/heads/ci/*:refs/remotes/origin/ci/*'` 后用 `git show origin/ci/<任务名>:<文件>` 查看(本机无 API 令牌;三仓公开后,运行状态也可免令牌查 `api.github.com/repos/ComeHereToSee/<仓库>/actions/runs`)。

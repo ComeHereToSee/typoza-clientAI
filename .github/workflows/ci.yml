@@ -155,12 +155,12 @@ jobs:
         run: ci/step.sh pandoc bash -c "brew install pandoc && pandoc --version"
       - name: smoke
         if: ${{ !cancelled() && steps.package.outcome == 'success' }}
-        run: ci/step.sh smoke ci/smoke-macos.sh "$RUNNER_TEMP/build/Typoza.app" "$CI_OUT/smoke"
+        run: ci/step.sh smoke ci/smoke-macos.sh "$RUNNER_TEMP/build/Typoza AI.app" "$CI_OUT/smoke"
       - name: dmg
         if: ${{ !cancelled() && steps.package.outcome == 'success' }}
         run: |
           mkdir -p "$CI_OUT/artifacts"
-          ci/step.sh dmg scripts/make-dmg.sh "$RUNNER_TEMP/build/Typoza.app" "$CI_OUT/artifacts/Typoza.dmg"
+          ci/step.sh dmg scripts/make-dmg.sh "$RUNNER_TEMP/build/Typoza AI.app" "$CI_OUT/artifacts/Typoza-AI.dmg"
       - name: publish
         if: always()
         env:

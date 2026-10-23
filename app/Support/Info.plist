@@ -2,9 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key><string>Typoza</string>
-	<key>CFBundleDisplayName</key><string>Typoza</string>
-	<key>CFBundleIdentifier</key><string>app.typoza.mac</string>
+	<key>CFBundleName</key><string>Typoza AI</string>
+	<key>CFBundleDisplayName</key><string>Typoza AI</string>
+	<key>CFBundleIdentifier</key><string>app.typoza.ai</string>
 	<key>CFBundleExecutable</key><string>Typoza</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
 	<key>CFBundleShortVersionString</key><string>__VERSION__</string>

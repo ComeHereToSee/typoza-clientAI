@@ -745,7 +745,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             report["menuKeysPrimary"] = Self.menuKeys(NSApp.mainMenu, alternates: false)
             if let preMain = self.app.preMainSeconds { report["preMainSeconds"] = preMain }
             // 同机并装的版本各用各的数据目录与钥匙串(CI 按 Info.plist 核对)
-            report["identity"] = ["name": AppPaths.name, "bundleID": AppPaths.bundleID, "support": AppPaths.support.path, "logs": AppPaths.logsDir.path, "syncKeychain": AppPaths.syncKeychainService]
+            report["identity"] = ["name": AppPaths.name, "bundleID": AppPaths.bundleID, "support": AppPaths.support.path, "logs": AppPaths.logsDir.path, "syncKeychain": AppPaths.syncKeychainService, "aiKeychain": AISecretStore.service]
             switch result {
             case .success(let value): report["result"] = value
             case .failure(let error): report["error"] = "页面自检失败:\(error)"

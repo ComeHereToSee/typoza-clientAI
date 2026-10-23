@@ -1,10 +1,10 @@
 import Foundation
 import Security
 
-/// AI 密钥:服务商密钥、MCP 环境变量与请求头、MCP OAuth 令牌,按引用名各存一条钥匙串条目(服务 app.typoza.mac.ai)。
+/// AI 密钥:服务商密钥、MCP 环境变量与请求头、MCP OAuth 令牌,按引用名各存一条钥匙串条目(服务 <应用标识>.secrets,AI 版为 app.typoza.ai.secrets)。
 /// 网页只能写不能读;外壳读出全部后经管道交给辅助进程(docs/tech/ai-architecture.md 2、3.5 节)。
 public struct AISecretStore {
-    public static let service = "app.typoza.mac.ai"
+    public static var service: String { "\(AppPaths.bundleID).secrets" }
 
     public init() {}
 

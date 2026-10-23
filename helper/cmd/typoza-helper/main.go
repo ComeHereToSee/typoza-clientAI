@@ -63,7 +63,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "typoza-helper:", err)
 		os.Exit(2)
 	}
-	// AI 数据与同步数据同在 ~/Library/Application Support/Typoza/ 下:--data-dir 是其中的 sync/
+	// AI 数据与同步数据同在 ~/Library/Application Support/<应用名>/ 下:--data-dir 是其中的 sync/
 	supportDir := filepath.Dir(*dataDir)
 	agentsSkills := ""
 	if home, err := os.UserHomeDir(); err == nil {
