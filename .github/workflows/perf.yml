@@ -25,6 +25,8 @@ jobs:
         working-directory: editor
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 启动对比要取基准提交的代码
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -37,6 +39,11 @@ jobs:
       - name: profile
         timeout-minutes: 40
         run: ../ci/step.sh profile node scripts/perf-profile.mjs "$CI_OUT/perf"
+      # 拆包前后同机对比(启动脚本体积与冷启动耗时);基准 7f63a3b = CodeMirror 按需载入前的最后一个提交
+      - name: startup ab
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: ../ci/step.sh startup-ab node scripts/startup-ab.mjs 7f63a3b "$CI_OUT/perf"
       - name: publish
         if: always()
         env:

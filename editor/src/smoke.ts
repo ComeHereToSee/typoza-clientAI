@@ -313,19 +313,28 @@ function inputBreakdown(app: App, timings: Record<string, number>): void {
     restore.reverse().forEach((r) => r())
   }
   timings['input · 合计 30 次'] = Math.round(total * 10) / 10
-  // 只做补丁里那样的逐个比对(不更新任何东西)30 次:看 5 万块的比对循环本身多久
+  // 只做补丁里那样的逐个比对(不更新任何东西)各 30 次:看 5 万块的比对循环本身多久、慢在读哪类数据
   const nodes = (view.state.doc.content as unknown as { content: { nodeSize: number }[] }).content
   const descs = kids() as unknown as { node: unknown; dirty: number; outerDeco: unknown[] }[]
+  const n = Math.min(descs.length, nodes.length)
   let sink = 0
-  const scan0 = performance.now()
-  for (let r = 0; r < 30; r++) {
-    for (let i = Math.min(descs.length, nodes.length) - 1; i >= 0; i--) {
-      const d = descs[i]
-      if (d.node !== nodes[i] || d.dirty !== 0) break
-      sink += d.outerDeco.length + nodes[i].nodeSize
-    }
+  const scan = (label: string, body: (d: (typeof descs)[number], i: number) => boolean) => {
+    const t0 = performance.now()
+    for (let r = 0; r < 30; r++) for (let i = n - 1; i >= 0; i--) if (!body(descs[i], i)) break
+    timings[`input · 诊断:${label} 30 次`] = Math.round((performance.now() - t0) * 10) / 10
   }
-  timings['input · 诊断:只比对全部顶层块 30 次'] = Math.round((performance.now() - scan0) * 10) / 10
+  // 只比节点对象与脏标记(只读视图描述对象本身)
+  scan('只比对象', (d, i) => d.node === nodes[i] && d.dirty === 0)
+  // 再读装饰数组的长度(多碰一个对象)
+  scan('比对象 + 装饰', (d, i) => {
+    sink += d.outerDeco.length
+    return d.node === nodes[i] && d.dirty === 0
+  })
+  // 补丁现在的写法:再算节点大小(碰节点、类型、内容片段)
+  scan('只比对全部顶层块', (d, i) => {
+    sink += d.outerDeco.length + nodes[i].nodeSize
+    return d.node === nodes[i] && d.dirty === 0
+  })
   timings['input · 诊断:顶层块数'] = descs.length
   if (sink < 0) timings['input · 诊断:不会出现'] = sink
   // dispatchTransaction 里 apply 与 updateState 之外的部分 = 应用回调(onDocChange / onUpdate)
