@@ -17,6 +17,10 @@ test.describe('云同步', () => {
     await command(page, 'app.syncPreferences')
     const sync = page.locator('.tz-sync')
     await expect(sync.locator('.tz-sync-tab.is-active')).toHaveText('注册')
+    // 注册页只有服务器、邮箱、主密码与确认:恢复码、两步验证码一栏藏起来
+    await expect(sync.locator('input[name=recoveryCode]')).toBeHidden()
+    await expect(sync.locator('input[name=totp]')).toBeHidden()
+    await expect(sync.locator('input[name=confirm]')).toBeVisible()
 
     await sync.locator('input[name=server]').fill('sync.example.com')
     await sync.locator('input[name=email]').fill('me@example.com')

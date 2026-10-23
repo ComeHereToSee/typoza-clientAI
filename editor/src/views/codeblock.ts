@@ -405,7 +405,10 @@ export class CodeBlockView implements NodeView {
   // ---------- CodeMirror ↔ ProseMirror 同步 ----------
 
   private forwardUpdate(update: ViewUpdate): void {
-    if (this.updating || !this.cm?.hasFocus) return
+    // 内容改动一律同步回文档,选区只在有焦点时同步:窗口不在前台时(系统的写作工具、听写等往里写字)
+    // hasFocus 为 false,原来连内容都不同步,代码块里看得见的字存不进文件
+    const focused = this.cm?.hasFocus ?? false
+    if (this.updating || (!update.docChanged && !focused)) return
     const pos = this.getPos()
     if (pos === undefined) return
     let offset = pos + 1
@@ -420,7 +423,7 @@ export class CodeBlockView implements NodeView {
         else tr.delete(offset + fromA, offset + toA)
         offset += toB - fromB - (toA - fromA)
       })
-      tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
+      if (focused) tr.setSelection(TextSelection.create(tr.doc, selFrom, selTo))
       this.view.dispatch(tr)
     }
   }

@@ -77,6 +77,16 @@ button { font: inherit; color: inherit; }
   position: relative;
 }
 
+/* macOS 外壳的标题栏透明、内容铺到窗口顶:正文上方留一条与标题栏等高的底色带,滚动时正文不从窗口标题底下穿过、与标题叠在一起 */
+@media screen {
+  :root[data-host='macos'] .tz-main::before {
+    content: '';
+    flex: none;
+    height: 28px;
+    background: var(--tz-bg);
+  }
+}
+
 .tz-scroll {
   flex: 1;
   overflow: auto;
@@ -299,3 +309,7 @@ button { font: inherit; color: inherit; }
   z-index: 50;
 }
 .tz-toast.is-error { background: #d44c47; }
+
+/* hidden 属性一律不显示:组件自己写了 display(如偏好里的 .tz-field 是 grid)会盖过浏览器默认的 [hidden],
+   云同步「注册」页里本该藏起来的恢复码、两步验证码一栏曾因此露出来 */
+[hidden] { display: none !important; }

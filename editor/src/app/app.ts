@@ -180,6 +180,8 @@ export class App {
     // 启动分段打点(冒烟报告与性能剖析读 performance 的 mark):读偏好、建界面、查草稿、打开文档
     this.settings = await loadSettings(this.host)
     performance.mark('tz:settings')
+    // 样式按宿主区分(macOS 外壳的标题栏是透明的,见 base.css)
+    document.documentElement.dataset.host = this.host.platform
     initEditorPrefs(this.settings)
     this.syncEditorSettings()
     this.sidebar = new Sidebar(this.host, {

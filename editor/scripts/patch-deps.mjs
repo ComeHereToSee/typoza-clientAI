@@ -75,30 +75,33 @@ function tzFastBlockUpdate(desc, view) {
                 (found == none ? (found = []) : found).push(locals[i]);
         return found;
     };
-    let clean = (d, child, off, marked) => {
-        if (d.node !== child || d.dirty != NOT_DIRTY)
-            return false;
-        if (!marked && !d.outerDeco.length && d.innerDeco == empty)
-            return true;
-        return d.matchesNode(child, outerAt(off), deco.forChild(off, child));
-    };
-    let lim = Math.min(m, n), p = 0, off = 0, mi = 0;
+    // 有装饰(现在或之前)的子节点做完整比对;其余只比节点对象与脏标记(循环里不调函数,5 万次要快)
+    let full = (d, child, off) => d.matchesNode(child, outerAt(off), deco.forChild(off, child));
+    let nodes = node.content.content, lim = Math.min(m, n), p = 0, off = 0, mi = 0;
     while (p < lim) {
-        let child = node.child(p);
+        let child = nodes[p], d = kids[p];
+        if (d.node !== child || d.dirty != NOT_DIRTY)
+            break;
         while (mi < marks.length && marks[mi] < off)
             mi++;
-        if (!clean(kids[p], child, off, mi < marks.length && marks[mi] == off))
-            break;
+        if ((mi < marks.length && marks[mi] == off) || d.outerDeco.length || d.innerDeco != empty) {
+            if (!full(d, child, off))
+                break;
+        }
         off += child.nodeSize;
         p++;
     }
     let s = 0, end = node.content.size, mj = marks.length - 1;
     while (s < lim - p) {
-        let child = node.child(n - 1 - s), o = end - child.nodeSize;
+        let child = nodes[n - 1 - s], d = kids[m - 1 - s], o = end - child.nodeSize;
+        if (d.node !== child || d.dirty != NOT_DIRTY)
+            break;
         while (mj >= 0 && marks[mj] > o)
             mj--;
-        if (!clean(kids[m - 1 - s], child, o, mj >= 0 && marks[mj] == o))
-            break;
+        if ((mj >= 0 && marks[mj] == o) || d.outerDeco.length || d.innerDeco != empty) {
+            if (!full(d, child, o))
+                break;
+        }
         end = o;
         s++;
     }

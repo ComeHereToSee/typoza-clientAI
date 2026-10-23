@@ -930,27 +930,37 @@ extension AppDelegate {
         // P-18 从菜单栏执行「段落 ▸ 表格 ▸ 复制表格」:命令由外壳转发给网页,系统拷贝照样可用,剪贴板有 Markdown 与 HTML
         steps.append { done in
             let file = dir.appendingPathComponent("复制表格.md").path
-            do { try "| 甲 | 乙 |\n| --- | --- |\n| 1 | 2 |\n\n末段\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return done(["menuCopyTable": false]) }
+            do { try "首段\n\n| 甲 | 乙 |\n| --- | --- |\n| 1 | 2 |\n\n末段\n".write(toFile: file, atomically: true, encoding: .utf8) } catch { return done(["menuCopyTable": false]) }
+            let fail = { (why: String) in
+                FileHandle.standardError.write(Data("冒烟 菜单栏复制表格:\(why)\n".utf8))
+                done(["menuCopyTable": false])
+            }
             self.open(path: file, isDir: false, newWindow: true)
             self.waitUntil(15, { self.windows.contains { $0.isShowing(file) && $0.isLoaded } }) { opened in
-                guard opened, let w = self.windows.first(where: { $0.isShowing(file) }), let window = w.window else { return done(["menuCopyTable": false]) }
+                guard opened, let w = self.windows.first(where: { $0.isShowing(file) }), let window = w.window else { return fail("文档没打开") }
                 self.bringToFront(window) { _ in
                     _ = window.makeFirstResponder(w.webView)
                     let focus = "(() => { const pm = document.querySelector('.ProseMirror'); if (!pm || !pm.querySelector('td')) return false; pm.focus(); return true })()"
                     self.waitForScript(w, focus, 15) { focused in
-                        guard focused else { return done(["menuCopyTable": false]) }
-                        // ⌘↑ 到文首 = 表格第一格(光标用真按键移动)
-                        let up = String(Character(UnicodeScalar(UInt32(NSUpArrowFunctionKey))!))
+                        guard focused else { return fail("编辑器没聚焦") }
+                        // ⌘↑ 到文首(首段)→ ↓ 进表格第一格(光标用真按键移动;表格在文首时 ⌘↑ 会落到表格前面)
+                        let key = { (scalar: Int) in String(Character(UnicodeScalar(UInt32(scalar))!)) }
+                        let up = key(NSUpArrowFunctionKey), down = key(NSDownArrowFunctionKey)
                         self.sendKey(window, code: 126, chars: up, ignoring: up, mods: [.command, .numericPad, .function])
-                        self.waitForScript(w, "getSelection().anchorNode?.parentElement?.closest('th, td') != null", 5) { inTable in
-                            guard inTable, let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return done(["menuCopyTable": false]) }
+                        self.sendKey(window, code: 125, chars: down, ignoring: down, mods: [.numericPad, .function])
+                        self.waitForScript(w, "(() => { const n = getSelection().anchorNode; const el = n && (n.nodeType === 3 ? n.parentElement : n); return el?.closest('th, td') != null })()", 5) { inTable in
+                            guard inTable else { return fail("光标没进表格") }
+                            guard let found = Self.menuItem(NSApp.mainMenu, command: "table.copy") else { return fail("菜单里找不到复制表格") }
                             let pb = NSPasteboard.general
                             pb.clearContents()
                             found.menu.performActionForItem(at: found.index)
                             self.waitUntil(5, {
                                 let text = pb.string(forType: .string) ?? ""
                                 return text.contains("甲") && text.contains("|") && (pb.string(forType: .html) ?? "").contains("<table")
-                            }) { done(["menuCopyTable": $0]) }
+                            }) { ok in
+                                if !ok { return fail("剪贴板没有表格内容,类型:\(pb.types?.map(\.rawValue) ?? [])") }
+                                done(["menuCopyTable": true])
+                            }
                         }
                     }
                 }
