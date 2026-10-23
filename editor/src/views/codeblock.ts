@@ -155,6 +155,8 @@ export class CodeBlockView implements NodeView {
   private readonly preview: HTMLDivElement
   private loadedLanguage = ''
   private renderTimer = 0
+  /** 正在画的预览:导出前要等它画完 */
+  private drawing: Promise<void> | null = null
   /** 当前的渲染预览类型(图表 / 公式),没有为 null */
   private previewing: 'diagram' | 'math' | null = null
 
@@ -304,10 +306,15 @@ export class CodeBlockView implements NodeView {
 
   /** 立即画预览(导出前用);已画好且没有待刷新的不重画。 */
   flushPreview(): Promise<void> {
-    if (!this.previewing || (this.cm && !this.renderTimer)) return Promise.resolve()
-    clearTimeout(this.renderTimer)
-    this.renderTimer = 0
-    return this.drawPreview()
+    if (!this.previewing) return Promise.resolve()
+    if (this.renderTimer) {
+      clearTimeout(this.renderTimer)
+      this.renderTimer = 0
+      return this.drawPreview()
+    }
+    // 定时器到点后的那次可能还没画完(Mermaid 按需载入要时间):等它,否则导出拷走的是空白的图表区
+    if (this.drawing) return this.drawing
+    return this.cm ? Promise.resolve() : this.drawPreview()
   }
 
   /** 光标(ProseMirror 选区或 CodeMirror 焦点)在这个代码块里。 */
@@ -391,7 +398,15 @@ export class CodeBlockView implements NodeView {
     }, 250)
   }
 
-  private async drawPreview(): Promise<void> {
+  private drawPreview(): Promise<void> {
+    const drawing = this.renderPreview().finally(() => {
+      if (this.drawing === drawing) this.drawing = null
+    })
+    this.drawing = drawing
+    return drawing
+  }
+
+  private async renderPreview(): Promise<void> {
     const code = this.node.textContent
     if (this.previewing === 'math') {
       this.preview.classList.toggle('is-empty', !code.trim())
