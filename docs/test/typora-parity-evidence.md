@@ -19,7 +19,7 @@
   - 「无」:找不到用例。
   - 「系统」:macOS 自带的能力,应用只放了标准菜单项;证据格写明依据。
 - **运行情况**(2026-10-23 CI,AI 版 dev 1981f46):网页端 E2E 503 条通过(基础版全部用例加 AI 用例;⌘E 用例在 Linux 上跳过 1 条)、单测全过;macOS 真应用冒烟:网页侧与外壳侧自检全过,菜单键位期望的 100 项全对且无重复项,启动选项四种冷启动全对。
-- **统计**:「实现」312 行:有 287、部分 13、无 0、系统 12。「系统」行另有外壳自检核对标准菜单项的动作与系统菜单接线(`nativeChecks.standardMenus`)。
+- **统计**:「实现」312 行:有 293、部分 7、无 0、系统 12。「系统」行另有外壳自检核对标准菜单项的动作与系统菜单接线(`nativeChecks.standardMenus`)。
 
 ## 二、逐行证据
 
@@ -41,7 +41,7 @@
 | F-01 | 新建 ⌘N | `editor/tests/e2e/notion-keys.spec.ts › #8 ⌘N 与 #9 ⇧⌘N 新建窗口`;`冒烟 › nativeChecks.newWindow`;`冒烟 › 菜单键位「新建」` | 有 |
 | F-02 | 新建标签页 ⌘T | `冒烟 › nativeChecks.newTab`;`冒烟 › 菜单键位「新建标签页」` | 有 |
 | F-03 | 新建窗口 ⇧⌘N | `editor/tests/e2e/notion-keys.spec.ts › #8 ⌘N 与 #9 ⇧⌘N 新建窗口`;`冒烟 › nativeChecks.newWindow`;`冒烟 › 菜单键位「新建窗口」` | 有 |
-| F-04 | 打开… ⌘O | `editor/tests/e2e/parity-p1.spec.ts › F-04 打开:侧栏没有文件夹时选文件打开,所在文件夹载入侧栏;选文件夹打开则载…`;`editor/tests/unit/files.test.ts › 扩展名清单与 PRD 一致`;`editor/tests/unit/files.test.ts › TextBundle 是一个文档,标题取包名`;`app/Tests/TypozaKitTests/FilesTests.swift › testListOpenableFilesUsesUnifiedExtensionsAndTextBundles`;`冒烟 › 菜单键位「打开…」` | 部分:选中之后打开文件、把所在文件夹载入侧栏、可打开的扩展名已测;真机待确认:真应用里 ⌘O 走外壳的打开面板(可同时选文件和文件夹),这一段没有自动检查 |
+| F-04 | 打开… ⌘O | `editor/tests/e2e/parity-p1.spec.ts › F-04 打开:侧栏没有文件夹时选文件打开,所在文件夹载入侧栏;选文件夹打开则载…`;`editor/tests/unit/files.test.ts › 扩展名清单与 PRD 一致`;`editor/tests/unit/files.test.ts › TextBundle 是一个文档,标题取包名`;`app/Tests/TypozaKitTests/FilesTests.swift › testListOpenableFilesUsesUnifiedExtensionsAndTextBundles`;`冒烟 › 菜单键位「打开…」`;`冒烟 › nativeChecks.openPanel` | 有:真应用里按真 ⌘O 弹出外壳的打开面板,文件与文件夹都能选(冒烟核对后点取消);选中之后的打开逻辑另有用例 |
 | F-05 | 打开最近文件(含清除) | `冒烟 › nativeChecks.recentFile`;`冒烟 › nativeChecks.clearRecent` | 有 |
 | F-06 | 最近使用的目录 | `冒烟 › nativeChecks.recentFolder`;`冒烟 › nativeChecks.pinnedFolders` | 有 |
 | F-07 | 重新打开关闭的文件 ⇧⌘T | `冒烟 › nativeChecks.reopenClosed`;`冒烟 › 菜单键位「重新打开关闭的文件」` | 有 |
@@ -269,12 +269,12 @@
 | S-11 | 删除(移到废纸篓) | `editor/tests/e2e/files.spec.ts › 文件树:创建副本并撤销;移到废纸篓并撤销;属性` | 有 |
 | S-12 | 属性 | `editor/tests/e2e/files.spec.ts › 文件树:创建副本并撤销;移到废纸篓并撤销;属性`;`app/Tests/TypozaKitTests/FilesTests.swift › testStatReportsWritableAndCreationTime` | 有 |
 | S-13 | 在 Finder 中显示 / 在侧边栏中显示 | `editor/tests/e2e/parity-p3a.spec.ts › S-13 在 Finder 中显示;文档列表里「在侧边栏中显示」切到文件树并展开…` | 有 |
-| S-14 | 在新窗口中打开 / 打开方式… / 快速查看(另有在新标签页打开) | `editor/tests/e2e/parity-p3a.spec.ts › S-14 在新标签页 / 新窗口中打开、打开方式…、快速查看` | 部分:四项都断言了交给外壳的调用;真机待确认:快速查看用系统 Quick Look,预览窗口是否前置 |
+| S-14 | 在新窗口中打开 / 打开方式… / 快速查看(另有在新标签页打开) | `editor/tests/e2e/parity-p3a.spec.ts › S-14 在新标签页 / 新窗口中打开、打开方式…、快速查看`;`冒烟 › nativeChecks.quickLookFront` | 有:四项都断言了交给外壳的调用;冒烟在真应用里打开系统 Quick Look,按屏幕窗口前后顺序核对预览窗口在 Typoza 窗口前面 |
 | S-15 | 复制文件路径 | `editor/tests/e2e/parity-p3a.spec.ts › S-15 拷贝文件路径:剪贴板里是绝对路径` | 有 |
 | S-16 | 打开文件夹…;未打开时「没有打开的文件夹」 | `editor/tests/e2e/parity-p3a.spec.ts › S-16 打开文件夹…:空态按钮与文件菜单都切换侧栏根文件夹`;`editor/tests/e2e/files.spec.ts › 没有打开文件夹时的空态` | 有 |
 | S-17 | 刷新;自动跟随磁盘变化 | `editor/tests/e2e/parity-p3a.spec.ts › S-17 磁盘变化后文件树自动刷新;右键「刷新」重读` | 有 |
 | S-18 | 固定 / 取消固定 / 从列表中删除 | `editor/tests/e2e/parity-p3a.spec.ts › S-18 固定 / 取消固定根文件夹;最近列表里固定项排前,可从列表中删除`;`冒烟 › nativeChecks.pinnedFolders` | 有 |
-| S-20 | 撤销上一次文件操作 | `editor/tests/e2e/files.spec.ts › 文件树:创建副本并撤销;移到废纸篓并撤销;属性` | 部分:点提示里的【撤销】还原副本与废纸篓已测;真机待确认:焦点在侧栏时 ⌘Z 先撤销文件操作 |
+| S-20 | 撤销上一次文件操作 | `editor/tests/e2e/files.spec.ts › 文件树:创建副本并撤销;移到废纸篓并撤销;属性`;`冒烟 › nativeChecks.sidebarUndo` | 有:点提示里的【撤销】已测;冒烟在真应用文件树里创建副本、焦点放到侧栏后按真 ⌘Z,副本被撤掉、原文件还在 |
 
 ### PF 偏好设置 · 文件
 
@@ -301,7 +301,7 @@
 | PE-05 | 复制纯文本时复制 Markdown 源码 | `editor/tests/e2e/parity-p3b.spec.ts › PE-05 复制纯文本时复制 Markdown 源码:默认带标记;关掉后纯文本只…`;`editor/tests/e2e/context-edit.spec.ts › 拷贝时由外壳重写剪贴板并带上 RTF` | 有 |
 | PE-06 | 无选区时复制或剪切整行 | `editor/tests/e2e/parity-p3b.spec.ts › PE-06 无选区时复制或剪切整行:默认不复制;打开后复制光标所在整段,剪切去掉…` | 有 |
 | PE-07 | 默认换行符 LF / CRLF | `editor/tests/e2e/parity-p3b.spec.ts › PE-07 默认换行符选 CRLF:新建的文档按 \r\n 写盘;已有的 LF…`;`editor/tests/unit/parity-p3b.test.ts › PE-07 选 CRLF 时新建的文档按 \r\n 写盘;默认 LF`;`editor/tests/unit/parity-p3b.test.ts › PE-07 打开的已有文件保持原换行符,不跟偏好走` | 有 |
-| PE-08 | 拼写检查语言 | `editor/tests/e2e/parity-p3b.spec.ts › PE-08 拼写检查语言:选语言后交给系统词典并打开拼写检查;选「不使用」关闭` | 部分:选语言后交给外壳并打开拼写检查、选「不使用」关闭已测;真机待确认:系统词典按所选语言检查 |
+| PE-08 | 拼写检查语言 | `editor/tests/e2e/parity-p3b.spec.ts › PE-08 拼写检查语言:选语言后交给系统词典并打开拼写检查;选「不使用」关闭`;`冒烟 › nativeChecks.spellingLanguage` | 有:冒烟经桥接选法语(或德 / 西 / 意语)后系统拼写检查器切到该语言、法语句子不再标错,换英语后标错,改回「自动检测」(网页里红色波浪线的显示没有截图核对) |
 | PE-09 | 打字机模式下始终保证光标在屏幕中间 | `editor/tests/e2e/parity-p3b.spec.ts › PE-09 打字机模式始终居中:默认鼠标点选也滚到屏幕中间;关掉后点选不滚动,输…` | 有 |
 | PE-10 | 关闭打字机模式 / 专注模式 | `editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示` | 有 |
 
@@ -368,7 +368,7 @@
 
 | 编号 | 功能 | 证据 | 判定 |
 |---|---|---|---|
-| PG-01 | 所有窗口被关闭后自动退出 | `冒烟 › nativeChecks.quitAfterLastWindow`;`editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示` | 部分:开关开 / 关时外壳的退出判断已测;真机待确认:开关关闭时关掉最后一个窗口后,点程序坞图标新开窗口 |
+| PG-01 | 所有窗口被关闭后自动退出 | `冒烟 › nativeChecks.quitAfterLastWindow`;`editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示`;`冒烟 › nativeChecks.dockReopen` | 有:开关开 / 关时外壳的退出判断已测;冒烟关光所有窗口后发系统的「重新打开」事件(与点程序坞图标同一事件,由 open -a 发出),新开一个窗口 |
 | PG-06 | 重置全部警告提示对话框 | `editor/tests/e2e/parity-p3b.spec.ts › PG-06 重置全部警告提示对话框:确认过的「上传图片」提示不再出现,重置后再次…`;`editor/tests/e2e/preferences.spec.ts › 页签齐全;编辑器页关闭打字机 / 专注模式;通用页重置警告提示` | 有 |
 
 ### X 菜单外的隐性能力
@@ -414,7 +414,7 @@
 | X-52 | 保存失败 | `editor/tests/e2e/files.spec.ts › 写盘失败:提示保存失败,全文放进剪贴板`;`editor/tests/e2e/parity-p4.spec.ts › X-52 保存失败:自动保存连续失败只在第一次写剪贴板;手动保存失败照常写` | 有 |
 | X-53 | TextBundle | `editor/tests/e2e/parity-p4.spec.ts › X-53 TextBundle:打开包,标题栏显示包名;插图存进包里的 asse…`;`editor/tests/e2e/parity-p4.spec.ts › X-53 另存为选 .textbundle:建包(assets 文件夹与 inf…`;`editor/tests/unit/files.test.ts › TextBundle 是一个文档,标题取包名`;`editor/tests/unit/navigation.test.ts › 相对路径、省略 .md、锚点、TextBundle、其它文件`;`app/Tests/TypozaKitTests/FilesTests.swift › testListOpenableFilesUsesUnifiedExtensionsAndTextBundles` | 有 |
 | X-54 | 文件编码识别 | `app/Tests/TypozaKitTests/KitTests.swift › testLegacyEncodingIsDetectedAndWrittenBack`;`app/Tests/TypozaKitTests/KitTests.swift › testUTF8WithBOMKeepsMarker`;`app/Tests/TypozaKitTests/KitTests.swift › testFallsBackToGB18030ForLegacyChinese`;`app/Tests/TypozaKitTests/KitTests.swift › testUTF16LittleEndianBOM`;`editor/tests/e2e/parity-p4.spec.ts › X-54 文件编码:外壳识别出的编码(GB18030)记在文档上,编辑后保存按原…` | 有 |
-| X-55 | 命令行与默认应用 | `冒烟 › nativeChecks.openCommandLine` | 部分:`open -a` 命令行打开已测;真机待确认:在 Finder 里设为 .md 默认应用后双击打开 |
+| X-55 | 命令行与默认应用 | `冒烟 › nativeChecks.openCommandLine`;`冒烟 › nativeChecks.defaultAppOpen` | 有:`open -a` 命令行打开已测;冒烟把 Typoza 设为 .md 默认应用(与 Finder「打开方式 ▸ 全部更改」同一接口)后 `open 文件`(与双击同一路径)由本应用打开,测完改回原默认应用 |
 | X-58 | 新文件名建议 | `editor/tests/e2e/parity-p4.spec.ts › X-58 新文件名建议:未命名文档首次保存,保存框的默认文件名取首个标题`;`editor/tests/e2e/parity-p4.spec.ts › X-58 新文件名建议:首个标题不在第一行也取它;文件名里不能用的 / 和 :…` | 有 |
 | X-60 | 单图段落居中 | `editor/tests/e2e/parity-gaps.spec.ts › X-60 段落只有一张图时居中,和文字同段时不居中;补上文字后不再居中` | 有 |
 
@@ -437,20 +437,14 @@
 
 ## 三、仍未完全覆盖
 
-共 13 行,都是「部分」,剩下的部分都要在真机上确认(A-07、F-04、E-38、E-39、P-18、V-11、S-14、S-20、PE-08、PG-01、X-26、X-27、X-55)。
+共 7 行,都是「部分」,剩下的部分都要在真机上确认(A-07、E-38、E-39、P-18、V-11、X-26、X-27)。F-04、S-14、S-20、PE-08、PG-01、X-55 已由真应用冒烟自动核对(外壳自检 nativeChecks)。
 
 | 编号 | 功能 | 判定 | 缺什么 | 原因 |
 |---|---|---|---|---|
 | A-07 | 退出 ⌘Q | 部分 | 多个窗口都有未保存修改时逐个询问 | 需真机:逐个窗口询问由外壳调度,浏览器里的用例只有一个窗口 |
-| F-04 | 打开… ⌘O | 部分 | 真应用里 ⌘O 弹出外壳的打开面板(可同时选文件和文件夹)这一段 | 需真机:系统打开面板没有自动检查;选中之后的打开逻辑已测 |
 | E-38 | 拼写和语法 | 部分 | 网页视图对「检查拼写和语法」「自动纠正拼写」的响应 | 需真机(对照表本身标了待真机确认) |
 | E-39 | 添加到字典 / 忘记拼写 | 部分 | 按住 ⌥ 右键后,系统菜单里「学习拼写 / 忘记拼写」出现并生效 | 需真机:系统菜单与用户词典在浏览器里测不到 |
 | P-18 | 表格 ▸ 复制表格 | 部分 | 从菜单栏「段落 ▸ 表格 ▸ 复制表格」执行时,系统拷贝能否用 | 需真机:复制走网页的系统拷贝,要求来自一次用户操作;工具条点击已测,菜单栏命令由外壳转发,是否算用户操作要在真机上点一次确认 |
 | V-11 | 双指缩放 | 部分 | 触控板捏合能否传到网页视图 | 需真机(对照表本身标了待真机确认);用例用带 ⌃ 的滚轮事件模拟 |
-| S-14 | 在新窗口中打开 / 打开方式… / 快速查看 | 部分 | 快速查看的预览窗口是否前置 | 需真机(对照表本身标了待真机确认) |
-| S-20 | 撤销上一次文件操作 | 部分 | 焦点在侧栏时按 ⌘Z 先撤销文件操作 | 需真机(对照表本身标了待真机确认):⌘Z 在真应用里先经菜单栏的标准「撤销」 |
-| PE-08 | 拼写检查语言 | 部分 | 系统词典按所选语言检查 | 需真机:用例只断言设置交给了外壳 |
-| PG-01 | 所有窗口被关闭后自动退出 | 部分 | 开关关闭时关掉最后一个窗口后,点程序坞图标新开窗口 | 需真机:冒烟只核对了外壳的退出判断 |
 | X-26 | 粘贴 Apple 备忘录列表 | 部分 | 备忘录拷出的列表粘贴后保持列表结构 | 需真机:通用 HTML 列表粘贴已测;要在真机上从备忘录拷一次,采集剪贴板样本核对 |
 | X-27 | 代码语言补全 | 部分 | 输入语言名时下拉提示在 macOS 上弹出 | 需真机:下拉提示是系统原生的输入建议列表,用例只能断言语言框接上了清单 |
-| X-55 | 命令行与默认应用 | 部分 | 在 Finder 里把 Typoza 设为 .md 默认应用后双击打开 | 需真机 |

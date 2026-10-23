@@ -48,9 +48,11 @@ jobs:
       - name: unit
         if: ${{ !cancelled() }}
         run: ../ci/step.sh unit npx vitest run --reporter=verbose
+      # 浏览器与系统依赖的下载偶尔卡住不动(曾一卡十几分钟):每次最多 5 分钟,卡住就重来,最多 3 次
       - name: playwright install
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: ../ci/step.sh playwright-install npx playwright install --with-deps webkit
+        timeout-minutes: 18
+        run: ../ci/step.sh playwright-install bash -c 'for i in 1 2 3; do timeout 300 npx playwright install --with-deps webkit && exit 0; echo "第 $i 次安装没完成,重试"; done; exit 1'
       - name: e2e
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: ../ci/step.sh e2e npx playwright test

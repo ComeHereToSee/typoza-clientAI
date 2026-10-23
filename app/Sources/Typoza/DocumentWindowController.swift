@@ -797,10 +797,14 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
 
     /// 启动选项冷启动核对(PF-01):等网页按启动选项打开文件 / 目录,记下当前文档与侧栏目录后退出
     private func reportStartup(to out: URL) {
+        // 就绪时刻在这里记(冷启动核对顺带量启动耗时:本机跑几次就是稳态启动)
+        let readySeconds = ProcessInfo.processInfo.systemUptime - app.launchUptime
         DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
             self.webView.evaluateJavaScript("JSON.stringify(window.typoza.startupState())") { value, error in
                 var report: [String: Any] = ["error": "读不到启动状态:\(error?.localizedDescription ?? "无结果")"]
                 if let text = value as? String, let obj = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any] { report = obj }
+                report["readySeconds"] = readySeconds
+                report["launchMarks"] = self.app.launchMarks
                 self.writeSmokeAndExit(report, to: out, code: report["error"] == nil ? 0 : 4)
             }
         }
