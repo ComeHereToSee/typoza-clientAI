@@ -145,6 +145,10 @@ export interface Host {
   resourceURL(absPath: string): string
   /** 展开 ~ 开头的路径 */
   homeDir(): string
+  /** 应用数据目录(~/Library/Application Support/<应用名>):派生版本与基础版同机并装时各用各的 */
+  dataDir(): string
+  /** 应用缓存目录(~/Library/Caches/<应用名>) */
+  cacheDir(): string
 
   // 文件
   readText(path: string, encoding?: string): Promise<ReadResult>

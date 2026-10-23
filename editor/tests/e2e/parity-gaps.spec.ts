@@ -383,6 +383,69 @@ test('自己保存触发的文件监视通知比写盘回执先到时,不误报�
   expect(await markdown(page)).toBe('原文追加\n')
 })
 
+const diskText = (page: import('@playwright/test').Page, path: string) =>
+  page.evaluate((p) => {
+    const e = window.typozaTest!.host.files.get(p)
+    return e && e.kind === 'file' && typeof e.data === 'string' ? e.data : null
+  }, path)
+
+test('外部修改的询问还没答时,自动保存不把外部版本覆盖掉;选「重新加载」后是外部的内容', async ({ page }) => {
+  await loadDoc(page, '原文\n', '/demo/冲突.md')
+  await page.evaluate(() => window.typozaTest!.app.updateSettings({ autoSave: true }))
+  await page.keyboard.type('我的')
+  await page.evaluate(() => {
+    const t = window.typozaTest!
+    const confirm = t.host.confirm.bind(t.host)
+    // 用户想了两秒才答(默认答「重新加载」):期间 1 秒的自动保存到点
+    t.host.confirm = async (options) => {
+      await new Promise((r) => setTimeout(r, 2000))
+      return confirm(options)
+    }
+    const p = t.app.session.path!
+    t.host.files.set(p, { kind: 'file', data: '别处改的\n', mtime: Date.now() + 1000 })
+    t.host.emit('fs.changed', { paths: [p] })
+  })
+  await expect.poll(() => markdown(page), { timeout: 10_000 }).toBe('别处改的\n')
+  expect(await diskText(page, '/demo/冲突.md')).toBe('别处改的\n')
+})
+
+test('写盘途中又打的字仍算未保存;连续两次保存按先后落盘', async ({ page }) => {
+  await loadDoc(page, '原文\n', '/demo/途中.md')
+  await page.evaluate(() => {
+    const t = window.typozaTest!
+    void t.app.updateSettings({ autoSave: false })
+    const write = t.host.writeText.bind(t.host)
+    // 标了 slowNext 的那次写盘慢:真机上外壳在后台并发写,慢的那次可能后落盘
+    const w = window as unknown as { slowNext: boolean }
+    t.host.writeText = async (path, text, encoding) => {
+      if (w.slowNext) {
+        w.slowNext = false
+        await new Promise((r) => setTimeout(r, 400))
+      }
+      return write(path, text, encoding)
+    }
+  })
+  const slowNext = () => page.evaluate(() => ((window as unknown as { slowNext: boolean }).slowNext = true))
+  await slowNext()
+  await page.keyboard.type('一')
+  await runMenuCommand(page, 'file.save')
+  await page.keyboard.type('二')
+  await page.waitForTimeout(700)
+  // 这次保存只存了「一」:回执回来时「二」还没存
+  expect(await diskText(page, '/demo/途中.md')).toBe('原文一\n')
+  expect(await page.evaluate(() => window.typozaTest!.app.session.dirty)).toBe(true)
+
+  // 慢的一次还没写完又保存一次:后一次等前一次写完再写,磁盘上是最新的
+  await slowNext()
+  await page.keyboard.type('三')
+  await runMenuCommand(page, 'file.save')
+  await page.keyboard.type('四')
+  await runMenuCommand(page, 'file.save')
+  await expect.poll(() => page.evaluate(() => window.typozaTest!.app.session.dirty)).toBe(false)
+  await page.waitForTimeout(500)
+  expect(await diskText(page, '/demo/途中.md')).toBe('原文一二三四\n')
+})
+
 test('X-44 段落里的行内标签换种写法(注释、转义)也定不了位', async ({ page }) => {
   await loadDoc(page, '甲 <span style="/**/position:fixed;inset:0;background:red">盖层一</span> 乙 <span style="posi\\74ion:fixed;inset:0;background:red">盖层二</span>\n')
   for (const text of ['盖层一', '盖层二']) {

@@ -157,7 +157,15 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
         webView.callAsyncJavaScript("return await window.typoza.prepareClose(reason)", arguments: ["reason": reason], in: nil, in: .page) { result in
             switch result {
             case .success(let value): completion((value as? Bool) ?? true)
-            case .failure: completion(true)
+            case .failure(let error):
+                // 网页没能回答(脚本出错):不能当作「可以关」,未保存的内容会丢,问用户
+                let alert = NSAlert()
+                alert.alertStyle = .warning
+                alert.messageText = "无法确认文档是否已保存"
+                alert.informativeText = "\(error.localizedDescription)\n仍要关闭的话,未保存的修改会丢失。"
+                alert.addButton(withTitle: "取消")
+                alert.addButton(withTitle: "仍要关闭")
+                completion(alert.runModal() == .alertSecondButtonReturn)
             }
         }
     }
@@ -191,7 +199,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             app.mark("bridgeAppInfo")
             let open = openRequest
             openRequest = nil
-            sync { ["home": NSHomeDirectory(), "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev", "openPath": open?.0 as Any, "openIsDir": open?.1 ?? false, "dark": app.isDark, "launch": isLaunchWindow] }
+"            sync { ["home": NSHomeDirectory(), "dataDir": AppPaths.support.path, "cacheDir": AppPaths.cachesDir.path, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev", "openPath": open?.0 as Any, "openIsDir": open?.1 ?? false, "dark": app.isDark, "launch": isLaunchWindow] }
         case "app.ready":
             app.mark("appReady")
             ready = true
@@ -499,7 +507,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             EmbedPolicy.check(url) { result in
                 DispatchQueue.main.async { reply(result.rawValue, nil) }
             }
-        case "net.download":
+        case "net.downloadNew":
             download(params, reply: reply)
         case "system.openInPreview":
             openInPreview(params, reply: reply)
@@ -745,7 +753,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
             report["menuKeysPrimary"] = Self.menuKeys(NSApp.mainMenu, alternates: false)
             if let preMain = self.app.preMainSeconds { report["preMainSeconds"] = preMain }
             // 同机并装的版本各用各的数据目录与钥匙串(CI 按 Info.plist 核对)
-            report["identity"] = ["name": AppPaths.name, "bundleID": AppPaths.bundleID, "support": AppPaths.support.path, "logs": AppPaths.logsDir.path, "syncKeychain": AppPaths.syncKeychainService, "aiKeychain": AISecretStore.service]
+            report["identity"] = ["name": AppPaths.name, "bundleID": AppPaths.bundleID, "support": AppPaths.support.path, "logs": AppPaths.logsDir.path, "caches": AppPaths.cachesDir.path, "syncKeychain": AppPaths.syncKeychainService, "aiKeychain": AISecretStore.service]
             switch result {
             case .success(let value): report["result"] = value
             case .failure(let error): report["error"] = "页面自检失败:\(error)"

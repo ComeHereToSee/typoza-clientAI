@@ -58,7 +58,7 @@ export class DraftKeeper {
 
 /** 未保存文档插入的资源所在文件夹(与 assets.ts 的 targetFolder 一致) */
 export function draftAssetsDir(host: Host): string {
-  return `${host.homeDir()}/Library/Application Support/Typoza/assets`
+  return `${host.dataDir()}/assets`
 }
 
 async function uniquePath(host: Host, folder: string, name: string): Promise<string> {

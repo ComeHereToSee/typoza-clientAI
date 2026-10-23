@@ -93,15 +93,31 @@ enum ExportService {
         let stderr = Pipe()
         p.standardInput = stdin
         p.standardError = stderr
-        p.standardOutput = Pipe()
+        p.standardOutput = FileHandle.nullDevice
         try p.run()
-        if let input { stdin.fileHandleForWriting.write(Data(input.utf8)) }
-        try stdin.fileHandleForWriting.close()
+        // 输入在后台写、同时这里读错误输出:两边都可能写满管道缓冲互相等。
+        // Pandoc 参数错时会提前退出,写入遇到断开的管道:用会抛错的写法(旧的 write(_:) 抛 ObjC 异常,整个应用闪退)
+        let writing = DispatchGroup()
+        var writeError: Error?
+        let handle = stdin.fileHandleForWriting
+        writing.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            defer { writing.leave() }
+            do {
+                if let input { try handle.write(contentsOf: Data(input.utf8)) }
+                try handle.close()
+            } catch {
+                writeError = error
+                try? handle.close()
+            }
+        }
         let errData = stderr.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
+        writing.wait()
         guard p.terminationStatus == 0 else {
             throw BridgeError("Pandoc 转换失败:\(String(data: errData, encoding: .utf8) ?? "退出码 \(p.terminationStatus)")")
         }
+        if let writeError { throw BridgeError("Pandoc 没能读完输入:\(writeError.localizedDescription)") }
     }
 
     /// 经 Pandoc 把 docx 等转成 Markdown,存在原文件旁边(同名 .md,已存在则加序号),图片抽到旁边的 assets;返回生成的文件。
@@ -169,8 +185,9 @@ final class OffscreenRenderer: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // 等字体与图片就绪
+        // 网络图片最多等 10 秒:连不上时不能让导出一直卡着
         webView.callAsyncJavaScript(
-            "await document.fonts.ready; await Promise.all([...document.images].map(i => i.complete ? null : new Promise(r => { i.onload = i.onerror = r })));",
+            "await document.fonts.ready; await Promise.race([Promise.all([...document.images].map(i => i.complete ? null : new Promise(r => { i.onload = i.onerror = r }))), new Promise(r => setTimeout(r, 10000))]);",
             arguments: [:], in: nil, in: .page
         ) { [weak self] _ in
             guard let self else { return }
@@ -180,8 +197,22 @@ final class OffscreenRenderer: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        onLoad?(nil)
-        onLoad = nil
+        failLoad()
+    }
+
+    // 临时文件打不开、渲染进程崩溃:同样报失败,否则网页一直等导出结果
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        failLoad()
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        failLoad()
+    }
+
+    private func failLoad() {
+        guard let onLoad else { return }
+        self.onLoad = nil
+        onLoad(nil)
         finish()
     }
 
@@ -221,12 +252,24 @@ final class OffscreenRenderer: NSObject, WKNavigationDelegate {
         }
     }
 
+    /// 一张图像的最大高度(CSS 像素)
+    static let maxImageHeight: Double = 30000
+
     /// scale:0 = 跟随屏幕;1 / 2 / 3 = 中等 / 高 / 极高(每个 CSS 像素对应的图片像素数)
     func exportPNG(to target: URL, scale: Double, completion: @escaping (Error?) -> Void) {
-        webView.evaluateJavaScript("Math.ceil(document.documentElement.scrollHeight)") { [weak self] value, _ in
+        webView.evaluateJavaScript("Math.ceil(document.documentElement.scrollHeight)") { [weak self] value, error in
             guard let self else { return }
             let width = self.width
-            let height = min(CGFloat((value as? NSNumber)?.doubleValue ?? 1200), 30000)
+            // 量不到高度、或超出一张图的上限时报错:截一部分却提示成功,用户会以为导出了全文
+            guard let measured = (value as? NSNumber)?.doubleValue else {
+                self.finish()
+                return completion(BridgeError("导出图像失败:量不出文档高度(\(error?.localizedDescription ?? "未知错误"))"))
+            }
+            guard measured <= Self.maxImageHeight else {
+                self.finish()
+                return completion(BridgeError("文档太长(约 \(Int(measured)) 像素高,一张图最多 \(Int(Self.maxImageHeight)) 像素),无法导出为一张图像;请改用 PDF 或拆分文档"))
+            }
+            let height = CGFloat(measured)
             self.window.setContentSize(NSSize(width: width, height: height))
             self.webView.frame = NSRect(x: 0, y: 0, width: width, height: height)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

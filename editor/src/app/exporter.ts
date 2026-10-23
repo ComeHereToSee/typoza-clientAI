@@ -61,10 +61,16 @@ function collectCss(excludeUserTheme: boolean): string {
 function localPathFromUrl(url: string): string | null {
   if (!url.startsWith('typoza://local/')) return null
   try {
-    return decodeURIComponent(url.slice('typoza://local'.length))
+    // 去掉查询串(「重新加载所有图片」加的 ?tz-reload=N)再解码:文件名里的 ? # 在地址里是编码过的
+    return decodeURIComponent(url.slice('typoza://local'.length).replace(/[?#].*$/, ''))
   } catch {
     return null
   }
+}
+
+/** 写进导出 HTML 的本机路径:% # ? 编码(否则文件名里的这几个字符会被当成转义、片段、查询串),其余原样便于阅读 */
+function pathForUrl(path: string): string {
+  return path.replace(/[%#?]/g, (c) => encodeURIComponent(c))
 }
 
 // 编辑器专用元素:工具条、手柄、源码区、占位、HTML 注释(对照表 M-10「导出时隐藏」)、编辑时的 Markdown 标记
@@ -161,6 +167,8 @@ export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportH
   for (const cls of EDITOR_CLASSES) clone.querySelectorAll(`.${cls}`).forEach((el) => el.classList.remove(cls))
   clone.querySelectorAll('[data-placeholder]').forEach((el) => el.removeAttribute('data-placeholder'))
   clone.querySelectorAll('[spellcheck]').forEach((el) => el.removeAttribute('spellcheck'))
+  // 懒加载的图(书签缩略图)在离屏导出 PDF / 图像时不在视口里就永远不加载
+  clone.querySelectorAll('img[loading]').forEach((el) => el.removeAttribute('loading'))
   // HTML 块预览里去掉的 class、id 导出时还原(对照表 X-44;原值由 views/blocks.ts 的净化暂存)
   clone.querySelectorAll<HTMLElement>('[data-tz-class], [data-tz-id]').forEach((el) => {
     const cls = el.getAttribute('data-tz-class')
@@ -192,7 +200,7 @@ export function buildExportHtml(editorDom: HTMLElement, partial: Partial<ExportH
   const base = o.targetPath ? dirname(o.targetPath) : null
   clone.querySelectorAll<HTMLElement>('[src]').forEach((el) => {
     const local = localPathFromUrl(el.getAttribute('src') ?? '')
-    if (local) el.setAttribute('src', base ? relativePath(base, local) : `file://${local}`)
+    if (local) el.setAttribute('src', pathForUrl(base ? relativePath(base, local) : `file://${local}`))
   })
   const outline = o.outline ? buildOutline(clone) : ''
   const extraCss = [

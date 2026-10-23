@@ -337,8 +337,9 @@ export class App {
   }
 
   private setDocument(doc: PMNode): void {
-    // 换了文档:停掉上一篇还没载完的分段
+    // 换了文档:停掉上一篇还没载完的分段与还没到点的自动保存
     this.loadToken++
+    clearTimeout(this.autosaveTimer)
     resetMacros()
     const fm = frontMatterInfo(doc, this.session.path)
     this.env.ctx.path = this.session.path
@@ -390,7 +391,7 @@ export class App {
       } catch (err) {
         // 后面的段解析失败:停在已载入的部分,只读,避免把半截文档存回去
         this.session.loading = false
-        this.session.readOnly = 'permission'
+        this.session.readOnly = 'partial'
         this.toast(`文档后半部分解析失败,已停止载入并改为只读:${errText(err)}`, true)
         this.renderStatus()
         return
@@ -492,13 +493,17 @@ export class App {
   }
 
   private onDocChange(): void {
-    this.session.dirty = true
+    this.session.markDirty()
     this.updateWindowState()
     this.renderHeader()
-    clearTimeout(this.autosaveTimer)
     if (this.session.readOnly === 'permission') this.warnReadOnly()
     if (!this.session.path) this.drafts.schedule()
-    else if (this.settings.autoSave && !this.session.readOnly) {
+    else this.scheduleAutosave()
+  }
+
+  private scheduleAutosave(): void {
+    clearTimeout(this.autosaveTimer)
+    if (this.session.path && this.settings.autoSave && !this.session.readOnly) {
       this.autosaveTimer = window.setTimeout(() => void this.save({ auto: true }), AUTOSAVE_DELAY)
     }
   }
@@ -520,12 +525,18 @@ export class App {
 
   async save(opts: { auto?: boolean } = {}): Promise<boolean> {
     clearTimeout(this.autosaveTimer)
+    // 自动保存只存有改动的:没改过的文档不重新写一遍(重新生成的 Markdown 可能与原文排版不同)
+    if (opts.auto && !this.session.dirty) return true
     if (this.session.loading) {
       this.toast('文档还在载入,载入完成后才能保存', true)
       return false
     }
     if (this.session.readOnly === 'large') {
       this.toast('文件过大,以只读源码方式打开,不能保存', true)
+      return false
+    }
+    if (this.session.readOnly === 'partial') {
+      this.toast('文档只载入了前半部分(后半部分解析失败),不能保存,以免原文件被截断;可另存为其它文件', true)
       return false
     }
     // 没有写权限:改为另存为(PRD 3.1 异常)
@@ -570,6 +581,10 @@ export class App {
     const defaultName = shown ? basename(shown) : `${this.firstHeadingText() || '未命名'}.${ext}`
     const chosen = await this.host.saveDialog({ defaultName, extensions: [...new Set([ext, 'md', 'markdown', 'txt', 'textbundle'])] })
     if (!chosen) return false
+    if (this.session.readOnly === 'partial' && chosen === shown) {
+      this.toast('文档只载入了前半部分,不能覆盖原文件;请另存为其它文件', true)
+      return false
+    }
     const previousCtx = this.env.ctx.path
     try {
       const target = isTextBundle(chosen) ? await createTextBundle(this.host, chosen) : chosen
@@ -604,6 +619,16 @@ export class App {
   private async onExternalChange(): Promise<void> {
     // 自己这次保存触发的通知:等写盘回执(更新已保存的时间与内容)再比,否则会误报「被其他程序修改」
     if (this.session.saving) await this.session.saving.catch(() => undefined)
+    // 比对与询问期间不能自动保存:否则外部版本还没比完、用户还没选,就被本地内容覆盖
+    clearTimeout(this.autosaveTimer)
+    try {
+      await this.checkExternalChange()
+    } finally {
+      if (this.session.dirty) this.scheduleAutosave()
+    }
+  }
+
+  private async checkExternalChange(): Promise<void> {
     const path = this.session.path
     if (!path) return
     const stat = await this.host.stat(path)
@@ -930,7 +955,7 @@ export class App {
     this.session.createEmpty()
     this.session.meta = meta
     this.setDocument(doc)
-    this.session.dirty = true
+    this.session.markDirty()
     this.drafts.adopt(draft.id)
     this.updateWindowState()
     this.renderStatus()

@@ -627,7 +627,7 @@ extension AppDelegate {
         var checks = checks
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("typoza-native2-\(UUID().uuidString)", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let exports = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches/\(AppPaths.bundleID)/smoke/out")
+        let exports = AppPaths.cachesDir.appendingPathComponent("smoke/out")
         let real = { (path: String) in URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
         let command = { (id: String) in
             let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -964,7 +964,7 @@ extension AppDelegate {
             self.bringToFront(main.window) { _ in
                 let preview: Process
                 do { preview = try QuickLookPreview.show(file) } catch { return done(["quickLookFront": false]) }
-                let isPreview = { (owner: Self.WindowOwner) in owner.pid == preview.processIdentifier || ["qlmanage", "QuickLookUIService"].contains(owner.name) }
+                let isPreview = { (owner: WindowOwner) in owner.pid == preview.processIdentifier || ["qlmanage", "QuickLookUIService"].contains(owner.name) }
                 self.waitUntil(10, {
                     let owners = Self.windowOwnersFrontToBack()
                     guard let ql = owners.firstIndex(where: isPreview) else { return false }
@@ -1023,14 +1023,14 @@ extension AppDelegate {
             }
             let sample = ["fr": "bonjour le monde", "de": "guten Morgen", "es": "buenos días", "it": "buongiorno amici"][other]!
             let flagged = { checker.checkSpelling(of: sample, startingAt: 0).location != NSNotFound }
-            let set = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
-            main.webView.evaluateJavaScript(set(other)) { _, _ in
+            let setLanguage = { (language: String) in "void window.webkit.messageHandlers.typoza.postMessage({ method: 'system.setSpellingLanguage', params: { language: '\(language)' } })" }
+            main.webView.evaluateJavaScript(setLanguage(other)) { _, _ in
                 self.waitUntil(5, { checker.language().hasPrefix(other) }) { switched in
                     let otherOk = switched && !checker.automaticallyIdentifiesLanguages && !flagged()
-                    main.webView.evaluateJavaScript(set("en")) { _, _ in
+                    main.webView.evaluateJavaScript(setLanguage("en")) { _, _ in
                         self.waitUntil(5, { checker.language().hasPrefix("en") }) { english in
                             let englishOk = english && flagged()
-                            main.webView.evaluateJavaScript(set("auto")) { _, _ in
+                            main.webView.evaluateJavaScript(setLanguage("auto")) { _, _ in
                                 self.waitUntil(5, { checker.automaticallyIdentifiesLanguages }) { auto in
                                     done(["spellingLanguage": otherOk && englishOk && auto])
                                 }
@@ -1118,11 +1118,6 @@ extension AppDelegate {
         return nil
     }
 
-    struct WindowOwner {
-        let pid: pid_t
-        let name: String
-    }
-
     /// 屏幕上的普通窗口(层级 0)从前到后各属于哪个进程(读进程号与名称不需要录屏权限)
     private static func windowOwnersFrontToBack() -> [WindowOwner] {
         let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
@@ -1166,4 +1161,10 @@ extension AppDelegate {
         }
         poll()
     }
+}
+
+/// 冒烟核对窗口前后顺序用:屏幕上一个窗口所属的进程
+private struct WindowOwner {
+    let pid: pid_t
+    let name: String
 }

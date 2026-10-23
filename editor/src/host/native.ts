@@ -13,6 +13,9 @@ type Listener = (payload: unknown) => void
 
 export interface AppInfo {
   home: string
+  /** 应用数据目录与缓存目录(随应用包的名称与标识,派生版本各用各的) */
+  dataDir: string
+  cacheDir: string
   version: string
   /** 启动时要打开的文件或文件夹(Finder 双击打开时由外壳传入) */
   openPath: string | null
@@ -44,6 +47,8 @@ export async function createNativeHost(): Promise<{ host: Host; info: AppInfo }>
     isLaunchWindow: info.launch ?? false,
     resourceURL: (p) => `typoza://local${p.split('/').map(encodeURIComponent).join('/')}`,
     homeDir: () => info.home,
+    dataDir: () => info.dataDir,
+    cacheDir: () => info.cacheDir,
 
     readText: (path, encoding) => call('fs.readText', { path, encoding: encoding ?? null }),
     writeText: (path, text, encoding) => call('fs.writeText', { path, text, encoding: encoding ?? null }),
@@ -129,7 +134,7 @@ export async function createNativeHost(): Promise<{ host: Host; info: AppInfo }>
     copyRegionAsImage: (rect) => call('clipboard.snapshot', { ...rect }),
     nativePaste: () => call('edit.paste'),
     checkEmbed: (url) => call('net.checkEmbed', { url }),
-    download: (url, to) => call('net.download', { url, to }),
+    download: (url, to) => call('net.downloadNew', { url, to }),
     openInPreview: (path) => call('system.openInPreview', { path }),
 
     on<K extends keyof HostEvents>(event: K, handler: (payload: HostEvents[K]) => void) {

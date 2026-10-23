@@ -35,6 +35,18 @@ test.describe('云同步', () => {
     await expect(page.locator('[data-role=recovery-code]')).toHaveText(/^([A-Z0-9]{4}-){12}[A-Z0-9]{4}$/)
     const done = page.locator('button[name=done]')
     await expect(done).toBeDisabled()
+    // Esc、点遮罩都关不掉,也没有 ×
+    const codeModal = page.locator('.tz-modal', { has: page.locator('[data-role=recovery-code]') })
+    await expect(codeModal.locator('.tz-modal-close')).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await codeModal.click({ position: { x: 5, y: 5 } })
+    await expect(page.locator('[data-role=recovery-code]')).toBeVisible()
+    // 复制走宿主剪贴板
+    await page.locator('.tz-modal button[name=copy]').click()
+    await expect(page.locator('.tz-modal button[name=copy]')).toHaveText('已复制')
+    expect(await page.evaluate(() => window.typozaTest!.host.calls.filter((c) => c.method === 'clipboardWrite').map((c) => c.args[0]))).toContainEqual({
+      text: await page.locator('[data-role=recovery-code]').innerText(),
+    })
     await page.locator('input[name=saved]').check()
     await done.click()
 

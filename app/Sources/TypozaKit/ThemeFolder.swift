@@ -2,7 +2,7 @@ import Foundation
 
 /// 主题(PRD 3.11、对照表 T-01 ~ T-05):内置 6 款 + 主题文件夹里的自定义主题。主题菜单每次打开时重新列出,放进去的 css 无需重启即出现。
 public enum ThemeFolder {
-    /// ~/Library/Application Support/Typoza/themes
+    /// ~/Library/Application Support/<应用名>/themes
     public static var directory: URL { AppPaths.support.appendingPathComponent("themes", isDirectory: true) }
 
     /// 内置主题(ID 与网页 settings.ts 的 BUILTIN_THEMES 一致)

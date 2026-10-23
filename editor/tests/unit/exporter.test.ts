@@ -34,6 +34,16 @@ describe('buildExportHtml', () => {
     expect(html).toContain('<title>文档</title>')
   })
 
+  it('本机图片路径:文件名里的 % # ? 编码,「重新加载所有图片」加的查询串去掉;懒加载去掉', () => {
+    const dom = document.createElement('div')
+    dom.innerHTML = `<p><img src="typoza://local/Users/test/docs/assets/C%23%E7%AC%94%E8%AE%B0%3F%2050%25.png?tz-reload=2" alt=""></p><p><img src="typoza://local/Users/test/docs/b.png" loading="lazy"></p>`
+    const html = buildExportHtml(dom, { ...base, withStyles: false })
+    expect(html).toContain('src="assets/C%23笔记%3F 50%25.png"')
+    expect(html).toContain('src="b.png"')
+    expect(html).not.toContain('tz-reload')
+    expect(html).not.toContain('loading=')
+  })
+
   it('智能标点「渲染时转换」导出成真正的弯引号与破折号', () => {
     const html = buildExportHtml(editorDom(), { ...base, withStyles: false })
     expect(html).toContain('他说 “你好” – 再见')

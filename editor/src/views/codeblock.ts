@@ -147,6 +147,8 @@ export class CodeBlockView implements NodeView {
   /** 建 CodeMirror 时一并建的可重配部分:语言、行号、换行、缩进 */
   private parts: Record<'language' | 'gutter' | 'wrap' | 'indent', Compartment> | null = null
   private placeholder: HTMLPreElement | null
+  /** CodeMirror 还在载入时接住键盘输入的隐藏输入框(新建代码块后马上打字);建好编辑器后把打的字交给它 */
+  private pendingInput: HTMLTextAreaElement | null = null
   private updating = false
   private destroyed = false
   private readonly langInput: HTMLInputElement
@@ -233,6 +235,8 @@ export class CodeBlockView implements NodeView {
       return
     }
     if (!lib) {
+      // 要编辑(有 then)时焦点先放进隐藏输入框:否则这期间打的字落到代码块外面
+      if (then) this.catchInputUntilReady()
       loadCodeMirror().then(
         () => this.withEditor(then),
         (err: unknown) => this.env.actions.notify(`代码编辑器载入失败:${err instanceof Error ? err.message : String(err)}`, true),
@@ -267,6 +271,27 @@ export class CodeBlockView implements NodeView {
     this.loadLanguage()
     if (this.previewing) this.schedulePreview()
     then?.(cm)
+    const pending = this.pendingInput
+    if (pending) {
+      this.pendingInput = null
+      const text = pending.value
+      pending.remove()
+      cm.focus()
+      // 有焦点时的改动经 forwardUpdate 同步回文档
+      if (text) {
+        const at = cm.state.selection.main.head
+        cm.dispatch({ changes: { from: at, insert: text }, selection: { anchor: at + text.length } })
+      }
+    }
+  }
+
+  private catchInputUntilReady(): void {
+    if (!this.pendingInput) {
+      this.pendingInput = h('textarea', { class: 'tz-code-pending', 'aria-hidden': 'true', spellcheck: 'false', autocorrect: 'off', autocapitalize: 'off', tabindex: '-1' })
+      this.dom.append(this.pendingInput)
+    }
+    // 每次都重新聚焦:执行命令后 ProseMirror 会把焦点拿回编辑区(view.focus),随后放选区时又走到这里
+    this.pendingInput.focus({ preventScroll: true })
   }
 
   get text(): string {
@@ -402,7 +427,13 @@ export class CodeBlockView implements NodeView {
 
   setSelection(anchor: number, head: number): void {
     this.withEditor((cm) => {
-      // CodeMirror 晚于选区到达时(先载入)内容可能已变,夹到范围内
+      // CodeMirror 先载入、晚于选区到达时,文档与选区可能已变(其间打的字已同步回文档):按 ProseMirror 当前选区放
+      const pos = this.getPos()
+      const sel = this.view.state.selection
+      if (pos !== undefined && sel.from > pos && sel.to < pos + this.node.nodeSize) {
+        anchor = sel.anchor - pos - 1
+        head = sel.head - pos - 1
+      }
       const len = cm.state.doc.length
       cm.focus()
       this.updating = true

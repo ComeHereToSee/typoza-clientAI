@@ -156,6 +156,7 @@
   background: var(--tz-block-bg);
   font-size: 0.875em;
 }
+.tz-code-pending { position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; resize: none; overflow: hidden; }
 .tz-code-header {
   display: flex;
   justify-content: space-between;

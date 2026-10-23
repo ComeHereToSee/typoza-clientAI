@@ -38,11 +38,13 @@ public final class HistoryStore {
     }
 
     /// 保存前调用:磁盘上的旧内容若与最新快照不同,先存一份(防止「打开 → 改坏 → 自动保存」后找不回原文)。
+    /// 这份是别处改过的内容(或第一次保存前的原文),钉住:紧接着的写后快照合并时不能把它删掉。
     public func snapshotBeforeWrite(path: String) throws {
         guard let old = FileManager.default.contents(atPath: path) else { return }
         let dir = folder(for: path)
         if let last = entries(in: dir).last, FileManager.default.contents(atPath: last.path) == old { return }
-        _ = try write(old, dir: dir, path: path, coalesce: false)
+        let entry = try write(old, dir: dir, path: path, coalesce: false)
+        try Data().write(to: pinMark(entry), options: .atomic)
     }
 
     /// 保存后调用:记录新内容。

@@ -24,6 +24,13 @@ public enum AppPaths {
         return base.appendingPathComponent("Logs", isDirectory: true).appendingPathComponent(name, isDirectory: true)
     }
 
+    /// ~/Library/Caches/<应用名>/(图床上传前的临时文件、冒烟导出)
+    public static var cachesDir: URL {
+        let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches")
+        return base.appendingPathComponent(name, isDirectory: true)
+    }
+
     /// 同步会话密钥的钥匙串服务名
     public static var syncKeychainService: String { "\(bundleID).sync" }
 

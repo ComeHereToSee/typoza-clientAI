@@ -29,6 +29,7 @@ final class FilesTests: XCTestCase {
         XCTAssertEqual(AppPaths.name, "Typoza")
         XCTAssertEqual(AppPaths.bundleID, "app.typoza.mac")
         XCTAssertEqual(AppPaths.support.lastPathComponent, "Typoza")
+        XCTAssertEqual(AppPaths.cachesDir.lastPathComponent, "Typoza")
         XCTAssertEqual(AppPaths.syncKeychainService, "app.typoza.mac.sync")
 
         let app = dir.appendingPathComponent("Typoza AI.app/Contents", isDirectory: true)
@@ -39,6 +40,19 @@ final class FilesTests: XCTestCase {
         XCTAssertEqual(AppPaths.bundleValue("CFBundleName", bundle: bundle), "Typoza AI")
         XCTAssertEqual(AppPaths.bundleValue("CFBundleIdentifier", bundle: bundle), "app.typoza.ai")
         XCTAssertNil(AppPaths.bundleValue("CFBundleDisplayName", bundle: bundle))
+    }
+
+    /// 经符号链接(含系统的 /var → /private/var)打开的文件:FSEvents 报真实路径,回调里补上打开时的路径
+    func testFileWatcherReportsOpenedPathForSymlinks() throws {
+        try write("真实.md", "x")
+        let link = dir.appendingPathComponent("链接", isDirectory: true)
+        try FileManager.default.createSymbolicLink(atPath: link.path, withDestinationPath: dir.path)
+        let opened = link.appendingPathComponent("真实.md").path
+        let real = try XCTUnwrap(FileWatcher.realPath(opened))
+        XCTAssertNotEqual(real, opened)
+        let aliases = FileWatcher.aliases(for: [opened])
+        XCTAssertEqual(aliases[real], opened)
+        XCTAssertEqual(Set(FileWatcher.reported([real, "/别处/a.md"], aliases: aliases)), [real, opened, "/别处/a.md"])
     }
 
     // ---------- 草稿 ----------
@@ -122,6 +136,26 @@ final class FilesTests: XCTestCase {
         try store.snapshotAfterWrite(path: file, data: Data("v1".utf8))
         let list = store.list(path: file)
         XCTAssertEqual(try list.map { try store.read(path: file, id: $0["id"] as! String) }, ["v1", "v2", "v1"])
+    }
+
+    /// 别的程序改过文件后再保存:写前快照留下的外部版本不被紧接着的写后快照合并掉
+    func testExternalVersionSurvivesNextSave() throws {
+        var clock = Date(timeIntervalSince1970: 1_000_000)
+        let store = HistoryStore(root: dir.appendingPathComponent("history"), now: { clock })
+        let file = path("doc.md")
+        try write("doc.md", "v1")
+        try store.snapshotAfterWrite(path: file, data: Data("v1".utf8))
+        clock += 60
+        try write("doc.md", "v2")
+        try store.snapshotAfterWrite(path: file, data: Data("v2".utf8))
+        clock += 60
+        try write("doc.md", "外部")
+        try store.snapshotBeforeWrite(path: file)
+        clock += 1
+        try store.snapshotAfterWrite(path: file, data: Data("v3".utf8))
+        let list = store.list(path: file)
+        // 列表新的在前
+        XCTAssertEqual(try list.map { try store.read(path: file, id: $0["id"] as! String) }, ["v3", "外部", "v2", "v1"])
     }
 
     func testHistoryFollowsRenameAndListsDeletedFiles() throws {

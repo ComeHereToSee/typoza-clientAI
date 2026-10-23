@@ -187,6 +187,8 @@ export function createMemoryHost(): MemoryHost {
       return url
     },
     homeDir: () => '/Users/test',
+    dataDir: () => '/Users/test/Library/Application Support/Typoza',
+    cacheDir: () => '/Users/test/Library/Caches/Typoza',
     async readText(path) {
       return { text: text(path), encoding: 'utf-8', mtime: files.get(path)!.mtime }
     },

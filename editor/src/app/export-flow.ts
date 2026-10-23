@@ -121,6 +121,37 @@ export function expandVariables(template: string, vars: Record<string, string>):
   return template.replace(/\$\{(\w+)\}/g, (whole, name: string) => (Object.hasOwn(vars, name) ? vars[name] : whole))
 }
 
+/**
+ * 自定义命令里的 ${变量}:值来自文件名与文档 YAML,按所在位置转义后再交给 shell,只能当文字,不会被当成命令执行。
+ * 双引号里转义 \ " $ `;单引号里把 ' 写成 '\'';引号外整个包进单引号。
+ */
+export function expandCommandVariables(template: string, vars: Record<string, string>): string {
+  const single = (v: string) => v.replace(/'/g, `'\\''`)
+  const variable = /\$\{(\w+)\}/y
+  let quote: '' | "'" | '"' = ''
+  let out = ''
+  for (let i = 0; i < template.length; i++) {
+    variable.lastIndex = i
+    const m = variable.exec(template)
+    if (m && Object.hasOwn(vars, m[1])) {
+      const v = vars[m[1]]
+      out += quote === '"' ? v.replace(/[\\"$`]/g, '\\$&') : quote === "'" ? single(v) : `'${single(v)}'`
+      i += m[0].length - 1
+      continue
+    }
+    const c = template[i]
+    if (c === '\\' && quote !== "'") {
+      out += c + (template[i + 1] ?? '')
+      i++
+      continue
+    }
+    if (c === "'" && quote !== '"') quote = quote ? '' : "'"
+    else if (c === '"' && quote !== "'") quote = quote ? '' : '"'
+    out += c
+  }
+  return out
+}
+
 function today(): string {
   const d = new Date()
   const p = (n: number) => String(n).padStart(2, '0')
@@ -354,7 +385,7 @@ function exportRequest(ctx: ExportContext, id: string, item: ExportItem | undefi
 /** 自定义命令导出(对照表 PX-11):在文档所在文件夹执行命令,变量见 X-23。 */
 async function runCommandExport(ctx: ExportContext, item: ExportItem, vars: Record<string, string>): Promise<void> {
   if (!item.command.trim()) throw new Error(`导出项「${item.name}」还没有填写命令`)
-  const r = await ctx.host.runCommand(expandVariables(item.command, vars), ctx.docPath ? dirname(ctx.docPath) : null)
+  const r = await ctx.host.runCommand(expandCommandVariables(item.command, vars), ctx.docPath ? dirname(ctx.docPath) : null)
   if (r.status !== 0) throw new Error(r.output.trim() || `命令退出码 ${r.status}`)
   if (item.showOutput) showCommandOutput(r.output)
 }
@@ -367,7 +398,7 @@ async function afterExport(ctx: ExportContext, target: string, vars: Record<stri
     if (s.exportAfter === 'revealFile') await ctx.host.revealInFinder(target)
     else if (s.exportAfter === 'openFile') await ctx.host.openWithDefaultApp(target)
     else if (s.exportAfter === 'command' && s.exportAfterCommand.trim()) {
-      const r = await ctx.host.runCommand(expandVariables(s.exportAfterCommand, vars), dirname(target))
+      const r = await ctx.host.runCommand(expandCommandVariables(s.exportAfterCommand, vars), dirname(target))
       if (r.status !== 0) throw new Error(r.output.trim() || `退出码 ${r.status}`)
       if (s.exportShowCommandOutput) showCommandOutput(r.output)
     }

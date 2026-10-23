@@ -57,7 +57,7 @@ export async function runSmoke(app: App, bootTimings: Record<string, number> = {
   for (const m of performance.getEntriesByType('mark')) if (m.name.startsWith('tz:')) timings[`mark_${m.name.slice(3)}Ms`] = Math.round(m.startTime)
   try {
     const host = app.host
-    const dir = `${host.homeDir()}/Library/Caches/app.typoza.mac/smoke`
+    const dir = `${host.cacheDir()}/smoke`
     await host.mkdir(`${dir}/assets`)
     const b64 = (s: string) => btoa(unescape(encodeURIComponent(s)))
     await host.writeBase64(`${dir}/assets/form.svg`, b64(sampleSvg('基本信息表单', 1200, 680)))

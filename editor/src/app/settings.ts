@@ -395,7 +395,7 @@ export const BUILTIN_THEMES: ThemeInfo[] = [
 
 /** 用户主题文件夹(T-02):放进去的 .css 无需重启即出现在主题菜单。 */
 export function themesFolder(host: Host): string {
-  return `${host.homeDir()}/Library/Application Support/Typoza/themes`
+  return `${host.dataDir()}/themes`
 }
 
 /** 警告提示的标识(「不再提示」后记进 dismissedWarnings,PG-06 可重置)。 */

@@ -47,7 +47,7 @@ function stem(path: string): string {
 
 /** 未保存的新文档插入的文件先放这里(Typoza 数据目录,不打扰用户)。 */
 export function draftAssetsFolder(host: Host): string {
-  return `${host.homeDir()}/Library/Application Support/Typoza/assets`
+  return `${host.dataDir()}/assets`
 }
 
 /** YAML 里写 typora-copy-images-to: upload 表示这篇文档的图片走上传(Typora 写法)。 */
@@ -146,7 +146,7 @@ export async function uploadImages(ctx: ImportContext, paths: string[]): Promise
 }
 
 function uploadCacheFolder(host: Host): string {
-  return `${host.homeDir()}/Library/Caches/Typoza/upload`
+  return `${host.cacheDir()}/upload`
 }
 
 /**

@@ -108,7 +108,7 @@ app, path = sys.argv[1], sys.argv[2]
 info = plistlib.load(open(f'{app}/Contents/Info.plist', 'rb'))
 name, bundle_id = info['CFBundleName'], info['CFBundleIdentifier']
 ident = json.load(open(path)).get('identity', {})
-want = {'name': name, 'bundleID': bundle_id, 'support': os.path.expanduser(f'~/Library/Application Support/{name}'), 'logs': os.path.expanduser(f'~/Library/Logs/{name}')}
+want = {'name': name, 'bundleID': bundle_id, 'support': os.path.expanduser(f'~/Library/Application Support/{name}'), 'logs': os.path.expanduser(f'~/Library/Logs/{name}'), 'caches': os.path.expanduser(f'~/Library/Caches/{name}')}
 bad = [k for k, v in want.items() if ident.get(k) != v]
 bad += [k for k, v in ident.items() if k.endswith('Keychain') and not str(v).startswith(bundle_id + '.')]
 # 欢迎文档由应用首次启动时写进自己的数据目录(冒烟 firstLaunchWelcome)

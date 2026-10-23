@@ -24,10 +24,13 @@ export class DocumentSession {
   encoding = 'utf-8'
   savedMtime = 0
   dirty = false
+  /** 改动计数:写盘回执回来时若期间又改过,仍算未保存 */
+  private revision = 0
   /** 最近一次写盘(或读盘)的文本,用于判断外部修改是否只是我们自己的保存 */
   savedText = ''
   /** 只读原因(PRD 3.1 异常):permission = 没有写权限,large = 超过大文件阈值、以只读源码打开;null 为可写 */
-  readOnly: 'permission' | 'large' | null = null
+  /** permission:没有写权限;large:超大文件只读源码;partial:后半部分解析失败、只载入了前半部分(不能存回原文件) */
+  readOnly: 'permission' | 'large' | 'partial' | null = null
   /** 大文档还在分段载入:正文不全,不能编辑、保存、导出 */
   loading = false
 
@@ -105,17 +108,27 @@ export class DocumentSession {
     return serializeMarkdown(doc, this.meta, serializeOptionsFrom(s))
   }
 
+  markDirty(): void {
+    this.dirty = true
+    this.revision++
+  }
+
   /** 正在写盘的那次保存;文件监视的通知可能比写盘的回执先到,判断「被其他程序修改」前要等它写完 */
   saving: Promise<void> | null = null
 
+  /** 同一文档的保存一次一个:外壳在后台并发写盘,两次保存可能乱序落盘,磁盘上留下旧版 */
   async save(doc: PMNode, path = this.path): Promise<void> {
     if (!path) throw new Error('文档还没有保存位置')
+    // 计数取调用时的:doc 是那一刻的内容,等前一次保存期间的改动不算存上
+    const revision = this.revision
+    while (this.saving) await this.saving.catch(() => undefined)
     const text = this.serialize(doc)
     const write = this.host.writeText(path, text, this.encoding).then(({ mtime }) => {
       this.path = path
       this.savedMtime = mtime
       this.savedText = text
-      this.dirty = false
+      // 写盘途中又打了字:那些字还没存
+      if (this.revision === revision) this.dirty = false
     })
     this.saving = write
     try {

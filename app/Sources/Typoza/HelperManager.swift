@@ -112,6 +112,8 @@ final class HelperManager {
             RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         }
         if p.isRunning { p.terminate() }
+        // 等钥匙串写完再退出:收尾时推来的新令牌(令牌轮换)没存下,下次启动用旧令牌会被服务器当作重放而登出
+        keychainQueue.sync {}
     }
 
     // ---------- 私有 ----------

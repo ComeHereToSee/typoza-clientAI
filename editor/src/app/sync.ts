@@ -334,7 +334,7 @@ export class SyncController {
         } else if (mode === 'register') {
           const r = await this.call<{ recoveryCode: string; status: SyncStatus }>('sync.register', { server: server.value, email: email.value, password: password.value })
           this.status = r.status
-          showRecoveryCode(r.recoveryCode)
+          showRecoveryCode(this.host, r.recoveryCode)
         } else {
           this.status = await this.call<SyncStatus>('sync.recover', { server: server.value, email: email.value, recoveryCode: recovery.value, newPassword: password.value })
         }
@@ -695,13 +695,19 @@ export class SyncController {
   }
 }
 
-/** 注册成功后展示恢复码:必须勾选「已保存」才能关闭。 */
-function showRecoveryCode(code: string): void {
+/** 注册成功后展示恢复码:必须勾选「已保存」才能关闭(Esc、×、点遮罩都不关:恢复码只显示这一次)。 */
+function showRecoveryCode(host: Host, code: string): void {
   const done = h('button', { type: 'button', class: 'tz-btn-primary', name: 'done', disabled: true }, '完成')
   const check = h('input', { type: 'checkbox', name: 'saved' })
   check.addEventListener('change', () => (done.disabled = !check.checked))
   const copy = h('button', { type: 'button', class: 'tz-sync-btn', name: 'copy' }, '复制')
-  copy.addEventListener('click', () => void navigator.clipboard.writeText(code))
+  // 走宿主剪贴板:typoza:// 页面里 navigator.clipboard 不一定可用,复制失败要让人知道
+  copy.addEventListener('click', () => {
+    host.clipboardWrite({ text: code }).then(
+      () => (copy.textContent = '已复制'),
+      (err: unknown) => (copy.textContent = `复制失败:${err instanceof Error ? err.message : String(err)}`),
+    )
+  })
   const dlg = modal(
     '请保存恢复码',
     h(
@@ -713,6 +719,8 @@ function showRecoveryCode(code: string): void {
       h('label', { class: 'tz-sync-check' }, check, '我已妥善保存恢复码'),
       h('div', { class: 'tz-sync-actions' }, done),
     ),
+    undefined,
+    { closable: false },
   )
   done.addEventListener('click', dlg.close)
 }

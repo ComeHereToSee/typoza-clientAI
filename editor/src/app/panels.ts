@@ -1,8 +1,9 @@
 // 弹出面板:字数统计,以及各面板共用的模态框。偏好设置在 preferences.ts,历史版本在 historypanel.ts。
 import { h } from '../ui/dom'
 
-export function modal(title: string, body: HTMLElement, onClose?: () => void): { root: HTMLElement; close: () => void } {
-  const closeBtn = h('button', { type: 'button', class: 'tz-modal-close', title: '关闭(Esc)' }, '×')
+/** closable 为 false 时只能由调用方关(没有 ×,Esc 与点遮罩不关):用于必须确认的面板,如恢复码 */
+export function modal(title: string, body: HTMLElement, onClose?: () => void, { closable = true } = {}): { root: HTMLElement; close: () => void } {
+  const closeBtn = closable ? h('button', { type: 'button', class: 'tz-modal-close', title: '关闭(Esc)' }, '×') : null
   const panel = h('div', { class: 'tz-modal-panel', role: 'dialog', 'aria-label': title }, h('div', { class: 'tz-modal-head' }, h('h2', null, title), closeBtn), body)
   const root = h('div', { class: 'tz-modal' }, panel)
   const close = () => {
@@ -11,16 +12,18 @@ export function modal(title: string, body: HTMLElement, onClose?: () => void): {
     onClose?.()
   }
   const onKey = (e: KeyboardEvent) => {
+    // 叠了几层面板时 Esc 只归最上面一层(各层都在 window 上监听,先注册的先收到)
+    if ([...document.querySelectorAll('.tz-modal')].pop() !== root) return
     // 正在录制快捷键的控件要自己收 Esc(取消录制),不关面板
     if (e.key === 'Escape' && !(e.target instanceof Element && e.target.closest('[data-tz-capture-keys]'))) {
       e.preventDefault()
       e.stopPropagation()
-      close()
+      if (closable) close()
     }
   }
-  closeBtn.addEventListener('click', close)
+  closeBtn?.addEventListener('click', close)
   root.addEventListener('mousedown', (e) => {
-    if (e.target === root) close()
+    if (e.target === root && closable) close()
   })
   window.addEventListener('keydown', onKey, true)
   document.body.append(root)

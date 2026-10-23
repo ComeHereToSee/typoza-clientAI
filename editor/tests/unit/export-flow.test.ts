@@ -1,7 +1,7 @@
 // 导出流程(PRD 3.12;对照表 F-37、F-38、PX-01 ~ PX-11、X-22、X-23):变量、YAML 覆盖、重复导出、Pandoc 缺失提示、自定义命令。
 import type { EditorView } from 'prosemirror-view'
 import { describe, expect, it } from 'vitest'
-import { type ExportContext, PANDOC_INSTALL_URL, expandVariables, newExportItem, readExportYaml, runExport } from '../../src/app/export-flow'
+import { type ExportContext, PANDOC_INSTALL_URL, expandCommandVariables, expandVariables, newExportItem, readExportYaml, runExport } from '../../src/app/export-flow'
 import { type AppSettings, DEFAULT_SETTINGS } from '../../src/app/settings'
 import { createMemoryHost } from '../../src/host/memory'
 
@@ -33,6 +33,15 @@ const argsOf = (host: ReturnType<typeof createMemoryHost>, method: string) => ho
 describe('变量与 YAML', () => {
   it('替换 ${变量},不认识的原样保留', () => {
     expect(expandVariables('${title} 第 ${pageNo} 页 ${author}', { title: '周报', author: '小明' })).toBe('周报 第 ${pageNo} 页 小明')
+  })
+
+  it('自定义命令里的变量只当文字:按所在位置转义,文件名与 YAML 里的内容执行不了命令', () => {
+    const vars = { currentPath: '/n/$(touch 中招).md', title: 'a"; rm -rf ~; "b', author: "it's `who`" }
+    expect(expandCommandVariables('pandoc "${currentPath}" --title "${title}"', vars)).toBe('pandoc "/n/\\$(touch 中招).md" --title "a\\"; rm -rf ~; \\"b"')
+    expect(expandCommandVariables('echo ${title}', vars)).toBe(`echo 'a"; rm -rf ~; "b'`)
+    expect(expandCommandVariables("echo '${author}'", vars)).toBe(`echo 'it'\\''s \`who\`'`)
+    // 不认识的变量、转义过的引号与普通文字不动
+    expect(expandCommandVariables('open "${outputPath}" \\" ${pageNo}', { outputPath: '/n/周报.docx' })).toBe('open "/n/周报.docx" \\" ${pageNo}')
   })
 
   it('读文档 YAML 里的导出键;YAML 写错按没有处理', () => {

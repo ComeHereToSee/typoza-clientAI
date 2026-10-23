@@ -6,6 +6,8 @@ import Foundation
 public final class FileWatcher {
     private var stream: FSEventStreamRef?
     private var paths: Set<String> = []
+    /// 真实路径(解析符号链接,含 /var → /private/var)→ 监听时给的路径:FSEvents 报的是真实路径,网页按打开时的路径认
+    private var aliases: [String: String] = [:]
     private let callback: ([String]) -> Void
 
     public init(callback: @escaping ([String]) -> Void) {
@@ -20,7 +22,27 @@ public final class FileWatcher {
         let merged = paths.union(newPaths)
         guard merged != paths else { return }
         paths = merged
+        aliases = Self.aliases(for: merged)
         restart()
+    }
+
+    static func aliases(for paths: Set<String>) -> [String: String] {
+        var map: [String: String] = [:]
+        for path in paths {
+            if let real = realPath(path), real != path { map[real] = path }
+        }
+        return map
+    }
+
+    /// 事件路径里补上对应的、监听时给的路径
+    static func reported(_ events: [String], aliases: [String: String]) -> [String] {
+        Array(Set(events + events.compactMap { aliases[$0] }))
+    }
+
+    static func realPath(_ path: String) -> String? {
+        guard let resolved = realpath(path, nil) else { return nil }
+        defer { free(resolved) }
+        return String(cString: resolved)
     }
 
     private func stop() {
@@ -33,8 +55,9 @@ public final class FileWatcher {
 
     private func restart() {
         stop()
-        // 监听文件所在的文件夹:文件本身被原子替换时也能收到事件
-        let roots = Array(Set(paths.map { path -> String in
+        // 监听文件所在的文件夹:文件本身被原子替换时也能收到事件;按真实路径找文件夹(文件本身是符号链接时,改动发生在目标所在的文件夹)
+        let roots = Array(Set(paths.map { original -> String in
+            let path = Self.realPath(original) ?? original
             var isDir: ObjCBool = false
             return FileManager.default.fileExists(atPath: path, isDirectory: &isDir) && isDir.boolValue ? path : (path as NSString).deletingLastPathComponent
         }))
@@ -46,7 +69,7 @@ public final class FileWatcher {
                 guard let info else { return }
                 let watcher = Unmanaged<FileWatcher>.fromOpaque(info).takeUnretainedValue()
                 let array = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as? [String] ?? []
-                watcher.callback(Array(Set(array.prefix(count))))
+                watcher.callback(FileWatcher.reported(Array(array.prefix(count)), aliases: watcher.aliases))
             },
             &context,
             roots as CFArray,
