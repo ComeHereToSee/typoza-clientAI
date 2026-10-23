@@ -82,7 +82,7 @@ flowchart TB
 | `/` 命令 | 输入 `/` 列出:助手的快捷指令、MCP 提示词(分组显示) | — |
 | 流式输出 | 逐段上屏,Markdown 实时渲染(代码块、公式、表格);【停止】随时中断 | 网络中断时保留已输出内容,状态为「出错」 |
 | 回答操作 | 复制(Markdown)、插入到光标处、替换选区、插入到文末 | 文档只读时「插入」置灰 |
-| 对话列表 | 侧栏顶部切换历史对话;自动用快速模型起标题,可改名、删除(确认)、导出为 Markdown | 对话存本机 `~/Library/Application Support/Typoza/ai/`,不进云同步 |
+| 对话列表 | 侧栏顶部切换历史对话;自动用快速模型起标题,可改名、删除(确认)、导出为 Markdown | 对话存本机 `~/Library/Application Support/Typoza AI/ai/`,不进云同步 |
 
 ### 3.3 对话分支与多版本
 
@@ -137,7 +137,7 @@ flowchart TB
 
 | 功能 | 规则 | 边界与异常 |
 |---|---|---|
-| 来源 | 设置 ▸「技能」:从文件夹或 ZIP 安装到 `~/Library/Application Support/Typoza/skills/`;也可读取 `~/.agents/skills/`(开关,默认关) | — |
+| 来源 | 设置 ▸「技能」:从文件夹或 ZIP 安装到 `~/Library/Application Support/Typoza AI/skills/`;也可读取 `~/.agents/skills/`(开关,默认关) | — |
 | 格式 | 符合 Agent Skills 规范:每个技能一个目录,`SKILL.md` 带 name 与 description;name 不合规时提示原因并不加载 | — |
 | 加载方式 | 对话开始时只把各技能的名字与描述交给模型;模型需要时再读取正文与资源(渐进加载) | — |
 | 启用 | 全局开关 + 每个助手单独选用哪些技能;对话里显示本轮用到了哪个技能 | — |
