@@ -11,12 +11,17 @@ for i in 1 2 3; do
   [ "$i" = 3 ] && exit 1
 done
 
+# 正常 1 分钟内装完,第一次限 3 分钟
 for i in 1 2 3; do
-  timeout 300 npx playwright install-deps webkit && exit 0
+  timeout $([ "$i" = 1 ] && echo 180 || echo 300) npx playwright install-deps webkit && exit 0
   echo "系统依赖第 $i 次没装完,换 Ubuntu 官方源重试"
   sudo pkill -x apt-get
   for _ in $(seq 30); do pgrep -x apt-get >/dev/null || pgrep -x dpkg >/dev/null || break; sleep 2; done
   sudo dpkg --configure -a
+  # GitHub 的 Ubuntu 机器取源走镜像清单 /etc/apt/apt-mirrors.txt(日志里的 Mirrorlist 一行),
+  # 只改 sources 不生效:整份换成官方源,原清单打进日志备查
+  [ -f /etc/apt/apt-mirrors.txt ] && { echo "原镜像清单:"; cat /etc/apt/apt-mirrors.txt; }
+  echo 'http://archive.ubuntu.com/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
   sudo sed -i 's#http://azure.archive.ubuntu.com/ubuntu#http://archive.ubuntu.com/ubuntu#g' /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null
 done
 exit 1
