@@ -48,6 +48,10 @@ jobs:
       - name: unit
         if: ${{ !cancelled() }}
         run: ../ci/step.sh unit npx vitest run --reporter=verbose
+      # 系统软件源偶尔极慢(曾卡满 18 分钟,浏览器没装上、e2e 全挂):单个包 30 秒没下完就重试,最多 5 次
+      - name: apt retries
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' | sudo tee /etc/apt/apt.conf.d/80-retries
       # 浏览器与系统依赖的下载偶尔卡住不动(曾一卡十几分钟):每次最多 5 分钟,卡住就重来,最多 3 次
       - name: playwright install
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
