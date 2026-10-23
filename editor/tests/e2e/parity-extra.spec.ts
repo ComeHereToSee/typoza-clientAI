@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test'
 import { loadDoc, markdown, modKey, openApp } from './helpers'
 
-// Typora 对照表(docs/prd/typora-parity.md)里缺 E2E 证据、网页侧能测的项:E-16、P-15、F-18(验收第 1 轮 A6)。
+// Typora 对照表(docs/prd/typora-parity.md)里缺 E2E 证据、网页侧能测的项:E-16、P-15、F-18。
 // F-07 重新打开关闭的文件(⇧⌘T)、F-17 保存全部(⌥⌘S)、H-06 欢迎向导(快速上手)是 native.* 命令,
 // 只在原生外壳(app/Sources/Typoza/MainMenu.swift)里有,浏览器里的网页按键处理会跳过它们(app/app.ts bindBrowserKeys),这里不测。
 

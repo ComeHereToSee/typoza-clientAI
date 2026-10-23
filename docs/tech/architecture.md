@@ -45,7 +45,7 @@ flowchart LR
      ─ serialize.ts:没改过的顶层块原样写回原文(连同块间空行);改过的块 → mdast → mdast-util-to-markdown(自定义处理器)
 ```
 
-- **不改语义、尽量不改字节**:原文切片挂在 `WeakMap<PMNode, BlockSource>` 上,节点对象不变就写回原文。所以打开 → 保存逐字节不变(CI 单测做语义往返:CommonMark 规范 652 例(#173 跳过,原因见 `tests/unit/markdown.test.ts`)、GFM 扩展章节与脚注示例 26 例、Typora 语料;冒烟测试做字节往返)。
+- **不改语义、尽量不改字节**:原文切片挂在 `WeakMap<PMNode, BlockSource>` 上,节点对象不变就写回原文。所以打开 → 保存逐字节不变(CI 单测做语义往返:CommonMark 规范 652 例(#173 跳过,原因见 `tests/unit/markdown.test.ts`)、GFM 扩展章节与脚注示例 26 例(扩展自动链接 #6 #7 跳过,原因同文件)、Typora 语料;冒烟测试做字节往返)。
 - **新内容优先标准 Markdown**:提示块存 GitHub `> [!TIP]`,折叠块存 `<details>`,颜色存 `<span style>`,书签存 `<a data-tz-type="bookmark">`,表情存 Unicode 字符。
 - **Typora 兼容**:`typora-root-url`、`typora-copy-images-to`、`<img style="zoom:50%">`、`[TOC]`、`:smile:` 短码(装饰显示、原文保留)、编辑器根节点 `id="write"`(Typora 主题选择器)。
 - **序列化细节**:段落 / 标题末尾空格直接去掉(Markdown 本就忽略,避免写出 `&#x20;`);相邻同类列表换用不同标记符避免被合并。

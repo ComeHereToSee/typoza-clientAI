@@ -28,4 +28,10 @@ for t, k in missing:
 if missing:
     sys.exit("菜单键位与 notion-input.md 5.2 不符")
 print(f"菜单键位核对通过:{len(actual)} 项里期望的 {len(json.load(open(expected_path)))} 项都对")
+# 外壳行为自检(最近文件 / 目录、置顶、重开关闭的文件、全部保存、欢迎文档;见 AppDelegate.runNativeSmoke)
+native = report.get("nativeChecks", {})
+failed = [k for k, v in native.items() if v is not True]
+if not native or failed:
+    sys.exit(f"外壳行为自检失败:{'、'.join(failed) or '没有结果'}")
+print(f"外壳行为自检通过:{'、'.join(native)}")
 PY

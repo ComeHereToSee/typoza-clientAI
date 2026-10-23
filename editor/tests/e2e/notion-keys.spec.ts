@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test'
 import { loadDoc, markdown, modKey, openApp } from './helpers'
 import { clipboardEvent, hostCalls } from './media-helpers'
 
-// Notion 快捷输入与键位补测(notion-input.md 2.1、2.2、三、5.1、7.1;验收第 1 轮 A5)。
+// Notion 快捷输入与键位补测(notion-input.md 2.1、2.2、三、5.1、7.1)。
 // 只写网页自己处理的键:编辑区键位见 core/keymap.ts 的 DEFAULT_KEYS;浏览器里的应用级键位是 app/shortcuts.ts 的 MENU_KEYS,
 // 由 App.bindBrowserKeys(app/app.ts)处理,native.*(⌘T、⇧⌘T、⌥⌘S……)只有原生外壳能做,这里不测。
 // CI 跑在 Linux WebKit 上,Mod 就是 Ctrl:⌃⌘X 与 ⌘X 在这里是同一个键,个别用例因此先把焦点移出正文,见各条注释。

@@ -24,6 +24,10 @@ describe('嵌入框沙箱', () => {
     expect(isPdfSource('a.pdf?v=1')).toBe(true)
     expect(isPdfSource('x.html#.pdf')).toBe(false)
     expect(isPdfSource('x.html?.pdf')).toBe(false)
+    // data: / blob: 的内容由地址本身决定,结尾是 .pdf 也可能是网页,不能当 PDF 免沙箱
+    expect(isPdfSource('data:text/html,<script>1</script>.pdf')).toBe(false)
+    expect(isPdfSource('blob:https://x.com/a.pdf')).toBe(false)
+    expect(isPdfSource('file:///Users/a/b.pdf')).toBe(true)
   })
 
   it('文档里写的 iframe 按路径归类', () => {

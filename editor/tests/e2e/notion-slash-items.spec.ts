@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test'
 import { loadDoc, markdown, openApp } from './helpers'
 import { hostCalls, putFile } from './media-helpers'
 
-// 斜杠菜单交互(notion-input.md 4.1)与条目全表(4.2)补测:验收第 1 轮 A5。
+// 斜杠菜单交互(notion-input.md 4.1)与条目全表(4.2)补测。
 // slash.spec.ts 已覆盖标题 1、标题 2(插在下方)、表格、标注块、警告、折叠标题 2、日期、链接到文档;PDF、视频见 media.spec.ts。
 // 条目定义在 plugins/items.ts slashItems,过滤与排序在 ui/menu.ts filterMenuItems;每条先确认第一项的 data-id 再回车,
 // 保证插入的确实是要测的条目。

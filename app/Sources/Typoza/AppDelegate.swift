@@ -529,3 +529,102 @@ extension AppDelegate: NSMenuItemValidation {
         }
     }
 }
+
+// ---------- 冒烟:外壳行为自检(对照表 F-05、F-06、F-07、F-17、V-15、H-06) ----------
+
+extension AppDelegate {
+    /// 页面自检之后在真应用里走一遍只有外壳才有的行为,每项给 true / false;任何一步超时记为 false 并继续
+    func runNativeSmoke(main: DocumentWindowController, completion: @escaping ([String: Any]) -> Void) {
+        var checks: [String: Any] = [:]
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("typoza-native-\(UUID().uuidString)", isDirectory: true)
+        let file = dir.appendingPathComponent("外壳自检.md").path
+        do {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            try "# 外壳自检\n\n正文。\n".write(toFile: file, atomically: true, encoding: .utf8)
+        } catch {
+            completion(["error": "准备临时文件失败:\(error)"])
+            return
+        }
+        let real = { (path: String) in URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
+        let command = { (id: String) in
+            let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+            item.representedObject = id
+            self.menuCommand(item)
+        }
+
+        // F-05 最近文件:记一笔后「打开最近文件」菜单里有它
+        noteRecent(file)
+        menuNeedsUpdate(recentMenu)
+        checks["recentFile"] = recentMenu.items.contains { ($0.representedObject as? String).map(real) == real(file) }
+
+        // F-06 最近使用的目录:列表在偏好里,菜单按它生成;测完恢复原值
+        let savedFolders = (try? settings.load())?["recentFolders"] ?? [String]()
+        try? settings.merge(["recentFolders": [dir.path]])
+        buildRecentFoldersMenu(recentFoldersMenu)
+        checks["recentFolder"] = recentFoldersMenu.items.contains { ($0.representedObject as? String) == dir.path }
+        try? settings.merge(["recentFolders": savedFolders])
+
+        // V-15 保持窗口在最前端:菜单命令切换当前窗口的层级,再切回
+        main.window?.makeKeyAndOrderFront(nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            command("native.alwaysOnTop")
+            checks["alwaysOnTop"] = main.window?.level == .floating
+            command("native.alwaysOnTop")
+            checks["alwaysOnTopOff"] = main.window?.level == .normal
+
+            // F-07 重新打开关闭的文件:开一个窗口、关掉、再用菜单命令打开
+            self.open(path: file, isDir: false, newWindow: true)
+            self.waitUntil(15, { self.windows.contains { $0.isShowing(file) } }) { opened in
+                guard opened, let first = self.windows.first(where: { $0.isShowing(file) }) else {
+                    checks["reopenClosed"] = false
+                    checks["saveAll"] = false
+                    return self.welcomeSmoke(checks, completion)
+                }
+                first.window?.performClose(nil)
+                self.waitUntil(5, { !self.windows.contains { $0.isShowing(file) } }) { _ in
+                    command("native.reopenClosed")
+                    self.waitUntil(15, { self.windows.contains { $0.isShowing(file) } }) { reopened in
+                        checks["reopenClosed"] = reopened
+                        guard reopened, let again = self.windows.first(where: { $0.isShowing(file) }) else {
+                            checks["saveAll"] = false
+                            return self.welcomeSmoke(checks, completion)
+                        }
+                        // F-17 全部保存:在这个窗口里打字(未保存),用菜单命令保存全部,文件里出现新字
+                        let typing = "(() => { const pm = document.querySelector('.ProseMirror'); pm.focus(); const s = getSelection(); s.selectAllChildren(pm); s.collapseToEnd(); return document.execCommand('insertText', false, '全部保存自检') })()"
+                        again.webView.evaluateJavaScript(typing) { _, _ in
+                            self.waitUntil(5, { again.window?.isDocumentEdited == true }) { _ in
+                                command("native.saveAll")
+                                self.waitUntil(10, { ((try? String(contentsOfFile: file, encoding: .utf8)) ?? "").contains("全部保存自检") }) { saved in
+                                    checks["saveAll"] = saved
+                                    self.welcomeSmoke(checks, completion)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// H-06 欢迎向导:首次启动打开的「快速上手」(冒烟时跳过首次启动流程,这里直接走一遍打开)
+    private func welcomeSmoke(_ checks: [String: Any], _ completion: @escaping ([String: Any]) -> Void) {
+        var checks = checks
+        let target = AppPaths.support.appendingPathComponent("welcome/快速上手.md").path
+        openWelcome(reuseBlank: false)
+        waitUntil(15, { self.windows.contains { $0.isShowing(target) } }) { shown in
+            checks["welcome"] = shown
+            completion(checks)
+        }
+    }
+
+    /// 每 0.1 秒看一次条件,成立或超时(秒)后回调
+    private func waitUntil(_ timeout: TimeInterval, _ condition: @escaping () -> Bool, then: @escaping (Bool) -> Void) {
+        let deadline = Date().addingTimeInterval(timeout)
+        func poll() {
+            if condition() { return then(true) }
+            if Date() >= deadline { return then(false) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: poll)
+        }
+        poll()
+    }
+}

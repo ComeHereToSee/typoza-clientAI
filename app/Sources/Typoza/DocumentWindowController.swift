@@ -667,7 +667,14 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
         return nil
     }
 
+    /// 网页弹窗只替编辑器自身(主框架、typoza://app)弹:嵌入的网页(包括不加沙箱的 PDF 框)能借原生输入框骗取密码
+    private func dialogAllowed(_ frame: WKFrameInfo) -> Bool {
+        let origin = frame.securityOrigin
+        return BridgeOrigin.isTrusted(isMainFrame: frame.isMainFrame, scheme: origin.protocol, host: origin.host)
+    }
+
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        guard dialogAllowed(frame) else { return completionHandler() }
         let alert = NSAlert()
         alert.messageText = message
         alert.runModal()
@@ -675,6 +682,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
     }
 
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        guard dialogAllowed(frame) else { return completionHandler(false) }
         let alert = NSAlert()
         alert.messageText = message
         alert.addButton(withTitle: "好")
@@ -683,6 +691,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
     }
 
     func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        guard dialogAllowed(frame) else { return completionHandler(nil) }
         let alert = NSAlert()
         alert.messageText = prompt
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
@@ -741,7 +750,11 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, WKNa
                     } catch {
                         report["snapshotError"] = "截图写入失败:\(error)"
                     }
-                    self.writeSmokeAndExit(report, to: out, code: 0)
+                    // 截图之后再走外壳行为自检(会开关别的窗口)
+                    self.app.runNativeSmoke(main: self) { checks in
+                        report["nativeChecks"] = checks
+                        self.writeSmokeAndExit(report, to: out, code: 0)
+                    }
                 }
             }
         }

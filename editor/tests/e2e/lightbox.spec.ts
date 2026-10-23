@@ -101,7 +101,7 @@ test.describe('图片灯箱', () => {
   })
 })
 
-// 验收补测(A4):放大后拖动平移;⌘ / ⌃ + 滚轮缩放。实现在 ui/lightbox.ts bindPointer:
+// 补测:放大后拖动平移;⌘ / ⌃ + 滚轮缩放。实现在 ui/lightbox.ts bindPointer:
 // 舞台上 pointerdown / pointermove / pointerup 平移(移动不足 3px 不算拖动,拖过不关灯箱);
 // wheel 带 metaKey 或 ctrlKey 时以光标为中心缩放(触控板捏合在 WebKit 里是带 ctrlKey 的滚轮),不带时平移。
 test.describe('图片灯箱:拖动平移与滚轮缩放', () => {

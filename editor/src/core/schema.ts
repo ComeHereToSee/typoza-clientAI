@@ -8,6 +8,9 @@ import { tableNodes } from 'prosemirror-tables'
  * 若按整串判断,本地网页就能借它绕开嵌入沙箱。
  */
 export function isPdfSource(src: string): boolean {
+  // 只认网址与本机路径:data: / blob: 等内容由地址自己决定,`data:text/html,….pdf` 也会以网页运行
+  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(src)?.[1].toLowerCase()
+  if (scheme && !['http', 'https', 'file', 'typoza'].includes(scheme)) return false
   return /\.pdf$/i.test(src.replace(/[?#][\s\S]*$/, ''))
 }
 
